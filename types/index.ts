@@ -1,5 +1,6 @@
 export type Platform = 'instagram' | 'tiktok' | 'youtube' | 'twitter' | 'linkedin' | 'other'
 export type InfluencerStatus = 'prospect' | 'active' | 'inactive'
+export type OutreachStatus = 'not_contacted' | 'reached_out' | 'responded' | 'declined'
 export type CampaignStatus = 'planning' | 'active' | 'completed' | 'paused'
 export type DealStatus = 'outreach' | 'negotiating' | 'confirmed' | 'declined'
 export type ContentType = 'post' | 'story' | 'reel' | 'video' | 'blog'
@@ -22,6 +23,10 @@ export interface Influencer {
   status: InfluencerStatus
   tags: string[] | null
   avatar_url: string | null
+  portal_token: string | null
+  last_contacted_at: string | null
+  outreach_status: OutreachStatus
+  brief_url: string | null
   created_at: string
   updated_at: string
 }
@@ -63,6 +68,10 @@ export interface Content {
   url: string | null
   status: ContentStatus
   notes: string | null
+  views: number | null
+  reach: number | null
+  likes: number | null
+  comments: number | null
   created_at: string
   updated_at: string
   influencer?: Influencer

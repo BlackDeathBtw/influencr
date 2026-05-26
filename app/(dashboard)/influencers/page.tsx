@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Plus } from 'lucide-react'
 import { formatNumber } from '@/lib/utils'
 import type { Influencer } from '@/types'
+import CsvImport from '@/components/csv-import'
 
 const platformColors: Record<string, string> = {
   instagram: 'bg-pink-100 text-pink-700',
@@ -39,12 +40,15 @@ export default async function InfluencersPage({
           <h1 className="text-2xl font-bold text-zinc-900">Influencers</h1>
           <p className="text-sm text-zinc-500 mt-1">{influencers.length} contacts</p>
         </div>
-        <Link
-          href="/influencers/new"
-          className="flex items-center gap-2 bg-zinc-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-zinc-700 transition-colors"
-        >
-          <Plus size={15} /> Add influencer
-        </Link>
+        <div className="flex items-center gap-2">
+          <CsvImport />
+          <Link
+            href="/influencers/new"
+            className="flex items-center gap-2 bg-zinc-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-zinc-700 transition-colors"
+          >
+            <Plus size={15} /> Add influencer
+          </Link>
+        </div>
       </div>
 
       {/* Status filter */}
@@ -80,7 +84,7 @@ export default async function InfluencersPage({
           <table className="w-full text-sm">
             <thead className="border-b border-zinc-200">
               <tr>
-                {['Name', 'Platform', 'Niche', 'Followers', 'Contact', 'Status', ''].map((h) => (
+                {['Name', 'Platform', 'Niche', 'Followers', 'Contact', 'Outreach', 'Status', ''].map((h) => (
                   <th key={h} className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wide">
                     {h}
                   </th>
@@ -108,6 +112,16 @@ export default async function InfluencersPage({
                     {inf.followers ? formatNumber(inf.followers) : '—'}
                   </td>
                   <td className="px-4 py-3 text-zinc-500">{inf.contact_email ?? '—'}</td>
+                  <td className="px-4 py-3">
+                    {inf.outreach_status && inf.outreach_status !== 'not_contacted' ? (
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                        inf.outreach_status === 'responded' ? 'bg-green-100 text-green-700' :
+                        inf.outreach_status === 'reached_out' ? 'bg-blue-100 text-blue-700' :
+                        inf.outreach_status === 'declined' ? 'bg-red-100 text-red-600' :
+                        'bg-zinc-100 text-zinc-500'
+                      }`}>{inf.outreach_status.replace(/_/g, ' ')}</span>
+                    ) : <span className="text-zinc-300 text-xs">—</span>}
+                  </td>
                   <td className="px-4 py-3">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[inf.status]}`}>
                       {inf.status}
