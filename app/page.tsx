@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { motion } from 'motion/react'
 import { ArrowRight, Check } from 'lucide-react'
 import { BlobBg } from '@/components/animated-bg'
-import { CanvasBg } from '@/components/canvas-bg'
+import { VideoBg } from '@/components/video-bg'
 
 const ease = [0.16, 1, 0.3, 1] as const
 
@@ -108,7 +108,8 @@ export default function LandingPage() {
 
       {/* Hero */}
       <section className="relative bg-brand-dark pt-36 pb-28 px-6 overflow-hidden">
-        <CanvasBg />
+        <VideoBg />
+        <div className="absolute inset-0 bg-brand-dark/60" aria-hidden="true" />
         <div className="relative z-10 max-w-6xl mx-auto grid lg:grid-cols-[1fr_300px] gap-16 items-start">
           <div>
             <FadeUp delay={0}>
