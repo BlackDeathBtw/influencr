@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { motion } from 'motion/react'
 import { ArrowRight, Check } from 'lucide-react'
 import { BlobBg } from '@/components/animated-bg'
+import { CanvasBg } from '@/components/canvas-bg'
 
 const ease = [0.16, 1, 0.3, 1] as const
 
@@ -107,7 +108,7 @@ export default function LandingPage() {
 
       {/* Hero */}
       <section className="relative bg-brand-dark pt-36 pb-28 px-6 overflow-hidden">
-        <BlobBg />
+        <CanvasBg />
         <div className="relative z-10 max-w-6xl mx-auto grid lg:grid-cols-[1fr_300px] gap-16 items-start">
           <div>
             <FadeUp delay={0}>
@@ -200,12 +201,17 @@ export default function LandingPage() {
                     </li>
                   ))}
                 </ul>
-                <Link
-                  href="/signup?type=brand"
-                  className="inline-flex items-center gap-2 bg-brand text-brand-foreground px-5 py-2.5 rounded-lg text-sm font-bold hover:brightness-110 transition-all"
-                >
-                  Start free trial <ArrowRight size={14} />
-                </Link>
+                <div className="flex items-center gap-4">
+                  <Link
+                    href="/signup?type=brand"
+                    className="inline-flex items-center gap-2 bg-brand text-brand-foreground px-5 py-2.5 rounded-lg text-sm font-bold hover:brightness-110 transition-all"
+                  >
+                    Start free trial <ArrowRight size={14} />
+                  </Link>
+                  <Link href="/demo/brand" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    See demo →
+                  </Link>
+                </div>
               </div>
 
               <div className="bg-card p-10">
@@ -226,12 +232,17 @@ export default function LandingPage() {
                     </li>
                   ))}
                 </ul>
-                <Link
-                  href="/signup?type=creator"
-                  className="inline-flex items-center gap-2 border border-border text-foreground/65 px-5 py-2.5 rounded-lg text-sm font-medium hover:border-foreground/35 hover:text-foreground transition-all"
-                >
-                  Create free profile <ArrowRight size={14} />
-                </Link>
+                <div className="flex items-center gap-4">
+                  <Link
+                    href="/signup?type=creator"
+                    className="inline-flex items-center gap-2 border border-border text-foreground/65 px-5 py-2.5 rounded-lg text-sm font-medium hover:border-foreground/35 hover:text-foreground transition-all"
+                  >
+                    Create free profile <ArrowRight size={14} />
+                  </Link>
+                  <Link href="/demo/creator" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    See example →
+                  </Link>
+                </div>
               </div>
             </div>
           </InView>
