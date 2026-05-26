@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex flex-col bg-brand-dark">
+    <div className="min-h-screen flex flex-col bg-brand-dark bg-dot-grid">
       <nav className="px-6 py-5 border-b border-white/10">
         <Link href="/" className="font-display font-bold text-xl tracking-tight text-white">
           influencr

@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { motion } from 'motion/react'
 import { ArrowRight, Check } from 'lucide-react'
+import { BlobBg } from '@/components/animated-bg'
 
 const ease = [0.16, 1, 0.3, 1] as const
 
@@ -105,8 +106,9 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero */}
-      <section className="bg-brand-dark pt-36 pb-28 px-6">
-        <div className="max-w-6xl mx-auto grid lg:grid-cols-[1fr_300px] gap-16 items-start">
+      <section className="relative bg-brand-dark pt-36 pb-28 px-6 overflow-hidden">
+        <BlobBg />
+        <div className="relative z-10 max-w-6xl mx-auto grid lg:grid-cols-[1fr_300px] gap-16 items-start">
           <div>
             <FadeUp delay={0}>
               <div className="inline-flex items-center gap-2 border border-white/15 rounded-full px-4 py-1.5 text-sm text-white/60 mb-8">
@@ -257,8 +259,9 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing */}
-      <section className="py-24 px-6 bg-brand-dark">
-        <div className="max-w-6xl mx-auto">
+      <section className="relative py-24 px-6 bg-brand-dark overflow-hidden">
+        <BlobBg />
+        <div className="relative z-10 max-w-6xl mx-auto">
           <InView>
             <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-10">
               <div>
