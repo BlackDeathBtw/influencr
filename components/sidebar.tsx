@@ -2,19 +2,53 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Users, BarChart3, CreditCard, LayoutDashboard, Settings, LogOut } from 'lucide-react'
+import {
+  Users, BarChart3, CreditCard, LayoutDashboard,
+  Settings, LogOut, Search, Mail, FileText,
+} from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
-const nav = [
+const primaryNav = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/influencers', label: 'Influencers', icon: Users },
   { href: '/campaigns', label: 'Campaigns', icon: BarChart3 },
   { href: '/payments', label: 'Payments', icon: CreditCard },
 ]
 
+const growthNav = [
+  { href: '/discover', label: 'Discover', icon: Search },
+  { href: '/outreach', label: 'Outreach', icon: Mail },
+  { href: '/contracts', label: 'Contracts', icon: FileText },
+]
+
+function NavItem({ href, label, icon: Icon, active }: {
+  href: string
+  label: string
+  icon: React.ElementType
+  active: boolean
+}) {
+  return (
+    <Link
+      href={href}
+      className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+        active
+          ? 'bg-brand text-brand-foreground'
+          : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+      }`}
+    >
+      <Icon size={15} />
+      {label}
+    </Link>
+  )
+}
+
 export default function Sidebar({ userEmail }: { userEmail: string }) {
   const pathname = usePathname()
   const router = useRouter()
+
+  function isActive(href: string) {
+    return pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
+  }
 
   async function signOut() {
     const supabase = createClient()
@@ -24,51 +58,47 @@ export default function Sidebar({ userEmail }: { userEmail: string }) {
   }
 
   return (
-    <aside className="w-56 shrink-0 bg-white border-r border-zinc-200 flex flex-col h-full">
-      <div className="px-5 py-5 border-b border-zinc-100">
-        <span className="font-bold text-lg tracking-tight">influencr</span>
+    <aside className="w-56 shrink-0 bg-card border-r border-border flex flex-col h-full">
+      <div className="px-5 py-5 border-b border-border">
+        <span className="font-display font-bold text-lg tracking-tight text-foreground">influencr</span>
       </div>
 
-      <nav className="flex-1 px-3 py-4 space-y-0.5">
-        {nav.map(({ href, label, icon: Icon }) => {
-          const active = pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                active
-                  ? 'bg-zinc-900 text-white'
-                  : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900'
-              }`}
-            >
-              <Icon size={16} />
-              {label}
-            </Link>
-          )
-        })}
+      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+        {primaryNav.map(({ href, label, icon }) => (
+          <NavItem key={href} href={href} label={label} icon={icon} active={isActive(href)} />
+        ))}
+
+        <div className="pt-4 pb-1">
+          <p className="px-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">
+            Growth
+          </p>
+        </div>
+
+        {growthNav.map(({ href, label, icon }) => (
+          <NavItem key={href} href={href} label={label} icon={icon} active={isActive(href)} />
+        ))}
       </nav>
 
-      <div className="px-3 pb-4 space-y-0.5 border-t border-zinc-100 pt-4">
+      <div className="px-3 pb-4 space-y-0.5 border-t border-border pt-4">
         <Link
           href="/settings"
           className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
             pathname === '/settings'
-              ? 'bg-zinc-900 text-white'
-              : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900'
+              ? 'bg-brand text-brand-foreground'
+              : 'text-muted-foreground hover:bg-muted hover:text-foreground'
           }`}
         >
-          <Settings size={16} />
+          <Settings size={15} />
           Settings
         </Link>
         <button
           onClick={signOut}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 transition-colors"
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
         >
-          <LogOut size={16} />
+          <LogOut size={15} />
           Sign out
         </button>
-        <p className="px-3 pt-2 text-xs text-zinc-400 truncate">{userEmail}</p>
+        <p className="px-3 pt-2 text-xs text-muted-foreground/50 truncate">{userEmail}</p>
       </div>
     </aside>
   )

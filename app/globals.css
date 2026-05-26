@@ -9,6 +9,10 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-display);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-dark: var(--brand-dark);
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -49,7 +53,10 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
+  --brand: oklch(0.80 0.17 82);
+  --brand-foreground: oklch(0.11 0.01 75);
+  --brand-dark: oklch(0.11 0.022 258);
+  --background: oklch(0.985 0.004 245);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
