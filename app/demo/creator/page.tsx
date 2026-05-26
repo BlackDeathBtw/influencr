@@ -1,5 +1,17 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
+
+export const metadata: Metadata = {
+  title: 'Creator Profile Demo — Free Media Kit by influencr',
+  description:
+    'See an example influencer media kit built with influencr. Creators get a free public profile at /c/username with stats, brand testimonials, platform data, and a professional deal HQ.',
+  openGraph: {
+    title: 'Creator Media Kit Demo — influencr',
+    description:
+      'Free media kit and profile page for content creators. Showcase your stats, past brand collaborations, and testimonials. Get your own /c/username link free.',
+  },
+}
 
 const CREATOR = {
   name: 'Alex Rivera',

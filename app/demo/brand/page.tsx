@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import {
   Users, BarChart3, CreditCard, LayoutDashboard,
@@ -50,6 +51,17 @@ const GROWTH_NAV = [
   { href: '#', label: 'Outreach', icon: Mail },
   { href: '#', label: 'Contracts', icon: FileText },
 ]
+
+export const metadata: Metadata = {
+  title: 'Brand Dashboard Demo — See influencr in Action',
+  description:
+    'Explore a live demo of the influencr brand dashboard. See how to manage influencer campaigns, track deals, monitor content deadlines, and log payments — all in one place.',
+  openGraph: {
+    title: 'Brand Dashboard Demo — influencr',
+    description:
+      'See the influencr brand dashboard with real campaign data, deal pipeline, and content deadline tracking. Start a free 14-day trial.',
+  },
+}
 
 export default function BrandDemo() {
   return (
