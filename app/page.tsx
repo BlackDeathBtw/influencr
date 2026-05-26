@@ -43,10 +43,10 @@ export default function LandingPage() {
             Start 14-day free trial <ArrowRight size={16} />
           </Link>
           <Link
-            href="/login"
+            href="/api/demo"
             className="flex items-center justify-center gap-2 border border-zinc-200 text-zinc-700 px-8 py-3.5 rounded-lg text-base font-medium hover:bg-zinc-50 transition-colors"
           >
-            Sign in
+            Try demo
           </Link>
         </div>
         <p className="mt-4 text-sm text-zinc-400">No credit card required. Cancel anytime.</p>

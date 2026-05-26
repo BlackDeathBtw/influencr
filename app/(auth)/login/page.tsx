@@ -78,7 +78,16 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-zinc-500">
+        <div className="mt-6 pt-6 border-t border-zinc-100">
+          <Link
+            href="/api/demo"
+            className="block w-full text-center py-2.5 rounded-lg text-sm font-medium border border-zinc-200 text-zinc-600 hover:bg-zinc-50 transition-colors"
+          >
+            Try demo — no account needed
+          </Link>
+        </div>
+
+        <p className="mt-4 text-center text-sm text-zinc-500">
           Don&apos;t have an account?{' '}
           <Link href="/signup" className="font-medium text-zinc-900 hover:underline">
             Sign up
