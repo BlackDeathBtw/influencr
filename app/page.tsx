@@ -101,50 +101,50 @@ const jsonLd = {
       mainEntity: [
         {
           '@type': 'Question',
-          name: 'What is influencr?',
+          name: 'How is influencr different from Grin or Aspire?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'influencr is an all-in-one influencer marketing platform that combines CRM, campaign management, contract generation with e-sign, content deadline tracking, payment logging, and creator discovery — all for $19/mo.',
+            text: 'Grin and Aspire are built for enterprise teams with 50–200+ influencer relationships and dedicated platform specialists. influencr is built for growing brands — teams of 1 to 5 managing real programs without the $300–500/mo price tag. Same core workflows, honest scope, a fraction of the cost.',
           },
         },
         {
           '@type': 'Question',
-          name: 'How much does influencr cost?',
+          name: 'Can I bring my existing influencer list to influencr?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'influencr costs $19/mo for brands with a 14-day free trial and no credit card required. Creators get free access forever, including a public media kit page, deal tracker, and invoice generator.',
+            text: 'Yes. Upload a CSV with any columns you already use — handles, email, niche, rate, notes — and influencr maps them automatically. No data re-entry.',
           },
         },
         {
           '@type': 'Question',
-          name: 'What does influencr replace?',
+          name: 'Does influencr integrate with Shopify, TikTok, or Instagram?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'influencr replaces MightyScout ($99/mo), Grin ($299+/mo), Aspire ($500+/mo), DocuSign ($45+/mo), and HoneyBook ($39+/mo) with a single $19/mo subscription that covers all influencer marketing workflows.',
+            text: 'Not currently. influencr is a workflow and relationship tool — it manages your deals, documents, and deadlines. For platform-native analytics and affiliate tracking, tools like Modash or Triple Whale sit alongside it perfectly.',
           },
         },
         {
           '@type': 'Question',
-          name: 'Does influencr have contract generation and e-signing?',
+          name: 'Is my data secure on influencr? Who can see my contracts?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Yes. influencr includes a built-in contract generator. Brands can generate and send contracts directly from the platform, and creators can e-sign without needing DocuSign or any third-party tool.',
+            text: "Campaign data, contracts, and payments are completely private to your account. Creator media kit profiles are public by design — that's their purpose. All data is encrypted at rest and in transit.",
           },
         },
         {
           '@type': 'Question',
-          name: 'Is influencr free for content creators?',
+          name: 'What happens when the 14-day trial ends?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Yes. Creators get a free public media kit profile at influencr.app/c/username, a deal tracker, invoice generator, and the ability to e-sign contracts from brands — all free forever, no credit card required.',
+            text: "You'll be asked to enter a card and pay $19/mo. No charges happen during the trial, no auto-billing, no surprise at day 15. You keep full access to everything you've built.",
           },
         },
         {
           '@type': 'Question',
-          name: 'Does influencr have a free trial?',
+          name: 'Is influencr really free for creators forever?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Yes. influencr offers a 14-day free trial for brands with no credit card required. You get full access to all features during the trial.',
+            text: 'Yes. Creator profiles, deal tracker, invoice generator, and e-sign are free forever. No credit card, no time limit, no hidden tiers. influencr makes money from brands — creators are always free.',
           },
         },
         {

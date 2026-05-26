@@ -1,8 +1,9 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'motion/react'
-import { ArrowRight, Check } from 'lucide-react'
+import { ArrowRight, Check, ChevronDown } from 'lucide-react'
 import { BlobBg } from '@/components/animated-bg'
 import { VideoBg } from '@/components/video-bg'
 
@@ -85,6 +86,113 @@ const CREATOR_FEATURES = [
   'Professional /c/username URL',
 ]
 
+const HOW_IT_WORKS = [
+  {
+    n: '01',
+    title: 'Import your influencers',
+    body: 'Upload a CSV of existing contacts or add them one by one. Store handles, niches, follower counts, rates, and notes — all searchable.',
+  },
+  {
+    n: '02',
+    title: 'Launch a campaign',
+    body: 'Create a campaign, assign influencers, and track every deal from negotiation through posting. One view. No status-update emails.',
+  },
+  {
+    n: '03',
+    title: 'Contracts and payments',
+    body: 'Generate a contract from a template, collect the e-signature, and log the payment. Done in minutes. No DocuSign account needed.',
+  },
+]
+
+const SPOTLIGHT_CREATORS = [
+  {
+    name: 'Alex Rivera',
+    initials: 'AR',
+    niches: ['Lifestyle', 'Travel'],
+    platform: 'TikTok',
+    followers: '210K',
+    engagement: '6.2%',
+  },
+  {
+    name: 'Emma Chen',
+    initials: 'EC',
+    niches: ['Beauty', 'Wellness'],
+    platform: 'Instagram',
+    followers: '84K',
+    engagement: '4.8%',
+  },
+  {
+    name: 'Marcus Hill',
+    initials: 'MH',
+    niches: ['Tech', 'Gaming'],
+    platform: 'YouTube',
+    followers: '125K',
+    engagement: '3.9%',
+  },
+]
+
+const FAQS = [
+  {
+    q: 'How is influencr different from Grin or Aspire?',
+    a: 'Grin and Aspire are built for enterprise teams with 50–200+ influencer relationships and dedicated platform specialists. influencr is built for growing brands — teams of 1 to 5 managing real programs without the $300–500/mo price tag. Same core workflows, honest scope, a fraction of the cost.',
+  },
+  {
+    q: 'Can I bring my existing influencer list?',
+    a: 'Yes. Upload a CSV with any columns you already use — handles, email, niche, rate, notes — and influencr maps them automatically. No data re-entry.',
+  },
+  {
+    q: 'Does influencr integrate with Shopify, TikTok, or Instagram?',
+    a: 'Not currently. influencr is a workflow and relationship tool — it manages your deals, documents, and deadlines. For platform-native analytics and affiliate tracking, tools like Modash or Triple Whale sit alongside it perfectly.',
+  },
+  {
+    q: 'Is my data secure? Who can see my contracts?',
+    a: 'Campaign data, contracts, and payments are completely private to your account. Creator media kit profiles are public by design — that\'s their purpose. All data is encrypted at rest and in transit.',
+  },
+  {
+    q: 'What happens when the 14-day trial ends?',
+    a: "You'll be asked to enter a card and pay $19/mo. No charges happen during the trial, no auto-billing, no surprise at day 15. You keep full access to everything you've built.",
+  },
+  {
+    q: 'Is it really free for creators forever?',
+    a: "Yes. Creator profiles, deal tracker, invoice generator, and e-sign are free forever. No credit card, no time limit, no hidden tiers. We make money from brands — creators are always free.",
+  },
+]
+
+const PRICING_INCLUDES = [
+  ['Unlimited contacts & notes', 'Contract generator + e-sign', '14-day free trial'],
+  ['Unlimited campaigns', 'Content deadline tracking', 'Cancel anytime'],
+  ['Creator discovery', 'Payment log', 'Your data, always exportable'],
+]
+
+function FaqAccordion() {
+  const [open, setOpen] = useState<number | null>(null)
+  return (
+    <div className="divide-y divide-border border border-border rounded-2xl overflow-hidden">
+      {FAQS.map(({ q, a }, i) => (
+        <div key={i}>
+          <button
+            onClick={() => setOpen(open === i ? null : i)}
+            className="flex items-center justify-between w-full px-6 py-5 text-left hover:bg-muted/40 transition-colors"
+          >
+            <span className="font-medium text-foreground pr-4">{q}</span>
+            <ChevronDown
+              size={16}
+              className={`shrink-0 text-muted-foreground transition-transform duration-200 ${open === i ? 'rotate-180' : ''}`}
+            />
+          </button>
+          <div
+            className={`grid transition-all duration-200 ${open === i ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
+          >
+            <div className="overflow-hidden">
+              <p className="px-6 pb-5 text-sm text-muted-foreground leading-relaxed">{a}</p>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -128,8 +236,7 @@ export default function LandingPage() {
 
             <FadeUp delay={0.18}>
               <p className="mt-6 text-lg text-white/55 max-w-xl leading-relaxed">
-                CRM, campaigns, contracts, content approvals, and payments in one place.
-                Everything the $99–$500/mo tools do, at $19/mo.
+                CRM, campaigns, contracts, content approvals, and payments — all in one place. Built for teams replacing their spreadsheet + DocuSign setup. $19/mo.
               </p>
             </FadeUp>
 
@@ -178,6 +285,23 @@ export default function LandingPage() {
           </FadeUp>
         </div>
       </section>
+
+      {/* Trust bar */}
+      <div className="border-y border-border bg-muted/50 px-6 py-3.5">
+        <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-center gap-x-8 gap-y-2">
+          {[
+            '14-day free trial',
+            'No credit card required',
+            'Cancel anytime',
+            'Your data, always exportable',
+          ].map((item) => (
+            <span key={item} className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Check size={13} className="text-brand shrink-0" />
+              {item}
+            </span>
+          ))}
+        </div>
+      </div>
 
       {/* Two-sided value props */}
       <section className="py-24 px-6 bg-background">
@@ -250,6 +374,25 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* How it works */}
+      <section className="py-24 px-6 bg-background">
+        <div className="max-w-6xl mx-auto">
+          <InView>
+            <h2 className="font-display text-4xl font-bold text-foreground mb-3">Set up in 10 minutes.</h2>
+            <p className="text-muted-foreground text-lg mb-16">Running your first campaign by end of day.</p>
+          </InView>
+          <div className="grid lg:grid-cols-3 gap-0 lg:divide-x divide-border">
+            {HOW_IT_WORKS.map(({ n, title, body }, i) => (
+              <InView key={n} delay={i * 0.08} className="px-0 lg:px-10 first:pl-0 last:pr-0 pb-10 lg:pb-0 border-b lg:border-b-0 border-border last:border-0">
+                <span className="font-mono text-3xl font-bold text-brand/40 mb-5 block">{n}</span>
+                <h3 className="font-display text-xl font-bold text-foreground mb-3">{title}</h3>
+                <p className="text-muted-foreground leading-relaxed">{body}</p>
+              </InView>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Features */}
       <section className="py-24 px-6 bg-muted/40">
         <div className="max-w-6xl mx-auto">
@@ -267,6 +410,76 @@ export default function LandingPage() {
               </InView>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Creator spotlight */}
+      <section className="py-24 px-6 bg-background">
+        <div className="max-w-6xl mx-auto">
+          <InView className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-12">
+            <div>
+              <h2 className="font-display text-4xl font-bold text-foreground mb-2">Creators build free media kits.</h2>
+              <p className="text-muted-foreground text-lg">Brands on influencr find and contact them directly.</p>
+            </div>
+            <Link
+              href="/demo/creator"
+              className="shrink-0 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              See a full example →
+            </Link>
+          </InView>
+          <div className="grid sm:grid-cols-3 gap-4 mb-10">
+            {SPOTLIGHT_CREATORS.map((c, i) => (
+              <InView key={c.name} delay={i * 0.07}>
+                <div className="bg-card border border-border rounded-xl p-6 hover:border-brand/40 transition-colors">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-xl bg-brand/20 flex items-center justify-center text-sm font-bold text-brand font-display shrink-0">
+                      {c.initials}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-foreground text-sm">{c.name}</p>
+                      <div className="flex gap-1.5 mt-0.5">
+                        {c.niches.map((n) => (
+                          <span key={n} className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">{n}</span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 pt-3 border-t border-border">
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-0.5">{c.platform}</p>
+                      <p className="font-bold text-foreground font-display">{c.followers}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-0.5">Engagement</p>
+                      <p className="font-bold text-brand font-display">{c.engagement}</p>
+                    </div>
+                  </div>
+                </div>
+              </InView>
+            ))}
+          </div>
+          <InView className="text-center">
+            <Link
+              href="/signup?type=creator"
+              className="inline-flex items-center gap-2 border border-border text-foreground/65 px-6 py-3 rounded-lg text-sm font-medium hover:border-foreground/35 hover:text-foreground transition-all"
+            >
+              Are you a creator? Get your free profile <ArrowRight size={14} />
+            </Link>
+          </InView>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="py-24 px-6 bg-muted/40">
+        <div className="max-w-3xl mx-auto">
+          <InView className="mb-12">
+            <h2 className="font-display text-4xl font-bold text-foreground mb-3">Everything you&apos;re wondering.</h2>
+            <p className="text-muted-foreground text-lg">Honest answers, no fluff.</p>
+          </InView>
+          <InView>
+            <FaqAccordion />
+          </InView>
         </div>
       </section>
 
@@ -299,7 +512,19 @@ export default function LandingPage() {
               </Link>
             </div>
 
-            <div className="mt-12 pt-12 border-t border-white/10 text-sm text-white/30 text-center">
+            {/* What's included grid */}
+            <div className="mt-12 pt-12 border-t border-white/10">
+              <div className="grid sm:grid-cols-3 gap-y-3 gap-x-8">
+                {PRICING_INCLUDES.flat().map((item) => (
+                  <div key={item} className="flex items-center gap-2">
+                    <Check size={13} className="text-brand/70 shrink-0" />
+                    <span className="text-sm text-white/45">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-10 text-sm text-white/20 text-center">
               Compare: MightyScout $99/mo · Grin $299+/mo · Aspire $500+/mo · DocuSign $45+/mo
             </div>
           </InView>
