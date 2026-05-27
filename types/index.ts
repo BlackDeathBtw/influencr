@@ -224,3 +224,23 @@ export interface MarketplaceListing {
   is_featured: boolean
   created_at: string
 }
+
+export interface BrandDeal {
+  id: string
+  source: string
+  brand_name: string
+  logo_url: string | null
+  title: string
+  description: string | null
+  type: MarketplaceListingType
+  niches: string[]
+  platforms: string[]
+  commission_rate: number | null
+  budget_min: number | null
+  budget_max: number | null
+  min_followers: number | null
+  apply_url: string
+  is_featured: boolean
+  is_active: boolean
+  scraped_at: string
+}

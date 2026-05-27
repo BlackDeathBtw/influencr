@@ -70,6 +70,132 @@ const PLATFORM_ICONS: Record<string, React.ElementType> = {
   YouTube: YtIcon,
 }
 
+const TYPE_COLORS_DEMO: Record<string, string> = {
+  brand_deal: 'bg-blue-100 text-blue-700',
+  affiliate: 'bg-green-100 text-green-700',
+  collab: 'bg-purple-100 text-purple-700',
+}
+const TYPE_LABELS_DEMO: Record<string, string> = {
+  brand_deal: 'Brand Deal',
+  affiliate: 'Affiliate',
+  collab: 'Collab',
+}
+
+async function DemoOpportunities() {
+  let deals: Array<{
+    id: string
+    brand_name: string
+    logo_url: string | null
+    title: string
+    type: string
+    commission_rate: number | null
+    budget_min: number | null
+    budget_max: number | null
+    min_followers: number | null
+    niches: string[]
+    apply_url: string
+    is_featured: boolean
+  }> = []
+
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+    const res = await fetch(`${baseUrl}/api/brand-deals?limit=3&page=1`, {
+      next: { revalidate: 3600 },
+    })
+    if (res.ok) {
+      const json = await res.json()
+      deals = (json.deals ?? []).slice(0, 3)
+    }
+  } catch {
+    // fall back to empty — page still renders
+  }
+
+  if (deals.length === 0) return null
+
+  return (
+    <section className="mb-12">
+      <h2 className="font-display text-lg font-bold text-foreground mb-2">Browse opportunities</h2>
+      <p className="text-sm text-muted-foreground mb-5">
+        Real brand deals and affiliate programs — apply directly, no agency needed
+      </p>
+      <div className="space-y-3">
+        {deals.map((deal) => (
+          <div
+            key={deal.id}
+            className={`bg-card border rounded-xl p-5 flex items-start gap-4 ${
+              deal.is_featured ? 'border-brand/30' : 'border-border'
+            }`}
+          >
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
+                <span
+                  className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                    TYPE_COLORS_DEMO[deal.type] ?? 'bg-muted text-muted-foreground'
+                  }`}
+                >
+                  {TYPE_LABELS_DEMO[deal.type] ?? deal.type}
+                </span>
+                {deal.is_featured && (
+                  <span className="text-xs text-amber-600 font-medium">★ Featured</span>
+                )}
+                <span className="text-xs text-muted-foreground">{deal.brand_name}</span>
+              </div>
+              <p className="font-semibold text-foreground text-sm">{deal.title}</p>
+              <div className="flex flex-wrap gap-3 mt-2">
+                {deal.commission_rate != null && (
+                  <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Percent size={11} />
+                    {deal.commission_rate}% commission
+                  </span>
+                )}
+                {deal.budget_min != null && (
+                  <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <DollarSign size={11} />${deal.budget_min.toLocaleString()}
+                    {deal.budget_max ? `–$${deal.budget_max.toLocaleString()}` : '+'}
+                  </span>
+                )}
+                {deal.min_followers != null && (
+                  <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Users size={11} />
+                    {deal.min_followers >= 1000
+                      ? `${(deal.min_followers / 1000).toFixed(0)}K`
+                      : deal.min_followers}
+                    + followers
+                  </span>
+                )}
+              </div>
+              <div className="flex gap-1.5 mt-2 flex-wrap">
+                {deal.niches.map((n) => (
+                  <span
+                    key={n}
+                    className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full"
+                  >
+                    {n}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <a
+              href={deal.apply_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 text-xs font-medium bg-foreground/90 text-background px-3 py-1.5 rounded-lg hover:bg-foreground transition-colors"
+            >
+              Apply →
+            </a>
+          </div>
+        ))}
+      </div>
+      <Link
+        href="/signup?type=creator"
+        className="mt-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+      >
+        See all opportunities <ArrowRight size={13} />
+      </Link>
+    </section>
+  )
+}
+
 export default function CreatorDemo() {
   return (
     <div className="min-h-screen bg-background">
@@ -220,45 +346,8 @@ export default function CreatorDemo() {
           </div>
         </section>
 
-        {/* Opportunities */}
-        <section className="mb-12">
-          <h2 className="font-display text-lg font-bold text-foreground mb-2">Browse opportunities</h2>
-          <p className="text-sm text-muted-foreground mb-5">Brand deals, affiliate programs, and collabs — apply directly, no agency needed</p>
-          <div className="space-y-3">
-            {[
-              { type: 'Affiliate', typeCls: 'bg-green-100 text-green-700', title: 'NordVPN Creator Program — Up to 100% CPA + 30% recurring', brand: 'NordVPN', detail: '40%+ commission', detailIcon: Percent, niches: ['Tech', 'Gaming'], minF: '5K', featured: true },
-              { type: 'Brand Deal', typeCls: 'bg-blue-100 text-blue-700', title: 'Sephora Squad 2025 — Open Applications', brand: 'Sephora', detail: '$1,000–10,000', detailIcon: DollarSign, niches: ['Beauty', 'Skincare'], minF: '1K', featured: true },
-              { type: 'Collab', typeCls: 'bg-purple-100 text-purple-700', title: 'Away Luggage — Travel Content Co-Creation', brand: 'Away', detail: 'Gifted + repost', detailIcon: DollarSign, niches: ['Travel', 'Lifestyle'], minF: '15K', featured: false },
-            ].map((l) => {
-              const DetailIcon = l.detailIcon
-              return (
-                <div key={l.title} className={`bg-card border rounded-xl p-5 flex items-start gap-4 ${l.featured ? 'border-brand/30' : 'border-border'}`}>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2 flex-wrap">
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${l.typeCls}`}>{l.type}</span>
-                      {l.featured && <span className="text-xs text-amber-600 font-medium">★ Featured</span>}
-                      <span className="text-xs text-muted-foreground">{l.brand}</span>
-                    </div>
-                    <p className="font-semibold text-foreground text-sm">{l.title}</p>
-                    <div className="flex flex-wrap gap-3 mt-2">
-                      <span className="flex items-center gap-1 text-xs text-muted-foreground"><DetailIcon size={11} />{l.detail}</span>
-                      <span className="flex items-center gap-1 text-xs text-muted-foreground"><Users size={11} />{l.minF}+ followers</span>
-                    </div>
-                    <div className="flex gap-1.5 mt-2 flex-wrap">
-                      {l.niches.map(n => <span key={n} className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">{n}</span>)}
-                    </div>
-                  </div>
-                  <button className="shrink-0 text-xs font-medium bg-foreground/90 text-background px-3 py-1.5 rounded-lg cursor-default hover:bg-foreground transition-colors">
-                    Express interest
-                  </button>
-                </div>
-              )
-            })}
-          </div>
-          <Link href="/signup?type=creator" className="mt-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
-            See all opportunities <ArrowRight size={13} />
-          </Link>
-        </section>
+        {/* Opportunities — live from /api/brand-deals */}
+        <DemoOpportunities />
 
         {/* Creator HQ */}
         <section className="mb-12">
