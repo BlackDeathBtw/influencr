@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   Users, BarChart3, CreditCard, LayoutDashboard,
-  Settings, LogOut, Search, Mail, FileText,
+  Settings, LogOut, Search, Mail, FileText, Kanban,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
@@ -16,6 +16,7 @@ const primaryNav = [
 ]
 
 const growthNav = [
+  { href: '/crm', label: 'Pipeline', icon: Kanban },
   { href: '/discover', label: 'Discover', icon: Search },
   { href: '/outreach', label: 'Outreach', icon: Mail },
   { href: '/contracts', label: 'Contracts', icon: FileText },

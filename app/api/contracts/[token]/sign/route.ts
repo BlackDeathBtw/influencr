@@ -7,7 +7,7 @@ export async function POST(
 ) {
   const { token } = await params
   const body = await request.json()
-  const { signer_name } = body
+  const { signer_name, signer_email, signature_data_url } = body
 
   const admin = createAdminClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -40,6 +40,8 @@ export async function POST(
     .update({
       status: 'signed',
       signer_name: signer_name.trim(),
+      signer_email: signer_email?.trim() ?? null,
+      signature_data_url: signature_data_url ?? null,
       signer_ip,
       signed_at: new Date().toISOString(),
     })

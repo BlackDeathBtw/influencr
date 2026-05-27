@@ -1,4 +1,5 @@
 export type Platform = 'instagram' | 'tiktok' | 'youtube' | 'twitter' | 'linkedin' | 'other'
+export type CrmStage = 'prospect' | 'outreach' | 'negotiating' | 'contracted' | 'delivered' | 'paid'
 export type InfluencerStatus = 'prospect' | 'active' | 'inactive'
 export type OutreachStatus = 'not_contacted' | 'reached_out' | 'responded' | 'declined'
 export type CampaignStatus = 'planning' | 'active' | 'completed' | 'paused'
@@ -21,6 +22,7 @@ export interface Influencer {
   contact_name: string | null
   notes: string | null
   status: InfluencerStatus
+  crm_stage: CrmStage
   tags: string[] | null
   avatar_url: string | null
   portal_token: string | null
@@ -126,6 +128,8 @@ export interface Contract {
   signed_at: string | null
   signer_name: string | null
   signer_ip: string | null
+  signer_email: string | null
+  signature_data_url: string | null
   created_at: string
   updated_at: string
   influencer?: Influencer
@@ -180,4 +184,21 @@ export interface Subscription {
   current_period_end: string | null
   created_at: string
   updated_at: string
+}
+
+export interface CrmNote {
+  id: string
+  user_id: string
+  influencer_id: string
+  body: string
+  created_at: string
+}
+
+export interface CrmActivity {
+  id: string
+  user_id: string
+  influencer_id: string
+  type: 'stage_change' | 'note_added' | 'outreach_sent' | 'contract_signed' | 'payment_made'
+  payload: Record<string, unknown>
+  created_at: string
 }
