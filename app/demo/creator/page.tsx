@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowRight, FileText, PenLine, BarChart3 } from 'lucide-react'
+import { ArrowRight, FileText, PenLine, BarChart3, Store, DollarSign, Percent, Users } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Creator Profile Demo — Free Media Kit by influencr',
@@ -220,31 +220,78 @@ export default function CreatorDemo() {
           </div>
         </section>
 
+        {/* Opportunities */}
+        <section className="mb-12">
+          <h2 className="font-display text-lg font-bold text-foreground mb-2">Browse opportunities</h2>
+          <p className="text-sm text-muted-foreground mb-5">Brand deals, affiliate programs, and collabs — apply directly, no agency needed</p>
+          <div className="space-y-3">
+            {[
+              { type: 'Brand Deal', typeCls: 'bg-blue-100 text-blue-700', title: 'Summer Athletic Wear Campaign', brand: 'NikeFit', detail: '$1,500–4,000', detailIcon: DollarSign, niches: ['Fitness', 'Lifestyle'], minF: '20K', featured: true },
+              { type: 'Affiliate', typeCls: 'bg-green-100 text-green-700', title: 'Organic Meal Kit — 15% Commission', brand: 'GreenChef', detail: '15% commission', detailIcon: Percent, niches: ['Food', 'Wellness'], minF: '5K', featured: false },
+              { type: 'Collab', typeCls: 'bg-purple-100 text-purple-700', title: 'Co-Create Travel Content Series', brand: 'Away Luggage', detail: '$800–2,000', detailIcon: DollarSign, niches: ['Travel', 'Lifestyle'], minF: '15K', featured: true },
+            ].map((l) => {
+              const DetailIcon = l.detailIcon
+              return (
+                <div key={l.title} className={`bg-card border rounded-xl p-5 flex items-start gap-4 ${l.featured ? 'border-brand/30' : 'border-border'}`}>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${l.typeCls}`}>{l.type}</span>
+                      {l.featured && <span className="text-xs text-amber-600 font-medium">★ Featured</span>}
+                      <span className="text-xs text-muted-foreground">{l.brand}</span>
+                    </div>
+                    <p className="font-semibold text-foreground text-sm">{l.title}</p>
+                    <div className="flex flex-wrap gap-3 mt-2">
+                      <span className="flex items-center gap-1 text-xs text-muted-foreground"><DetailIcon size={11} />{l.detail}</span>
+                      <span className="flex items-center gap-1 text-xs text-muted-foreground"><Users size={11} />{l.minF}+ followers</span>
+                    </div>
+                    <div className="flex gap-1.5 mt-2 flex-wrap">
+                      {l.niches.map(n => <span key={n} className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">{n}</span>)}
+                    </div>
+                  </div>
+                  <button className="shrink-0 text-xs font-medium bg-foreground/90 text-background px-3 py-1.5 rounded-lg cursor-default hover:bg-foreground transition-colors">
+                    Express interest
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+          <Link href="/signup?type=creator" className="mt-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            See all opportunities <ArrowRight size={13} />
+          </Link>
+        </section>
+
         {/* Creator HQ */}
         <section className="mb-12">
           <h2 className="font-display text-lg font-bold text-foreground mb-2">Your creator HQ</h2>
           <p className="text-sm text-muted-foreground mb-5">Everything you need to run your creator business — on one platform</p>
-          <div className="grid sm:grid-cols-3 gap-4">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-card border border-border rounded-xl p-5">
+              <div className="w-9 h-9 bg-brand/10 rounded-lg flex items-center justify-center mb-4">
+                <Store size={16} className="text-brand" />
+              </div>
+              <h3 className="font-semibold text-foreground mb-1">Browse opportunities</h3>
+              <p className="text-sm text-muted-foreground">Brand deals, affiliates, and collabs posted directly by brands.</p>
+            </div>
             <div className="bg-card border border-border rounded-xl p-5">
               <div className="w-9 h-9 bg-brand/10 rounded-lg flex items-center justify-center mb-4">
                 <FileText size={16} className="text-brand" />
               </div>
               <h3 className="font-semibold text-foreground mb-1">Send invoices</h3>
-              <p className="text-sm text-muted-foreground">Create and send professional invoices to brands. Track payment status in one place.</p>
+              <p className="text-sm text-muted-foreground">Create and send professional invoices. Track payment status in one place.</p>
             </div>
             <div className="bg-card border border-border rounded-xl p-5">
               <div className="w-9 h-9 bg-brand/10 rounded-lg flex items-center justify-center mb-4">
                 <PenLine size={16} className="text-brand" />
               </div>
               <h3 className="font-semibold text-foreground mb-1">Sign contracts</h3>
-              <p className="text-sm text-muted-foreground">Receive and e-sign brand contracts with a drawn signature. Full audit trail included.</p>
+              <p className="text-sm text-muted-foreground">E-sign brand contracts with a drawn signature. Full audit trail included.</p>
             </div>
             <div className="bg-card border border-border rounded-xl p-5">
               <div className="w-9 h-9 bg-brand/10 rounded-lg flex items-center justify-center mb-4">
                 <BarChart3 size={16} className="text-brand" />
               </div>
               <h3 className="font-semibold text-foreground mb-1">Track earnings</h3>
-              <p className="text-sm text-muted-foreground">See all pending and paid invoices. Know exactly what you&apos;re owed and when.</p>
+              <p className="text-sm text-muted-foreground">See all pending and paid invoices. Know exactly what you&apos;re owed.</p>
             </div>
           </div>
         </section>

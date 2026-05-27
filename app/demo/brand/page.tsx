@@ -5,9 +5,10 @@ import Link from 'next/link'
 import {
   Users, BarChart3, CreditCard, LayoutDashboard,
   Settings, Search, Mail, FileText, ArrowRight,
-  Calendar, Check, Clock, Plus, ChevronDown,
-  Tag, Send, Copy, Pencil, Trash2, ExternalLink,
-  ShieldCheck, Star, MapPin, Kanban, PenLine, Link as LinkIcon, Download,
+  Calendar, Check, Clock, Plus,
+  Send, Copy, Pencil, Trash2, ExternalLink,
+  ShieldCheck, MapPin, Kanban, PenLine, Link as LinkIcon, Download,
+  Store, DollarSign, Percent, Star,
 } from 'lucide-react'
 
 /* ─── data ─────────────────────────────────────────────────────────────────── */
@@ -120,6 +121,26 @@ const PIPELINE_CREATORS: { name: string; handle: string; platform: string; follo
   { name: 'Aria Nguyen',  handle: '@ariangy',     platform: 'TikTok',    followers: '178K', eng: '5.5%', stage: 'prospect' },
   { name: 'Zoe Williams', handle: '@zoewills',    platform: 'Instagram', followers: '67K',  eng: '5.1%', stage: 'prospect' },
 ]
+
+const MARKETPLACE_LISTINGS = [
+  { type: 'brand_deal', title: 'Summer Athletic Wear Campaign', brand: 'NikeFit', budget: '$1,500–4,000', niches: ['Fitness', 'Lifestyle'], platforms: ['Instagram', 'TikTok'], minFollowers: '20K', featured: true },
+  { type: 'affiliate', title: 'Organic Meal Kit — 15% Commission', brand: 'GreenChef', commission: '15%', niches: ['Food', 'Wellness'], platforms: ['YouTube', 'Instagram'], minFollowers: '5K', featured: false },
+  { type: 'collab', title: 'Co-Create Travel Content Series', brand: 'Away Luggage', budget: '$800–2,000', niches: ['Travel', 'Lifestyle'], platforms: ['Instagram', 'YouTube'], minFollowers: '15K', featured: true },
+  { type: 'brand_deal', title: 'Back-to-School Tech Bundle', brand: 'Logitech', budget: '$2,000–6,000', niches: ['Tech', 'Education'], platforms: ['YouTube', 'TikTok'], minFollowers: '30K', featured: false },
+  { type: 'affiliate', title: 'Sustainable Fashion — 20% Recurring', brand: 'Allbirds', commission: '20%', niches: ['Fashion', 'Sustainability'], platforms: ['Instagram', 'TikTok'], minFollowers: '10K', featured: false },
+  { type: 'collab', title: 'App Launch Ambassador Program', brand: 'Headspace', budget: '$1,000–3,500', niches: ['Wellness', 'Fitness'], platforms: ['Instagram', 'TikTok', 'YouTube'], minFollowers: '25K', featured: false },
+]
+
+const LISTING_TYPE_COLORS: Record<string, string> = {
+  brand_deal: 'bg-blue-100 text-blue-700',
+  affiliate:  'bg-green-100 text-green-700',
+  collab:     'bg-purple-100 text-purple-700',
+}
+const LISTING_TYPE_LABELS: Record<string, string> = {
+  brand_deal: 'Brand Deal',
+  affiliate:  'Affiliate',
+  collab:     'Collab',
+}
 
 /* ─── style maps ─────────────────────────────────────────────────────────────── */
 
@@ -554,6 +575,64 @@ function ContractsView() {
   )
 }
 
+function MarketplaceView() {
+  const [typeFilter, setTypeFilter] = useState<string>('all')
+  const TYPE_TABS = [
+    { id: 'all', label: 'All' },
+    { id: 'brand_deal', label: 'Brand Deals' },
+    { id: 'affiliate', label: 'Affiliate' },
+    { id: 'collab', label: 'Collabs' },
+  ]
+  const filtered = typeFilter === 'all' ? MARKETPLACE_LISTINGS : MARKETPLACE_LISTINGS.filter(l => l.type === typeFilter)
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Opportunities</h1>
+          <p className="text-sm text-muted-foreground mt-1">Browse deals, affiliate programs, and collab opportunities</p>
+        </div>
+        <button className="flex items-center gap-2 bg-foreground/90 text-background px-4 py-2 rounded-lg text-sm font-medium cursor-default"><Plus size={14} /> Post listing</button>
+      </div>
+      <div className="flex gap-1 bg-muted rounded-lg p-1 w-fit mb-5">
+        {TYPE_TABS.map(t => (
+          <button key={t.id} onClick={() => setTypeFilter(t.id)} className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${typeFilter === t.id ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}>{t.label}</button>
+        ))}
+      </div>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filtered.map((l) => (
+          <div key={l.title} className={`bg-card border rounded-xl p-5 flex flex-col gap-3 cursor-default hover:shadow-sm transition-shadow ${l.featured ? 'border-brand/40' : 'border-border'}`}>
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${LISTING_TYPE_COLORS[l.type]}`}>{LISTING_TYPE_LABELS[l.type]}</span>
+                {l.featured && <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-amber-100 text-amber-700"><Star size={9} />Featured</span>}
+              </div>
+              {l.brand && <p className="text-xs text-muted-foreground shrink-0">{l.brand}</p>}
+            </div>
+            <p className="font-semibold text-foreground text-sm leading-snug">{l.title}</p>
+            <div className="flex flex-wrap gap-3">
+              {'budget' in l && l.budget && <span className="flex items-center gap-1 text-xs text-muted-foreground"><DollarSign size={11} />{l.budget}</span>}
+              {'commission' in l && l.commission && <span className="flex items-center gap-1 text-xs text-muted-foreground"><Percent size={11} />{l.commission} commission</span>}
+              {l.minFollowers && <span className="flex items-center gap-1 text-xs text-muted-foreground"><Users size={11} />{l.minFollowers}+ followers</span>}
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {l.niches.map(n => <span key={n} className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">{n}</span>)}
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {l.platforms.map(p => <span key={p} className={`text-xs px-2 py-0.5 rounded-full font-medium ${PLATFORM_COLORS[p] ?? 'bg-muted text-muted-foreground'}`}>{p}</span>)}
+            </div>
+            <div className="pt-1 border-t border-border">
+              <button className="text-xs font-medium text-muted-foreground hover:text-brand transition-colors py-1 cursor-default">View applicants →</button>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="mt-5 bg-muted/50 border border-border rounded-lg px-4 py-2.5 text-xs text-muted-foreground">
+        In the real app, brands post listings and creators apply directly — no middleman.
+      </div>
+    </div>
+  )
+}
+
 function SettingsView() {
   return (
     <div>
@@ -594,7 +673,7 @@ function SettingsView() {
 
 /* ─── tab config ─────────────────────────────────────────────────────────────── */
 
-type Tab = 'dashboard' | 'influencers' | 'campaigns' | 'payments' | 'pipeline' | 'discover' | 'outreach' | 'contracts' | 'settings'
+type Tab = 'dashboard' | 'influencers' | 'campaigns' | 'payments' | 'pipeline' | 'marketplace' | 'discover' | 'outreach' | 'contracts' | 'settings'
 
 const MAIN_NAV: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: 'dashboard',   label: 'Dashboard',   icon: LayoutDashboard },
@@ -604,10 +683,11 @@ const MAIN_NAV: { id: Tab; label: string; icon: React.ElementType }[] = [
 ]
 
 const GROWTH_NAV: { id: Tab; label: string; icon: React.ElementType }[] = [
-  { id: 'pipeline',  label: 'Pipeline',  icon: Kanban },
-  { id: 'discover',  label: 'Discover',  icon: Search },
-  { id: 'outreach',  label: 'Outreach',  icon: Mail },
-  { id: 'contracts', label: 'Contracts', icon: FileText },
+  { id: 'pipeline',    label: 'Pipeline',     icon: Kanban },
+  { id: 'marketplace', label: 'Opportunities', icon: Store },
+  { id: 'discover',    label: 'Discover',     icon: Search },
+  { id: 'outreach',    label: 'Outreach',     icon: Mail },
+  { id: 'contracts',   label: 'Contracts',    icon: FileText },
 ]
 
 /* ─── shell ──────────────────────────────────────────────────────────────────── */
@@ -680,6 +760,7 @@ export default function BrandDemo() {
           {tab === 'campaigns'   && <CampaignsView />}
           {tab === 'payments'    && <PaymentsView />}
           {tab === 'pipeline'    && <PipelineView />}
+          {tab === 'marketplace' && <MarketplaceView />}
           {tab === 'discover'    && <DiscoverView />}
           {tab === 'outreach'    && <OutreachView />}
           {tab === 'contracts'   && <ContractsView />}

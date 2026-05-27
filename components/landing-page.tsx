@@ -26,12 +26,14 @@ function InView({ children, className = '', delay = 0 }: { children: React.React
 }
 
 const FEATURES = [
-  { n: '01', title: 'Influencer CRM', body: 'Every contact, handle, niche, and rate. Fully searchable. No more lost spreadsheets.' },
+  { n: '01', title: 'Influencer CRM & Pipeline', body: 'Every contact, handle, niche, and rate. Six-stage Kanban pipeline moves deals from prospect to paid — fully drag-and-drop.' },
   { n: '02', title: 'Campaign tracker', body: 'Deal status, deliverables, and fees per campaign. One view, no status-update emails.' },
   { n: '03', title: 'Content deadlines', body: 'Posts, reels, stories. Due dates, approvals, and revisions — all tracked.' },
   { n: '04', title: 'Payment log', body: 'Pending, paid, overdue. One click to mark a payment done and log the date.' },
-  { n: '05', title: 'Contract generator', body: 'Generate and send contracts. Creators e-sign in the browser. No DocuSign needed.' },
-  { n: '06', title: 'Creator discovery', body: 'Browse public creator profiles. Filter by niche, platform, follower count, and rate.' },
+  { n: '05', title: 'Contract generator + drawn e-sign', body: 'Generate contracts from templates. Creators draw their real signature in the browser. Full audit trail with name, email, and timestamp. No DocuSign.' },
+  { n: '06', title: 'Creator discovery', body: 'Browse public creator profiles. Filter by niche, platform, follower count, and rate. Add to your CRM in one click.' },
+  { n: '07', title: 'Outreach templates', body: 'Write once, send to many. Variable substitution for name and niche. Track open and reply rates.' },
+  { n: '08', title: 'Opportunities marketplace', body: 'Post brand deals, affiliate programs, and collabs. Creators apply directly — no middleman, no agency fees.' },
 ]
 
 const STACK = [
@@ -43,26 +45,27 @@ const STACK = [
 ]
 
 const BRAND_FEATURES = [
-  'Influencer CRM and contacts',
+  'Influencer CRM + Kanban pipeline',
   'Campaign management',
-  'Contract generator + e-sign',
+  'Opportunities marketplace',
+  'Contract generator + drawn e-sign',
   'Content deadline tracking',
-  'Payment log',
-  'Creator discovery and outreach',
+  'Payment log + creator discovery',
 ]
 
 const CREATOR_FEATURES = [
-  'Public profile and media kit page',
-  'Deal tracker (kanban)',
+  'Public media kit at /c/yourname',
+  'Browse brand deals & opportunities',
+  'Deal tracker kanban',
   'Invoice generator',
-  'E-sign contracts from brands',
+  'E-sign contracts (drawn signature)',
   'Professional profile URL',
 ]
 
 const HOW_IT_WORKS = [
-  { n: '01', title: 'Import your influencers', body: 'Upload a CSV of existing contacts or add them manually. Store handles, niches, follower counts, rates, and notes — all searchable.' },
-  { n: '02', title: 'Launch a campaign', body: 'Create a campaign, assign influencers, and track every deal from negotiation through posting. One view. No status-update emails.' },
-  { n: '03', title: 'Contracts and payments', body: 'Generate a contract from a template, collect the e-signature, and log the payment. Done in minutes. No DocuSign account needed.' },
+  { n: '01', title: 'Build your creator roster', body: 'Upload a CSV or discover creators directly in the platform. Store handles, niches, follower counts, rates, and notes — all searchable.' },
+  { n: '02', title: 'Run deals through the pipeline', body: 'Drag creators through six stages — Prospect → Outreach → Negotiating → Contracted → Delivered → Paid. Post opportunities to the marketplace and let creators apply.' },
+  { n: '03', title: 'Contracts, e-sign, and payments', body: 'Generate a contract from a template, collect a drawn signature in-browser, and log the payment. No DocuSign, no HoneyBook, no separate tool.' },
 ]
 
 const SPOTLIGHT_CREATORS = [
@@ -81,9 +84,9 @@ const FAQS = [
 ]
 
 const PRICING_INCLUDES = [
-  'Unlimited contacts & notes', 'Contract generator + e-sign', '14-day free trial',
-  'Unlimited campaigns', 'Content deadline tracking', 'Cancel anytime',
-  'Creator discovery', 'Payment log', 'Your data, always exportable',
+  'Unlimited contacts & notes', 'Contract generator + drawn e-sign', '14-day free trial',
+  'Unlimited campaigns', 'Kanban pipeline (6 stages)', 'Cancel anytime',
+  'Opportunities marketplace', 'Payment log', 'Your data, always exportable',
 ]
 
 function FaqAccordion() {
@@ -300,7 +303,7 @@ export default function LandingPage() {
                 {/* Sidebar */}
                 <div className="w-40 bg-card/3 border-r border-white/6 p-3 flex-col gap-1 hidden sm:flex shrink-0">
                   <div className="px-3 py-1.5 text-[10px] font-bold text-white/20 uppercase tracking-widest mt-1 mb-1">influencr</div>
-                  {['Dashboard', 'Campaigns', 'Influencers', 'Payments', 'Contracts'].map((item, i) => (
+                  {['Dashboard', 'Campaigns', 'Influencers', 'Pipeline', 'Opportunities', 'Contracts'].map((item, i) => (
                     <div key={item} className={`px-2.5 py-1.5 rounded-md text-xs font-medium ${i === 1 ? 'bg-brand/25 text-brand' : 'text-white/30'}`}>{item}</div>
                   ))}
                 </div>
@@ -334,7 +337,7 @@ export default function LandingPage() {
       <section className="py-20 px-6 bg-background">
         <div className="max-w-6xl mx-auto">
           <InView className="mb-14">
-            <h2 className="font-display text-4xl font-bold text-foreground mb-2">Six tools. One subscription.</h2>
+            <h2 className="font-display text-4xl font-bold text-foreground mb-2">Eight tools. One subscription.</h2>
             <p className="text-muted-foreground text-lg">Zero bloat. No upsells. Everything included at $19/mo.</p>
           </InView>
           <div>
@@ -489,8 +492,9 @@ export default function LandingPage() {
           <div className="flex gap-6 text-sm text-muted-foreground">
             <Link href="/login" className="hover:text-foreground transition-colors">Login</Link>
             <Link href="/signup" className="hover:text-foreground transition-colors">Sign up</Link>
-            <Link href="/demo/brand" className="hover:text-foreground transition-colors">Demo</Link>
-            <Link href="/demo/creator" className="hover:text-foreground transition-colors">For creators</Link>
+            <Link href="/demo/brand" className="hover:text-foreground transition-colors">Brand demo</Link>
+            <Link href="/demo/creator" className="hover:text-foreground transition-colors">Creator demo</Link>
+            <Link href="/for-creators" className="hover:text-foreground transition-colors">For creators</Link>
           </div>
         </div>
       </footer>

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { FileText, BarChart3, CreditCard, Check, ArrowRight } from 'lucide-react'
+import { FileText, BarChart3, CreditCard, Check, ArrowRight, Store, PenLine } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'For Creators — influencr',
@@ -10,10 +10,22 @@ export const metadata: Metadata = {
 
 const features = [
   {
+    icon: Store,
+    title: 'Opportunities',
+    description:
+      'Browse brand deals, affiliate programs, and collabs posted directly by brands. Apply in seconds — no agency, no middleman.',
+  },
+  {
     icon: FileText,
     title: 'Media Kit',
     description:
       'Get a shareable /c/yourname page that brands can actually find. Show your stats, niches, and rates in one place.',
+  },
+  {
+    icon: PenLine,
+    title: 'E-sign + Invoicing',
+    description:
+      'Draw your real signature on brand contracts. Send professional invoices. Track what you\'re owed and when you get paid.',
   },
   {
     icon: BarChart3,
@@ -21,19 +33,14 @@ const features = [
     description:
       'See every brand deal at a glance — what stage it\'s in, what you\'re owed, and what\'s been paid. No spreadsheet needed.',
   },
-  {
-    icon: CreditCard,
-    title: 'Invoice Generator',
-    description:
-      'Send professional invoices to brands in seconds. Branded PDFs, clear payment terms, and a full history on record.',
-  },
 ]
 
 const freeItems = [
+  'Opportunities marketplace — browse & apply',
   'Media kit page at /c/yourname',
   'Deal tracker kanban',
-  'Invoice generator with PDF export',
-  'E-sign for brand contracts',
+  'Invoice generator',
+  'E-sign contracts with drawn signature',
   'Free forever — no credit card',
 ]
 
@@ -67,10 +74,10 @@ export default function ForCreatorsPage() {
       {/* Hero */}
       <section className="max-w-3xl mx-auto px-4 pt-20 pb-16 text-center">
         <h1 className="font-display text-4xl sm:text-5xl font-extrabold text-foreground leading-tight">
-          Your media kit, invoices, and deals — all free.
+          Find deals, sign contracts, get paid — all free.
         </h1>
         <p className="mt-5 text-lg text-muted-foreground max-w-xl mx-auto">
-          influencr gives creators everything they need to look professional and get paid — without paying a thing.
+          Browse brand opportunities, showcase your media kit, send invoices, and e-sign contracts. Everything you need to run your creator business — at zero cost, forever.
         </p>
         <Link
           href="/signup?type=creator"
@@ -83,7 +90,7 @@ export default function ForCreatorsPage() {
 
       {/* Feature cards */}
       <section className="max-w-5xl mx-auto px-4 pb-16">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {features.map(({ icon: Icon, title, description }) => (
             <div
               key={title}
