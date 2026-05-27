@@ -59,6 +59,7 @@ function ListingCard({
   onApply: (id: string, message: string) => Promise<void>
 }) {
   const [expanded, setExpanded] = useState(false)
+  const [showDesc, setShowDesc] = useState(false)
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(applied)
@@ -91,7 +92,7 @@ function ListingCard({
           )}
         </div>
         {listing.brand_name && (
-          <p className="text-xs text-muted-foreground shrink-0">{listing.brand_name}</p>
+          <p className="text-xs font-semibold text-foreground shrink-0">{listing.brand_name}</p>
         )}
       </div>
 
@@ -99,7 +100,17 @@ function ListingCard({
       <div>
         <p className="font-semibold text-foreground text-sm leading-snug">{listing.title}</p>
         {listing.description && (
-          <p className="text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed">{listing.description}</p>
+          <div className="mt-1">
+            <p className={`text-xs text-muted-foreground leading-relaxed ${showDesc ? '' : 'line-clamp-2'}`}>
+              {listing.description}
+            </p>
+            <button
+              onClick={() => setShowDesc(v => !v)}
+              className="text-xs text-brand/70 hover:text-brand mt-0.5 transition-colors"
+            >
+              {showDesc ? 'Show less' : 'Read more'}
+            </button>
+          </div>
         )}
       </div>
 

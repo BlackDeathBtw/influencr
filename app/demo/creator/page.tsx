@@ -226,9 +226,9 @@ export default function CreatorDemo() {
           <p className="text-sm text-muted-foreground mb-5">Brand deals, affiliate programs, and collabs — apply directly, no agency needed</p>
           <div className="space-y-3">
             {[
-              { type: 'Brand Deal', typeCls: 'bg-blue-100 text-blue-700', title: 'Summer Athletic Wear Campaign', brand: 'NikeFit', detail: '$1,500–4,000', detailIcon: DollarSign, niches: ['Fitness', 'Lifestyle'], minF: '20K', featured: true },
-              { type: 'Affiliate', typeCls: 'bg-green-100 text-green-700', title: 'Organic Meal Kit — 15% Commission', brand: 'GreenChef', detail: '15% commission', detailIcon: Percent, niches: ['Food', 'Wellness'], minF: '5K', featured: false },
-              { type: 'Collab', typeCls: 'bg-purple-100 text-purple-700', title: 'Co-Create Travel Content Series', brand: 'Away Luggage', detail: '$800–2,000', detailIcon: DollarSign, niches: ['Travel', 'Lifestyle'], minF: '15K', featured: true },
+              { type: 'Affiliate', typeCls: 'bg-green-100 text-green-700', title: 'NordVPN Creator Program — Up to 100% CPA + 30% recurring', brand: 'NordVPN', detail: '40%+ commission', detailIcon: Percent, niches: ['Tech', 'Gaming'], minF: '5K', featured: true },
+              { type: 'Brand Deal', typeCls: 'bg-blue-100 text-blue-700', title: 'Sephora Squad 2025 — Open Applications', brand: 'Sephora', detail: '$1,000–10,000', detailIcon: DollarSign, niches: ['Beauty', 'Skincare'], minF: '1K', featured: true },
+              { type: 'Collab', typeCls: 'bg-purple-100 text-purple-700', title: 'Away Luggage — Travel Content Co-Creation', brand: 'Away', detail: 'Gifted + repost', detailIcon: DollarSign, niches: ['Travel', 'Lifestyle'], minF: '15K', featured: false },
             ].map((l) => {
               const DetailIcon = l.detailIcon
               return (

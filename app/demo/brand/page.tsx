@@ -123,12 +123,12 @@ const PIPELINE_CREATORS: { name: string; handle: string; platform: string; follo
 ]
 
 const MARKETPLACE_LISTINGS = [
-  { type: 'brand_deal', title: 'Summer Athletic Wear Campaign', brand: 'NikeFit', budget: '$1,500–4,000', niches: ['Fitness', 'Lifestyle'], platforms: ['Instagram', 'TikTok'], minFollowers: '20K', featured: true },
-  { type: 'affiliate', title: 'Organic Meal Kit — 15% Commission', brand: 'GreenChef', commission: '15%', niches: ['Food', 'Wellness'], platforms: ['YouTube', 'Instagram'], minFollowers: '5K', featured: false },
-  { type: 'collab', title: 'Co-Create Travel Content Series', brand: 'Away Luggage', budget: '$800–2,000', niches: ['Travel', 'Lifestyle'], platforms: ['Instagram', 'YouTube'], minFollowers: '15K', featured: true },
-  { type: 'brand_deal', title: 'Back-to-School Tech Bundle', brand: 'Logitech', budget: '$2,000–6,000', niches: ['Tech', 'Education'], platforms: ['YouTube', 'TikTok'], minFollowers: '30K', featured: false },
-  { type: 'affiliate', title: 'Sustainable Fashion — 20% Recurring', brand: 'Allbirds', commission: '20%', niches: ['Fashion', 'Sustainability'], platforms: ['Instagram', 'TikTok'], minFollowers: '10K', featured: false },
-  { type: 'collab', title: 'App Launch Ambassador Program', brand: 'Headspace', budget: '$1,000–3,500', niches: ['Wellness', 'Fitness'], platforms: ['Instagram', 'TikTok', 'YouTube'], minFollowers: '25K', featured: false },
+  { type: 'brand_deal', title: 'Gymshark Athlete Campaign (Seasonal)', brand: 'Gymshark', budget: '$500–5,000', niches: ['Fitness', 'Lifestyle'], platforms: ['Instagram', 'TikTok'], minFollowers: '5K', featured: true },
+  { type: 'affiliate', title: 'NordVPN Creator Program — Up to 100% CPA', brand: 'NordVPN', commission: '40%+', niches: ['Tech', 'Gaming'], platforms: ['YouTube', 'Podcast'], minFollowers: '5K', featured: true },
+  { type: 'collab', title: 'Away Luggage — Travel Content Co-Creation', brand: 'Away', budget: 'Gifted', niches: ['Travel', 'Lifestyle'], platforms: ['Instagram', 'TikTok'], minFollowers: '15K', featured: false },
+  { type: 'affiliate', title: 'Amazon Influencer Program', brand: 'Amazon', commission: '1–20%', niches: ['Lifestyle', 'Tech', 'Beauty'], platforms: ['YouTube', 'TikTok', 'Instagram'], minFollowers: null, featured: true },
+  { type: 'brand_deal', title: 'Sephora Squad 2025 — Open Applications', brand: 'Sephora', budget: '$1,000–10,000', niches: ['Beauty', 'Skincare'], platforms: ['Instagram', 'TikTok'], minFollowers: '1K', featured: true },
+  { type: 'collab', title: 'Glossier Community Creator Collab', brand: 'Glossier', commission: '10%', niches: ['Beauty', 'Skincare'], platforms: ['Instagram', 'TikTok'], minFollowers: '1K', featured: false },
 ]
 
 const LISTING_TYPE_COLORS: Record<string, string> = {
