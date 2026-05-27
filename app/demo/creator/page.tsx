@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowRight, FileText, PenLine, BarChart3, Store, DollarSign, Percent, Users } from 'lucide-react'
+import { createClient } from '@supabase/supabase-js'
 
 export const metadata: Metadata = {
   title: 'Creator Profile Demo — Free Media Kit by influencr',
@@ -98,14 +99,19 @@ async function DemoOpportunities() {
   }> = []
 
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
-    const res = await fetch(`${baseUrl}/api/brand-deals?limit=3&page=1`, {
-      next: { revalidate: 3600 },
-    })
-    if (res.ok) {
-      const json = await res.json()
-      deals = (json.deals ?? []).slice(0, 3)
-    }
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { auth: { autoRefreshToken: false, persistSession: false } },
+    )
+    const { data } = await supabase
+      .from('brand_deals')
+      .select('id,brand_name,logo_url,title,type,commission_rate,budget_min,budget_max,min_followers,niches,apply_url,is_featured')
+      .eq('is_active', true)
+      .order('is_featured', { ascending: false })
+      .order('scraped_at', { ascending: false })
+      .limit(3)
+    deals = data ?? []
   } catch {
     // fall back to empty — page still renders
   }
