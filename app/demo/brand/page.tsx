@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import {
   Users, BarChart3, CreditCard, LayoutDashboard,
@@ -120,15 +120,6 @@ const PIPELINE_CREATORS: { name: string; handle: string; platform: string; follo
   { name: 'Ryan Cole',    handle: '@ryancole',    platform: 'Instagram', followers: '91K',  eng: '2.1%', stage: 'outreach' },
   { name: 'Aria Nguyen',  handle: '@ariangy',     platform: 'TikTok',    followers: '178K', eng: '5.5%', stage: 'prospect' },
   { name: 'Zoe Williams', handle: '@zoewills',    platform: 'Instagram', followers: '67K',  eng: '5.1%', stage: 'prospect' },
-]
-
-const MARKETPLACE_LISTINGS = [
-  { type: 'brand_deal', title: 'Gymshark Athlete Campaign (Seasonal)', brand: 'Gymshark', budget: '$500–5,000', niches: ['Fitness', 'Lifestyle'], platforms: ['Instagram', 'TikTok'], minFollowers: '5K', featured: true },
-  { type: 'affiliate', title: 'NordVPN Creator Program — Up to 100% CPA', brand: 'NordVPN', commission: '40%+', niches: ['Tech', 'Gaming'], platforms: ['YouTube', 'Podcast'], minFollowers: '5K', featured: true },
-  { type: 'collab', title: 'Away Luggage — Travel Content Co-Creation', brand: 'Away', budget: 'Gifted', niches: ['Travel', 'Lifestyle'], platforms: ['Instagram', 'TikTok'], minFollowers: '15K', featured: false },
-  { type: 'affiliate', title: 'Amazon Influencer Program', brand: 'Amazon', commission: '1–20%', niches: ['Lifestyle', 'Tech', 'Beauty'], platforms: ['YouTube', 'TikTok', 'Instagram'], minFollowers: null, featured: true },
-  { type: 'brand_deal', title: 'Sephora Squad 2025 — Open Applications', brand: 'Sephora', budget: '$1,000–10,000', niches: ['Beauty', 'Skincare'], platforms: ['Instagram', 'TikTok'], minFollowers: '1K', featured: true },
-  { type: 'collab', title: 'Glossier Community Creator Collab', brand: 'Glossier', commission: '10%', niches: ['Beauty', 'Skincare'], platforms: ['Instagram', 'TikTok'], minFollowers: '1K', featured: false },
 ]
 
 const LISTING_TYPE_COLORS: Record<string, string> = {
@@ -575,60 +566,107 @@ function ContractsView() {
   )
 }
 
+type LiveDeal = {
+  id: string
+  brand_name: string
+  logo_url: string | null
+  title: string
+  type: string
+  commission_rate: number | null
+  budget_min: number | null
+  budget_max: number | null
+  min_followers: number | null
+  niches: string[]
+  platforms: string[]
+  apply_url: string
+  is_featured: boolean
+}
+
+function formatBudget(min: number | null, max: number | null): string | null {
+  if (min == null && max == null) return null
+  if (min != null && max != null) return `$${min.toLocaleString()}–$${max.toLocaleString()}`
+  if (min != null) return `From $${min.toLocaleString()}`
+  return `Up to $${max!.toLocaleString()}`
+}
+
 function MarketplaceView() {
   const [typeFilter, setTypeFilter] = useState<string>('all')
+  const [deals, setDeals] = useState<LiveDeal[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/brand-deals?limit=30')
+      .then(r => r.json())
+      .then(j => setDeals(j.deals ?? []))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
+
   const TYPE_TABS = [
     { id: 'all', label: 'All' },
     { id: 'brand_deal', label: 'Brand Deals' },
     { id: 'affiliate', label: 'Affiliate' },
     { id: 'collab', label: 'Collabs' },
   ]
-  const filtered = typeFilter === 'all' ? MARKETPLACE_LISTINGS : MARKETPLACE_LISTINGS.filter(l => l.type === typeFilter)
+  const filtered = typeFilter === 'all' ? deals : deals.filter(l => l.type === typeFilter)
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Opportunities</h1>
-          <p className="text-sm text-muted-foreground mt-1">Browse deals, affiliate programs, and collab opportunities</p>
+          <h1 className="text-2xl font-bold text-foreground">Brand Opportunities</h1>
+          <p className="text-sm text-muted-foreground mt-1">Real brand deals, affiliate programs, and collabs your creators can apply for</p>
         </div>
-        <button className="flex items-center gap-2 bg-foreground/90 text-background px-4 py-2 rounded-lg text-sm font-medium cursor-default"><Plus size={14} /> Post listing</button>
       </div>
       <div className="flex gap-1 bg-muted rounded-lg p-1 w-fit mb-5">
         {TYPE_TABS.map(t => (
           <button key={t.id} onClick={() => setTypeFilter(t.id)} className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${typeFilter === t.id ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}>{t.label}</button>
         ))}
       </div>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filtered.map((l) => (
-          <div key={l.title} className={`bg-card border rounded-xl p-5 flex flex-col gap-3 cursor-default hover:shadow-sm transition-shadow ${l.featured ? 'border-brand/40' : 'border-border'}`}>
-            <div className="flex items-start justify-between gap-2">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${LISTING_TYPE_COLORS[l.type]}`}>{LISTING_TYPE_LABELS[l.type]}</span>
-                {l.featured && <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-amber-100 text-amber-700"><Star size={9} />Featured</span>}
+      {loading ? (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="bg-card border border-border rounded-xl p-5 h-44 animate-pulse" />
+          ))}
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="bg-card border border-border rounded-xl py-16 text-center">
+          <p className="text-muted-foreground/70 text-sm">No opportunities match this filter</p>
+        </div>
+      ) : (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filtered.map((l) => {
+            const budget = formatBudget(l.budget_min, l.budget_max)
+            return (
+              <div key={l.id} className={`bg-card border rounded-xl p-5 flex flex-col gap-3 hover:shadow-sm transition-shadow ${l.is_featured ? 'border-brand/40' : 'border-border'}`}>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${LISTING_TYPE_COLORS[l.type] ?? 'bg-muted text-muted-foreground'}`}>{LISTING_TYPE_LABELS[l.type] ?? l.type}</span>
+                    {l.is_featured && <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-amber-100 text-amber-700"><Star size={9} />Featured</span>}
+                  </div>
+                  <p className="text-xs text-muted-foreground shrink-0">{l.brand_name}</p>
+                </div>
+                <p className="font-semibold text-foreground text-sm leading-snug">{l.title}</p>
+                <div className="flex flex-wrap gap-3">
+                  {budget && <span className="flex items-center gap-1 text-xs text-muted-foreground"><DollarSign size={11} />{budget}</span>}
+                  {l.commission_rate != null && <span className="flex items-center gap-1 text-xs text-muted-foreground"><Percent size={11} />{l.commission_rate}% commission</span>}
+                  {l.min_followers != null && <span className="flex items-center gap-1 text-xs text-muted-foreground"><Users size={11} />{l.min_followers >= 1000 ? `${(l.min_followers/1000).toFixed(0)}K` : l.min_followers}+ followers</span>}
+                </div>
+                {l.niches.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {l.niches.map(n => <span key={n} className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">{n}</span>)}
+                  </div>
+                )}
+                <div className="pt-1 border-t border-border">
+                  <a href={l.apply_url} target="_blank" rel="noopener noreferrer" className="text-xs font-medium text-muted-foreground hover:text-brand transition-colors py-1">
+                    Apply →
+                  </a>
+                </div>
               </div>
-              {l.brand && <p className="text-xs text-muted-foreground shrink-0">{l.brand}</p>}
-            </div>
-            <p className="font-semibold text-foreground text-sm leading-snug">{l.title}</p>
-            <div className="flex flex-wrap gap-3">
-              {'budget' in l && l.budget && <span className="flex items-center gap-1 text-xs text-muted-foreground"><DollarSign size={11} />{l.budget}</span>}
-              {'commission' in l && l.commission && <span className="flex items-center gap-1 text-xs text-muted-foreground"><Percent size={11} />{l.commission} commission</span>}
-              {l.minFollowers && <span className="flex items-center gap-1 text-xs text-muted-foreground"><Users size={11} />{l.minFollowers}+ followers</span>}
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {l.niches.map(n => <span key={n} className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">{n}</span>)}
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {l.platforms.map(p => <span key={p} className={`text-xs px-2 py-0.5 rounded-full font-medium ${PLATFORM_COLORS[p] ?? 'bg-muted text-muted-foreground'}`}>{p}</span>)}
-            </div>
-            <div className="pt-1 border-t border-border">
-              <button className="text-xs font-medium text-muted-foreground hover:text-brand transition-colors py-1 cursor-default">View applicants →</button>
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="mt-5 bg-muted/50 border border-border rounded-lg px-4 py-2.5 text-xs text-muted-foreground">
-        In the real app, brands post listings and creators apply directly — no middleman.
-      </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }

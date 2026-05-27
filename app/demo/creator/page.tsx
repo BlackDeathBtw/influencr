@@ -193,7 +193,7 @@ async function DemoOpportunities() {
         ))}
       </div>
       <Link
-        href="/signup?type=creator"
+        href="/marketplace"
         className="mt-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
         See all opportunities <ArrowRight size={13} />
