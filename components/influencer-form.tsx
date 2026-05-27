@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { RefreshCw } from 'lucide-react'
 import type { Influencer } from '@/types'
 
 interface Props {
@@ -29,6 +30,38 @@ export default function InfluencerForm({ influencer }: Props) {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [syncing, setSyncing] = useState(false)
+  const [syncMsg, setSyncMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
+
+  async function syncStats() {
+    if (!form.handle) return
+    setSyncing(true)
+    setSyncMsg(null)
+    try {
+      let res: Response
+      if (form.platform === 'youtube') {
+        res = await fetch(`/api/integrations/youtube?handle=${encodeURIComponent(form.handle)}`)
+      } else if (form.platform === 'instagram' || form.platform === 'tiktok') {
+        res = await fetch(`/api/integrations/social-stats?platform=${form.platform}&handle=${encodeURIComponent(form.handle)}`)
+      } else {
+        setSyncMsg({ type: 'err', text: 'Stats sync supports YouTube, Instagram, and TikTok' })
+        return
+      }
+      const data = await res.json()
+      if (!res.ok) {
+        setSyncMsg({ type: 'err', text: data.error ?? 'Sync failed' })
+        return
+      }
+      setForm(f => ({
+        ...f,
+        followers: data.followers ? String(data.followers) : f.followers,
+        name: data.name && !f.name ? data.name : f.name,
+      }))
+      setSyncMsg({ type: 'ok', text: `Synced: ${Number(data.followers).toLocaleString()} followers` })
+    } finally {
+      setSyncing(false)
+    }
+  }
 
   function set(key: string, value: string) {
     setForm(prev => ({ ...prev, [key]: value }))
@@ -85,34 +118,34 @@ export default function InfluencerForm({ influencer }: Props) {
         <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600">{error}</div>
       )}
 
-      <div className="bg-white border border-zinc-200 rounded-xl p-6 space-y-4">
-        <h2 className="font-semibold text-zinc-900">Basic info</h2>
+      <div className="bg-card border border-border rounded-xl p-6 space-y-4">
+        <h2 className="font-semibold text-foreground">Basic info</h2>
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-zinc-700 mb-1.5">Name *</label>
+            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Name *</label>
             <input
               value={form.name}
               onChange={e => set('name', e.target.value)}
               required
               placeholder="Jane Doe"
-              className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
+              className="w-full px-3 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-zinc-700 mb-1.5">Handle</label>
+            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Handle</label>
             <input
               value={form.handle}
               onChange={e => set('handle', e.target.value)}
               placeholder="@janedoe"
-              className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
+              className="w-full px-3 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-zinc-700 mb-1.5">Platform</label>
+            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Platform</label>
             <select
               value={form.platform}
               onChange={e => set('platform', e.target.value)}
-              className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900"
+              className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-ring"
             >
               <option value="">Select platform</option>
               {PLATFORMS.map(p => (
@@ -121,27 +154,43 @@ export default function InfluencerForm({ influencer }: Props) {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-zinc-700 mb-1.5">Niche / Category</label>
+            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Niche / Category</label>
             <input
               value={form.niche}
               onChange={e => set('niche', e.target.value)}
               placeholder="Fitness, Beauty, Tech…"
-              className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
+              className="w-full px-3 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-zinc-700 mb-1.5">Followers</label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-sm font-medium text-foreground/80">Followers</label>
+              {(form.platform === 'youtube' || form.platform === 'instagram' || form.platform === 'tiktok') && form.handle && (
+                <button
+                  type="button"
+                  onClick={syncStats}
+                  disabled={syncing}
+                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-brand transition-colors disabled:opacity-50"
+                >
+                  <RefreshCw size={11} className={syncing ? 'animate-spin' : ''} />
+                  {syncing ? 'Syncing…' : 'Sync stats'}
+                </button>
+              )}
+            </div>
             <input
               type="number"
               value={form.followers}
               onChange={e => set('followers', e.target.value)}
               placeholder="150000"
               min="0"
-              className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
+              className="w-full px-3 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
+            {syncMsg && (
+              <p className={`text-xs mt-1 ${syncMsg.type === 'ok' ? 'text-green-400' : 'text-red-400'}`}>{syncMsg.text}</p>
+            )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-zinc-700 mb-1.5">Engagement rate (%)</label>
+            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Engagement rate (%)</label>
             <input
               type="number"
               value={form.engagement_rate}
@@ -150,45 +199,45 @@ export default function InfluencerForm({ influencer }: Props) {
               step="0.01"
               min="0"
               max="100"
-              className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
+              className="w-full px-3 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
         </div>
       </div>
 
-      <div className="bg-white border border-zinc-200 rounded-xl p-6 space-y-4">
-        <h2 className="font-semibold text-zinc-900">Contact</h2>
+      <div className="bg-card border border-border rounded-xl p-6 space-y-4">
+        <h2 className="font-semibold text-foreground">Contact</h2>
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-zinc-700 mb-1.5">Contact email</label>
+            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Contact email</label>
             <input
               type="email"
               value={form.contact_email}
               onChange={e => set('contact_email', e.target.value)}
               placeholder="manager@example.com"
-              className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
+              className="w-full px-3 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-zinc-700 mb-1.5">Contact name</label>
+            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Contact name</label>
             <input
               value={form.contact_name}
               onChange={e => set('contact_name', e.target.value)}
               placeholder="Agent / manager name"
-              className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
+              className="w-full px-3 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
         </div>
       </div>
 
-      <div className="bg-white border border-zinc-200 rounded-xl p-6 space-y-4">
-        <h2 className="font-semibold text-zinc-900">Status & notes</h2>
+      <div className="bg-card border border-border rounded-xl p-6 space-y-4">
+        <h2 className="font-semibold text-foreground">Status & notes</h2>
         <div>
-          <label className="block text-sm font-medium text-zinc-700 mb-1.5">Status</label>
+          <label className="block text-sm font-medium text-foreground/80 mb-1.5">Status</label>
           <select
             value={form.status}
             onChange={e => set('status', e.target.value)}
-            className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900"
+            className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-ring"
           >
             {STATUSES.map(s => (
               <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
@@ -196,13 +245,13 @@ export default function InfluencerForm({ influencer }: Props) {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-zinc-700 mb-1.5">Notes</label>
+          <label className="block text-sm font-medium text-foreground/80 mb-1.5">Notes</label>
           <textarea
             value={form.notes}
             onChange={e => set('notes', e.target.value)}
             rows={3}
             placeholder="Any notes about this influencer…"
-            className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900 resize-none"
+            className="w-full px-3 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-none"
           />
         </div>
       </div>
@@ -212,14 +261,14 @@ export default function InfluencerForm({ influencer }: Props) {
           <button
             type="submit"
             disabled={loading}
-            className="bg-zinc-900 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-zinc-700 transition-colors disabled:opacity-50"
+            className="bg-foreground/90 text-background px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-foreground transition-colors disabled:opacity-50"
           >
             {loading ? 'Saving…' : isNew ? 'Add influencer' : 'Save changes'}
           </button>
           <button
             type="button"
             onClick={() => router.back()}
-            className="border border-zinc-200 text-zinc-600 px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-zinc-50 transition-colors"
+            className="border border-border text-muted-foreground px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-background transition-colors"
           >
             Cancel
           </button>

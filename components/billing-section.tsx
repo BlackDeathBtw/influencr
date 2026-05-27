@@ -13,7 +13,7 @@ const statusLabels: Record<string, { label: string; color: string }> = {
   trialing: { label: 'Free trial', color: 'bg-blue-100 text-blue-700' },
   active: { label: 'Active', color: 'bg-green-100 text-green-700' },
   past_due: { label: 'Past due', color: 'bg-red-100 text-red-700' },
-  canceled: { label: 'Canceled', color: 'bg-zinc-100 text-zinc-500' },
+  canceled: { label: 'Canceled', color: 'bg-muted text-muted-foreground' },
   incomplete: { label: 'Incomplete', color: 'bg-amber-100 text-amber-700' },
 }
 
@@ -48,34 +48,34 @@ export default function BillingSection({ subscription, userEmail }: Props) {
   const isActive = status === 'active' || status === 'trialing'
 
   return (
-    <div className="bg-white border border-zinc-200 rounded-xl p-6">
-      <h2 className="font-semibold text-zinc-900 mb-4">Billing</h2>
+    <div className="bg-card border border-border rounded-xl p-6">
+      <h2 className="font-semibold text-foreground mb-4">Billing</h2>
 
-      <div className="flex items-center justify-between py-3 border-b border-zinc-100">
-        <span className="text-sm text-zinc-600">Current plan</span>
-        <span className="text-sm font-medium text-zinc-900">
+      <div className="flex items-center justify-between py-3 border-b border-border">
+        <span className="text-sm text-muted-foreground">Current plan</span>
+        <span className="text-sm font-medium text-foreground">
           {isActive ? 'influencr — $19/mo' : 'No active plan'}
         </span>
       </div>
 
-      <div className="flex items-center justify-between py-3 border-b border-zinc-100">
-        <span className="text-sm text-zinc-600">Status</span>
+      <div className="flex items-center justify-between py-3 border-b border-border">
+        <span className="text-sm text-muted-foreground">Status</span>
         <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${statusInfo.color}`}>
           {statusInfo.label}
         </span>
       </div>
 
       {subscription?.current_period_end && (
-        <div className="flex items-center justify-between py-3 border-b border-zinc-100">
-          <span className="text-sm text-zinc-600">
+        <div className="flex items-center justify-between py-3 border-b border-border">
+          <span className="text-sm text-muted-foreground">
             {status === 'trialing' ? 'Trial ends' : 'Renews'}
           </span>
-          <span className="text-sm text-zinc-700">
+          <span className="text-sm text-foreground/80">
             {new Date(subscription.current_period_end).toLocaleDateString('en-US', {
               month: 'long', day: 'numeric', year: 'numeric',
             })}
             {' '}
-            <span className="text-zinc-400">
+            <span className="text-muted-foreground/70">
               ({formatDistanceToNow(new Date(subscription.current_period_end), { addSuffix: true })})
             </span>
           </span>
@@ -87,7 +87,7 @@ export default function BillingSection({ subscription, userEmail }: Props) {
           <button
             onClick={handleSubscribe}
             disabled={loading}
-            className="w-full bg-zinc-900 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-zinc-700 transition-colors disabled:opacity-50"
+            className="w-full bg-foreground/90 text-background py-2.5 rounded-lg text-sm font-medium hover:bg-foreground transition-colors disabled:opacity-50"
           >
             {loading ? 'Loading…' : 'Subscribe — $19/mo'}
           </button>
@@ -95,12 +95,12 @@ export default function BillingSection({ subscription, userEmail }: Props) {
           <button
             onClick={handlePortal}
             disabled={loading}
-            className="w-full border border-zinc-200 text-zinc-700 py-2.5 rounded-lg text-sm font-medium hover:bg-zinc-50 transition-colors disabled:opacity-50"
+            className="w-full border border-border text-foreground/80 py-2.5 rounded-lg text-sm font-medium hover:bg-background transition-colors disabled:opacity-50"
           >
             {loading ? 'Loading…' : 'Manage billing'}
           </button>
         )}
-        <p className="text-xs text-zinc-400 text-center mt-3">
+        <p className="text-xs text-muted-foreground/70 text-center mt-3">
           Secure payments via Stripe. Cancel anytime.
         </p>
       </div>

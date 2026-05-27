@@ -32,7 +32,7 @@ export default function LoginPage() {
 
   return (
     <div className="w-full max-w-sm">
-      <div className="bg-white rounded-2xl p-8 shadow-xl shadow-black/20">
+      <div className="bg-card rounded-2xl p-8 shadow-xl shadow-black/20">
         <h1 className="font-display text-2xl font-bold text-foreground mb-1">Welcome back</h1>
         <p className="text-sm text-muted-foreground mb-7">Sign in to your account</p>
 

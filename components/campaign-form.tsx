@@ -82,53 +82,53 @@ export default function CampaignForm({ campaign }: Props) {
       )}
 
       <div>
-        <label className="block text-sm font-medium text-zinc-700 mb-1.5">Campaign name *</label>
+        <label className="block text-sm font-medium text-foreground/80 mb-1.5">Campaign name *</label>
         <input
           value={form.name}
           onChange={e => set('name', e.target.value)}
           required
           placeholder="Summer 2025 campaign"
-          className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
+          className="w-full px-3 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-zinc-700 mb-1.5">Description</label>
+        <label className="block text-sm font-medium text-foreground/80 mb-1.5">Description</label>
         <textarea
           value={form.description}
           onChange={e => set('description', e.target.value)}
           rows={2}
           placeholder="What is this campaign about?"
-          className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900 resize-none"
+          className="w-full px-3 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-none"
         />
       </div>
 
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-zinc-700 mb-1.5">Start date</label>
+          <label className="block text-sm font-medium text-foreground/80 mb-1.5">Start date</label>
           <input
             type="date"
             value={form.start_date}
             onChange={e => set('start_date', e.target.value)}
-            className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900"
+            className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-zinc-700 mb-1.5">End date</label>
+          <label className="block text-sm font-medium text-foreground/80 mb-1.5">End date</label>
           <input
             type="date"
             value={form.end_date}
             onChange={e => set('end_date', e.target.value)}
-            className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900"
+            className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-zinc-700 mb-1.5">Budget</label>
+          <label className="block text-sm font-medium text-foreground/80 mb-1.5">Budget</label>
           <div className="flex">
             <select
               value={form.currency}
               onChange={e => set('currency', e.target.value)}
-              className="px-3 py-2.5 border border-r-0 border-zinc-200 rounded-l-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900"
+              className="px-3 py-2.5 border border-r-0 border-border rounded-l-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-ring"
             >
               {['USD', 'EUR', 'GBP', 'CAD', 'AUD'].map(c => <option key={c}>{c}</option>)}
             </select>
@@ -139,16 +139,16 @@ export default function CampaignForm({ campaign }: Props) {
               placeholder="5000"
               min="0"
               step="0.01"
-              className="flex-1 px-3 py-2.5 border border-zinc-200 rounded-r-lg text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
+              className="flex-1 px-3 py-2.5 border border-border rounded-r-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-zinc-700 mb-1.5">Status</label>
+          <label className="block text-sm font-medium text-foreground/80 mb-1.5">Status</label>
           <select
             value={form.status}
             onChange={e => set('status', e.target.value)}
-            className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900"
+            className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-ring"
           >
             {STATUSES.map(s => (
               <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
@@ -162,14 +162,14 @@ export default function CampaignForm({ campaign }: Props) {
           <button
             type="submit"
             disabled={loading}
-            className="bg-zinc-900 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-zinc-700 transition-colors disabled:opacity-50"
+            className="bg-foreground/90 text-background px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-foreground transition-colors disabled:opacity-50"
           >
             {loading ? 'Saving…' : isNew ? 'Create campaign' : 'Save changes'}
           </button>
           <button
             type="button"
             onClick={() => router.back()}
-            className="border border-zinc-200 text-zinc-600 px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-zinc-50 transition-colors"
+            className="border border-border text-muted-foreground px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-background transition-colors"
           >
             Cancel
           </button>

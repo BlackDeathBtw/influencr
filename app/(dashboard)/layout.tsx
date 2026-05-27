@@ -23,21 +23,21 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const isBlocked = subscription?.status === 'canceled' || subscription?.status === 'past_due'
 
   return (
-    <div className="flex h-screen bg-zinc-50 overflow-hidden">
+    <div className="flex h-screen bg-background overflow-hidden">
       <Sidebar userEmail={user.email ?? ''} />
       <main className="flex-1 overflow-y-auto">
         {isBlocked ? (
           <div className="flex flex-col items-center justify-center h-full p-8 text-center">
             <div className="max-w-md">
-              <h2 className="text-2xl font-bold text-zinc-900 mb-2">Subscription required</h2>
-              <p className="text-zinc-500 mb-6">
+              <h2 className="text-2xl font-bold text-foreground mb-2">Subscription required</h2>
+              <p className="text-muted-foreground mb-6">
                 {subscription?.status === 'past_due'
                   ? 'Your payment failed. Please update your billing details to continue.'
                   : 'Your subscription has ended. Resubscribe to access your data.'}
               </p>
               <Link
                 href="/settings"
-                className="inline-block bg-zinc-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-zinc-700 transition-colors"
+                className="inline-block bg-foreground/90 text-background px-6 py-3 rounded-lg font-medium hover:bg-foreground transition-colors"
               >
                 Go to billing →
               </Link>

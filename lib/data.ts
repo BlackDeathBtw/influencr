@@ -11,6 +11,8 @@ export const tag = {
   payments: (userId: string) => `payments-${userId}`,
   dashboard: (userId: string) => `dashboard-${userId}`,
   content: (userId: string) => `content-${userId}`,
+  outreach: (userId: string) => `outreach-${userId}`,
+  contracts: (userId: string) => `contracts-${userId}`,
 }
 
 export async function getInfluencers(userId: string) {

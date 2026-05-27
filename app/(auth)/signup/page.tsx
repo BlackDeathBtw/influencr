@@ -50,7 +50,7 @@ function SignupForm() {
   if (success) {
     return (
       <div className="w-full max-w-sm">
-        <div className="bg-white rounded-2xl p-8 shadow-xl shadow-black/20 text-center">
+        <div className="bg-card rounded-2xl p-8 shadow-xl shadow-black/20 text-center">
           <div className="w-12 h-12 bg-brand/10 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg className="w-6 h-6 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -67,7 +67,7 @@ function SignupForm() {
 
   return (
     <div className="w-full max-w-sm">
-      <div className="bg-white rounded-2xl p-8 shadow-xl shadow-black/20">
+      <div className="bg-card rounded-2xl p-8 shadow-xl shadow-black/20">
         {/* Account type toggle */}
         <div className="flex rounded-xl border border-border p-1 mb-7">
           <button
@@ -174,7 +174,7 @@ export default function SignupPage() {
     <Suspense
       fallback={
         <div className="w-full max-w-sm">
-          <div className="bg-white rounded-2xl p-8 shadow-xl shadow-black/20 animate-pulse">
+          <div className="bg-card rounded-2xl p-8 shadow-xl shadow-black/20 animate-pulse">
             <div className="h-10 bg-muted rounded-xl mb-7" />
             <div className="h-8 bg-muted rounded mb-2 w-48" />
             <div className="h-4 bg-muted rounded mb-7 w-64" />

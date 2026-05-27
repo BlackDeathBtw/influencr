@@ -3,12 +3,65 @@ import { getDashboardStats } from '@/lib/data'
 import { Users, BarChart3, Calendar, CreditCard } from 'lucide-react'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
+import DashboardCharts from '@/components/dashboard-charts'
+
+const CAMPAIGN_STATUSES = ['planning', 'active', 'paused', 'completed']
+const DEAL_STATUSES = ['outreach', 'negotiating', 'confirmed', 'declined']
+
+function getLastSixMonths(): { key: string; label: string }[] {
+  const months = []
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date()
+    d.setMonth(d.getMonth() - i)
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+    const label = d.toLocaleString('en-US', { month: 'short' })
+    months.push({ key, label })
+  }
+  return months
+}
 
 export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  const { influencers, campaigns, upcomingContent, pendingPayments } = await getDashboardStats(user!.id)
+  const sixMonthsAgo = new Date()
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6)
+
+  const [statsData, { data: allCampaigns }, { data: paidPayments }] = await Promise.all([
+    getDashboardStats(user!.id),
+    supabase.from('campaigns').select('id, status').eq('user_id', user!.id),
+    supabase.from('payments').select('amount, paid_at').eq('user_id', user!.id).eq('status', 'paid').gte('paid_at', sixMonthsAgo.toISOString()),
+  ])
+
+  const campaignIds = (allCampaigns ?? []).map((c: { id: string }) => c.id)
+  const { data: allDeals } = campaignIds.length > 0
+    ? await supabase.from('campaign_influencers').select('status').in('campaign_id', campaignIds)
+    : { data: [] }
+
+  const { influencers, campaigns, upcomingContent, pendingPayments } = statsData
+
+  // Spend trend
+  const months = getLastSixMonths()
+  const spendByMonth = (paidPayments ?? []).reduce((acc: Record<string, number>, p: any) => {
+    const key = p.paid_at?.slice(0, 7)
+    if (key) acc[key] = (acc[key] ?? 0) + Number(p.amount)
+    return acc
+  }, {})
+  const spendTrend = months.map(m => ({ month: m.label, amount: Math.round(spendByMonth[m.key] ?? 0) }))
+
+  // Campaign status breakdown
+  const campaignCounts = (allCampaigns ?? []).reduce((acc: Record<string, number>, c: any) => {
+    acc[c.status] = (acc[c.status] ?? 0) + 1
+    return acc
+  }, {})
+  const campaignStatuses = CAMPAIGN_STATUSES.map(s => ({ name: s, value: campaignCounts[s] ?? 0 })).filter(s => s.value > 0)
+
+  // Deal pipeline
+  const dealCounts = (allDeals ?? []).reduce((acc: Record<string, number>, d: any) => {
+    acc[d.status] = (acc[d.status] ?? 0) + 1
+    return acc
+  }, {})
+  const dealPipeline = DEAL_STATUSES.map(s => ({ name: s, value: dealCounts[s] ?? 0 }))
 
   const totalInfluencers = influencers.length
   const activeInfluencers = influencers.filter((i: any) => i.status === 'active').length
@@ -47,6 +100,8 @@ export default async function DashboardPage() {
           </Link>
         ))}
       </div>
+
+      <DashboardCharts spendTrend={spendTrend} campaignStatuses={campaignStatuses} dealPipeline={dealPipeline} />
 
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Upcoming content */}

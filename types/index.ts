@@ -41,6 +41,9 @@ export interface Campaign {
   budget: number | null
   currency: string
   status: CampaignStatus
+  revenue_target: number | null
+  revenue_attributed: number | null
+  brief: Record<string, string> | null
   created_at: string
   updated_at: string
 }
@@ -52,6 +55,9 @@ export interface CampaignInfluencer {
   fee: number | null
   status: DealStatus
   notes: string | null
+  promo_code: string | null
+  affiliate_link: string | null
+  revenue_attributed: number | null
   created_at: string
   influencer?: Influencer
   campaign?: Campaign
@@ -94,6 +100,74 @@ export interface Payment {
   updated_at: string
   influencer?: Influencer
   campaign?: Campaign | null
+}
+
+export interface OutreachTemplate {
+  id: string
+  user_id: string
+  name: string
+  subject: string | null
+  body: string
+  platform: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface Contract {
+  id: string
+  user_id: string
+  influencer_id: string | null
+  campaign_id: string | null
+  title: string
+  content: string
+  sign_token: string | null
+  status: 'draft' | 'sent' | 'signed' | 'declined'
+  sent_at: string | null
+  signed_at: string | null
+  signer_name: string | null
+  signer_ip: string | null
+  created_at: string
+  updated_at: string
+  influencer?: Influencer
+  campaign?: Campaign
+}
+
+export interface CreatorProfile {
+  id: string
+  user_id: string
+  username: string
+  display_name: string | null
+  bio: string | null
+  location: string | null
+  niches: string[] | null
+  rate_min: number | null
+  rate_max: number | null
+  is_public: boolean
+  created_at: string
+  updated_at: string
+  platform_stats?: CreatorPlatformStat[]
+}
+
+export interface CreatorPlatformStat {
+  id: string
+  profile_id: string
+  platform: string
+  handle: string | null
+  followers: number | null
+  engagement_rate: number | null
+}
+
+export interface OutreachLog {
+  id: string
+  user_id: string
+  template_id: string | null
+  influencer_id: string | null
+  to_email: string
+  subject: string
+  body: string
+  status: string
+  resend_id: string | null
+  sent_at: string
 }
 
 export interface Subscription {

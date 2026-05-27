@@ -1,105 +1,577 @@
-import type { Metadata } from 'next'
+'use client'
+
+import { useState } from 'react'
 import Link from 'next/link'
 import {
   Users, BarChart3, CreditCard, LayoutDashboard,
   Settings, Search, Mail, FileText, ArrowRight,
-  Calendar, Check, Clock, AlertCircle, XCircle,
+  Calendar, Check, Clock, Plus, ChevronDown,
+  Tag, Send, Copy, Pencil, Trash2, ExternalLink,
+  ShieldCheck, Star, MapPin,
 } from 'lucide-react'
 
+/* ─── data ─────────────────────────────────────────────────────────────────── */
+
 const STATS = [
-  { label: 'Influencers', value: 24, sub: '18 active', icon: Users, href: '#' },
-  { label: 'Campaigns', value: 3, sub: '2 active', icon: BarChart3, href: '#' },
-  { label: 'Upcoming content', value: 7, sub: 'to be posted', icon: Calendar, href: '#' },
-  { label: 'Pending payments', value: '$6,800', sub: '5 invoices', icon: CreditCard, href: '#' },
+  { label: 'Influencers', value: 24, sub: '18 active', icon: Users },
+  { label: 'Campaigns', value: 3, sub: '2 active', icon: BarChart3 },
+  { label: 'Upcoming content', value: 7, sub: 'to be posted', icon: Calendar },
+  { label: 'Pending payments', value: '$6,800', sub: '5 invoices', icon: CreditCard },
 ]
 
-type Status = 'negotiating' | 'confirmed' | 'content_due' | 'posted' | 'paid'
+type DealStatus = 'negotiating' | 'confirmed' | 'content_due' | 'posted' | 'paid'
 
-const DEALS: { name: string; handle: string; niche: string; followers: string; campaign: string; fee: number; status: Status }[] = [
-  { name: 'Emma Chen', handle: '@emmachen', niche: 'Beauty', followers: '84K', campaign: 'Summer Glow', fee: 1200, status: 'posted' },
-  { name: 'Jake Torres', handle: '@jakefit', niche: 'Fitness', followers: '210K', campaign: 'Summer Glow', fee: 2500, status: 'content_due' },
-  { name: 'Sofia Kim', handle: '@sofiakim', niche: 'Lifestyle', followers: '56K', campaign: 'Back to School', fee: 900, status: 'confirmed' },
-  { name: 'Marcus Hill', handle: '@marcushill', niche: 'Tech', followers: '125K', campaign: 'Back to School', fee: 1800, status: 'negotiating' },
-  { name: 'Lily Park', handle: '@lilypark', niche: 'Food', followers: '34K', campaign: 'Holiday Launch', fee: 600, status: 'paid' },
-  { name: 'Ryan Cole', handle: '@ryancole', niche: 'Travel', followers: '91K', campaign: 'Holiday Launch', fee: 1500, status: 'confirmed' },
+const DEALS: { name: string; handle: string; niche: string; followers: string; campaign: string; fee: number; status: DealStatus }[] = [
+  { name: 'Emma Chen',  handle: '@emmachen',  niche: 'Beauty',    followers: '84K',  campaign: 'Summer Glow',   fee: 1200, status: 'posted' },
+  { name: 'Jake Torres', handle: '@jakefit',  niche: 'Fitness',   followers: '210K', campaign: 'Summer Glow',   fee: 2500, status: 'content_due' },
+  { name: 'Sofia Kim',  handle: '@sofiakim',  niche: 'Lifestyle', followers: '56K',  campaign: 'Back to School', fee: 900, status: 'confirmed' },
+  { name: 'Marcus Hill', handle: '@marcushill', niche: 'Tech',    followers: '125K', campaign: 'Back to School', fee: 1800, status: 'negotiating' },
+  { name: 'Lily Park',  handle: '@lilypark',  niche: 'Food',      followers: '34K',  campaign: 'Holiday Launch', fee: 600, status: 'paid' },
+  { name: 'Ryan Cole',  handle: '@ryancole',  niche: 'Travel',    followers: '91K',  campaign: 'Holiday Launch', fee: 1500, status: 'confirmed' },
 ]
 
 const CONTENT = [
-  { creator: 'Jake Torres', type: 'Reel', due: 'Tomorrow', campaign: 'Summer Glow' },
-  { creator: 'Sofia Kim', type: 'Story', due: 'In 2 days', campaign: 'Back to School' },
-  { creator: 'Ryan Cole', type: 'Post', due: 'In 4 days', campaign: 'Holiday Launch' },
-  { creator: 'Emma Chen', type: 'Video', due: 'In 5 days', campaign: 'Summer Glow' },
+  { creator: 'Jake Torres', type: 'Reel',  due: 'Tomorrow',  campaign: 'Summer Glow',    status: 'pending' },
+  { creator: 'Sofia Kim',   type: 'Story', due: 'In 2 days', campaign: 'Back to School', status: 'in_review' },
+  { creator: 'Ryan Cole',   type: 'Post',  due: 'In 4 days', campaign: 'Holiday Launch', status: 'pending' },
+  { creator: 'Emma Chen',   type: 'Video', due: 'In 5 days', campaign: 'Summer Glow',    status: 'approved' },
 ]
 
-const STATUS_META: Record<Status, { label: string; color: string; icon: React.ElementType }> = {
-  negotiating: { label: 'Negotiating', color: 'bg-yellow-100 text-yellow-800', icon: Clock },
-  confirmed:   { label: 'Confirmed',   color: 'bg-blue-100 text-blue-800',   icon: Check },
-  content_due: { label: 'Content due', color: 'bg-orange-100 text-orange-800', icon: AlertCircle },
-  posted:      { label: 'Posted',      color: 'bg-green-100 text-green-800',  icon: Check },
-  paid:        { label: 'Paid',        color: 'bg-gray-100 text-gray-600',    icon: Check },
-}
-
-const NAV = [
-  { href: '#', label: 'Dashboard', icon: LayoutDashboard, active: true },
-  { href: '#', label: 'Influencers', icon: Users, active: false },
-  { href: '#', label: 'Campaigns', icon: BarChart3, active: false },
-  { href: '#', label: 'Payments', icon: CreditCard, active: false },
+const INFLUENCERS = [
+  { name: 'Emma Chen',   handle: '@emmachen',   platform: 'Instagram', niche: 'Beauty',    followers: '84K',  eng: '4.8%', status: 'active',   cred: 'credible' },
+  { name: 'Jake Torres', handle: '@jakefit',    platform: 'TikTok',    niche: 'Fitness',   followers: '210K', eng: '6.2%', status: 'active',   cred: 'credible' },
+  { name: 'Sofia Kim',   handle: '@sofiakim',   platform: 'Instagram', niche: 'Lifestyle', followers: '56K',  eng: '3.9%', status: 'active',   cred: 'check' },
+  { name: 'Marcus Hill', handle: '@marcushill', platform: 'YouTube',   niche: 'Tech',      followers: '125K', eng: '3.1%', status: 'prospect', cred: 'credible' },
+  { name: 'Lily Park',   handle: '@lilypark',   platform: 'TikTok',    niche: 'Food',      followers: '34K',  eng: '7.2%', status: 'active',   cred: 'credible' },
+  { name: 'Ryan Cole',   handle: '@ryancole',   platform: 'Instagram', niche: 'Travel',    followers: '91K',  eng: '2.1%', status: 'active',   cred: 'low' },
+  { name: 'Aria Nguyen', handle: '@ariangy',    platform: 'TikTok',    niche: 'Fashion',   followers: '178K', eng: '5.5%', status: 'prospect', cred: 'credible' },
 ]
 
-const GROWTH_NAV = [
-  { href: '#', label: 'Discover', icon: Search },
-  { href: '#', label: 'Outreach', icon: Mail },
-  { href: '#', label: 'Contracts', icon: FileText },
+const CAMPAIGNS = [
+  { name: 'Summer Glow',   status: 'active', budget: 8000,  spend: 5200, influencers: 3, endDate: 'Jul 31' },
+  { name: 'Back to School', status: 'active', budget: 5000, spend: 2700, influencers: 2, endDate: 'Aug 20' },
+  { name: 'Holiday Launch', status: 'draft',  budget: 12000, spend: 0,   influencers: 4, endDate: 'Dec 1' },
 ]
 
-export const metadata: Metadata = {
-  title: 'Brand Dashboard Demo — See influencr in Action',
-  description:
-    'Explore a live demo of the influencr brand dashboard. See how to manage influencer campaigns, track deals, monitor content deadlines, and log payments — all in one place.',
-  openGraph: {
-    title: 'Brand Dashboard Demo — influencr',
-    description:
-      'See the influencr brand dashboard with real campaign data, deal pipeline, and content deadline tracking. Start a free 14-day trial.',
+const PAYMENTS = [
+  { name: 'Emma Chen',   campaign: 'Summer Glow',    amount: 1200, status: 'paid',    date: 'Jun 12' },
+  { name: 'Jake Torres', campaign: 'Summer Glow',    amount: 2500, status: 'pending', date: '—' },
+  { name: 'Sofia Kim',   campaign: 'Back to School', amount: 900,  status: 'pending', date: '—' },
+  { name: 'Lily Park',   campaign: 'Holiday Launch', amount: 600,  status: 'paid',    date: 'Jun 5' },
+  { name: 'Ryan Cole',   campaign: 'Holiday Launch', amount: 1500, status: 'pending', date: '—' },
+  { name: 'Marcus Hill', campaign: 'Back to School', amount: 1800, status: 'pending', date: '—' },
+]
+
+const DISCOVER_CREATORS = [
+  { name: 'Alex Rivera',  handle: '@alexrivera',  platform: 'TikTok',    niche: 'Lifestyle', followers: '210K', eng: '6.2%', location: 'New York',      rate: '$800–2,500' },
+  { name: 'Emma Chen',    handle: '@emmachen',    platform: 'Instagram', niche: 'Beauty',    followers: '84K',  eng: '4.8%', location: 'Los Angeles',   rate: '$400–1,200' },
+  { name: 'Marcus Hill',  handle: '@marcushill',  platform: 'YouTube',   niche: 'Tech',      followers: '125K', eng: '3.9%', location: 'San Francisco', rate: '$600–2,000' },
+  { name: 'Zoe Williams', handle: '@zoewills',    platform: 'Instagram', niche: 'Wellness',  followers: '67K',  eng: '5.1%', location: 'Austin',        rate: '$300–900' },
+  { name: 'Kai Nakamura', handle: '@kainakamura', platform: 'TikTok',    niche: 'Gaming',    followers: '340K', eng: '4.3%', location: 'Seattle',       rate: '$1,000–3,500' },
+  { name: 'Priya Sharma', handle: '@priyasharma', platform: 'Instagram', niche: 'Food',      followers: '48K',  eng: '6.8%', location: 'Chicago',       rate: '$200–700' },
+]
+
+const OUTREACH_TEMPLATES = [
+  {
+    name: 'Cold DM — lifestyle brands',
+    platform: 'instagram',
+    subject: 'Collab opportunity with [Brand]',
+    body: 'Hi {{name}},\n\nI came across your content and think you\'d be a great fit for our upcoming campaign.\n\nWe\'re looking for creators in the {{niche}} space who can authentically showcase our product...\n\nBest,\nThe Team',
   },
+  {
+    name: 'YouTube partnership outreach',
+    platform: 'youtube',
+    subject: 'Sponsorship opportunity — {{name}}',
+    body: 'Hi {{name}},\n\nLove your channel. We\'d love to discuss a sponsored integration for your next video...',
+  },
+  {
+    name: 'Follow-up after no reply',
+    platform: 'any',
+    subject: 'Following up: collab with [Brand]',
+    body: 'Hi {{name}},\n\nJust wanted to follow up on my previous message about a potential collab...',
+  },
+]
+
+const CONTRACTS = [
+  { influencer: 'Emma Chen',   campaign: 'Summer Glow',    status: 'signed',  date: 'Jun 1' },
+  { influencer: 'Jake Torres', campaign: 'Summer Glow',    status: 'sent',    date: 'Jun 10' },
+  { influencer: 'Sofia Kim',   campaign: 'Back to School', status: 'draft',   date: '—' },
+  { influencer: 'Ryan Cole',   campaign: 'Holiday Launch', status: 'signed',  date: 'Jun 3' },
+]
+
+/* ─── style maps ─────────────────────────────────────────────────────────────── */
+
+const DEAL_STATUS: Record<DealStatus, { label: string; color: string }> = {
+  negotiating:  { label: 'Negotiating',  color: 'bg-amber-500/15 text-amber-400' },
+  confirmed:    { label: 'Confirmed',    color: 'bg-sky-500/15 text-sky-400' },
+  content_due:  { label: 'Content due',  color: 'bg-orange-500/15 text-orange-400' },
+  posted:       { label: 'Posted',       color: 'bg-green-500/15 text-green-400' },
+  paid:         { label: 'Paid',         color: 'bg-muted text-muted-foreground' },
 }
+
+const CONTENT_STATUS: Record<string, { label: string; color: string }> = {
+  pending:   { label: 'Pending',   color: 'bg-muted text-muted-foreground' },
+  in_review: { label: 'In review', color: 'bg-amber-500/15 text-amber-400' },
+  approved:  { label: 'Approved',  color: 'bg-green-500/15 text-green-400' },
+}
+
+const PLATFORM_COLORS: Record<string, string> = {
+  Instagram: 'bg-pink-500/15 text-pink-400',
+  TikTok:    'bg-foreground/10 text-foreground/80',
+  YouTube:   'bg-red-500/15 text-red-400',
+}
+
+const CRED_META: Record<string, { label: string; color: string }> = {
+  credible: { label: 'Credible',    color: 'text-green-400' },
+  check:    { label: 'Check',       color: 'text-amber-400' },
+  low:      { label: 'Low signal',  color: 'text-red-400' },
+}
+
+const CONTRACT_STATUS: Record<string, string> = {
+  signed: 'bg-green-500/15 text-green-400',
+  sent:   'bg-sky-500/15 text-sky-400',
+  draft:  'bg-muted text-muted-foreground',
+}
+
+/* ─── views ──────────────────────────────────────────────────────────────────── */
+
+function DashboardView() {
+  return (
+    <div>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+        <p className="text-sm text-muted-foreground mt-1">Overview of your influencer relationships</p>
+      </div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {STATS.map(({ label, value, sub, icon: Icon }) => (
+          <div key={label} className="bg-card border border-border rounded-xl p-5 hover:border-brand/40 transition-colors group cursor-default">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-medium text-muted-foreground">{label}</span>
+              <div className="w-8 h-8 bg-muted rounded-lg flex items-center justify-center group-hover:bg-brand/10 transition-colors">
+                <Icon size={15} className="text-muted-foreground group-hover:text-brand transition-colors" />
+              </div>
+            </div>
+            <p className="text-2xl font-bold text-foreground">{value}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>
+          </div>
+        ))}
+      </div>
+      <div className="grid lg:grid-cols-5 gap-6">
+        <div className="lg:col-span-3 bg-card border border-border rounded-xl overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+            <h2 className="font-semibold text-foreground">Active deals</h2>
+            <span className="text-xs text-muted-foreground">3 campaigns</span>
+          </div>
+          <div className="divide-y divide-border">
+            {DEALS.map((deal) => {
+              const meta = DEAL_STATUS[deal.status]
+              return (
+                <div key={deal.name} className="flex items-center gap-4 px-5 py-3.5 hover:bg-muted/40 transition-colors cursor-default">
+                  <div className="w-8 h-8 rounded-full bg-brand/15 flex items-center justify-center shrink-0 text-sm font-bold text-brand">{deal.name[0]}</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{deal.name}</p>
+                    <p className="text-xs text-muted-foreground">{deal.handle} · {deal.followers} · {deal.niche}</p>
+                  </div>
+                  <div className="shrink-0 text-xs text-muted-foreground hidden sm:block">{deal.campaign}</div>
+                  <span className={`shrink-0 text-xs font-medium px-2.5 py-1 rounded-full ${meta.color}`}>{meta.label}</span>
+                  <div className="shrink-0 text-sm font-semibold text-foreground">${deal.fee.toLocaleString()}</div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+        <div className="lg:col-span-2 bg-card border border-border rounded-xl overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+            <h2 className="font-semibold text-foreground">Content due soon</h2>
+            <Calendar size={15} className="text-muted-foreground" />
+          </div>
+          <div className="divide-y divide-border">
+            {CONTENT.map((c) => (
+              <div key={c.creator + c.type} className="px-5 py-4 hover:bg-muted/40 transition-colors cursor-default">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{c.creator}</p>
+                    <p className="text-xs text-muted-foreground">{c.type} · {c.campaign}</p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${CONTENT_STATUS[c.status].color}`}>{CONTENT_STATUS[c.status].label}</span>
+                    <span className={`text-xs font-medium ${c.due === 'Tomorrow' ? 'text-orange-400' : 'text-muted-foreground'}`}>{c.due}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function InfluencersView() {
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Influencers</h1>
+          <p className="text-sm text-muted-foreground mt-1">{INFLUENCERS.length} contacts</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button className="flex items-center gap-2 bg-muted text-muted-foreground px-3 py-2 rounded-lg text-sm font-medium cursor-default">Import CSV</button>
+          <button className="flex items-center gap-2 bg-foreground/90 text-background px-4 py-2 rounded-lg text-sm font-medium cursor-default"><Plus size={14} /> Add influencer</button>
+        </div>
+      </div>
+      <div className="bg-card border border-border rounded-xl overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="border-b border-border">
+            <tr>
+              {['Name', 'Platform', 'Niche', 'Followers', 'Credibility', 'Status'].map((h) => (
+                <th key={h} className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wide">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border">
+            {INFLUENCERS.map((inf) => {
+              const cred = CRED_META[inf.cred]
+              return (
+                <tr key={inf.name} className="hover:bg-muted/30 cursor-default">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-7 h-7 rounded-full bg-brand/15 flex items-center justify-center text-xs font-bold text-brand shrink-0">{inf.name[0]}</div>
+                      <div>
+                        <p className="font-medium text-foreground">{inf.name}</p>
+                        <p className="text-xs text-muted-foreground/70">{inf.handle}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${PLATFORM_COLORS[inf.platform] ?? 'bg-muted text-muted-foreground'}`}>{inf.platform}</span>
+                  </td>
+                  <td className="px-4 py-3 text-muted-foreground">{inf.niche}</td>
+                  <td className="px-4 py-3 text-foreground/80">{inf.followers} <span className="text-muted-foreground/60 text-xs ml-0.5">{inf.eng}</span></td>
+                  <td className="px-4 py-3">
+                    <span className={`flex items-center gap-1 text-xs font-medium ${cred.color}`}>
+                      {inf.cred === 'credible' && <ShieldCheck size={11} />}
+                      {cred.label}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${inf.status === 'active' ? 'bg-green-500/15 text-green-400' : 'bg-muted text-muted-foreground'}`}>{inf.status}</span>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+function CampaignsView() {
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Campaigns</h1>
+          <p className="text-sm text-muted-foreground mt-1">{CAMPAIGNS.length} campaigns</p>
+        </div>
+        <button className="flex items-center gap-2 bg-foreground/90 text-background px-4 py-2 rounded-lg text-sm font-medium cursor-default"><Plus size={14} /> New campaign</button>
+      </div>
+      <div className="space-y-4">
+        {CAMPAIGNS.map((c) => {
+          const pct = c.budget > 0 ? Math.round((c.spend / c.budget) * 100) : 0
+          return (
+            <div key={c.name} className="bg-card border border-border rounded-xl p-6 hover:border-border/80 cursor-default">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h3 className="font-semibold text-foreground text-lg">{c.name}</h3>
+                  <p className="text-xs text-muted-foreground mt-1">{c.influencers} influencers · ends {c.endDate}</p>
+                </div>
+                <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${c.status === 'active' ? 'bg-green-500/15 text-green-400' : 'bg-muted text-muted-foreground'}`}>{c.status}</span>
+              </div>
+              <div className="flex items-center gap-6 mb-3">
+                <div><p className="text-xs text-muted-foreground">Spend</p><p className="font-semibold text-foreground">${c.spend.toLocaleString()}</p></div>
+                <div><p className="text-xs text-muted-foreground">Budget</p><p className="font-semibold text-foreground">${c.budget.toLocaleString()}</p></div>
+                <div className="flex-1">
+                  <p className="text-xs text-muted-foreground mb-1">{pct}% used</p>
+                  <div className="w-full bg-muted rounded-full h-1.5">
+                    <div className="bg-brand h-1.5 rounded-full" style={{ width: `${pct}%` }} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function PaymentsView() {
+  const totalPaid = PAYMENTS.filter(p => p.status === 'paid').reduce((s, p) => s + p.amount, 0)
+  const totalPending = PAYMENTS.filter(p => p.status === 'pending').reduce((s, p) => s + p.amount, 0)
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <div><h1 className="text-2xl font-bold text-foreground">Payments</h1><p className="text-sm text-muted-foreground mt-1">{PAYMENTS.length} records</p></div>
+        <button className="flex items-center gap-2 bg-foreground/90 text-background px-4 py-2 rounded-lg text-sm font-medium cursor-default"><Plus size={14} /> Log payment</button>
+      </div>
+      <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="bg-card border border-border rounded-xl p-5">
+          <div className="flex items-center gap-3 mb-2"><div className="w-8 h-8 bg-green-500/10 rounded-lg flex items-center justify-center"><Check size={14} className="text-green-400" /></div><p className="text-sm text-muted-foreground">Total paid</p></div>
+          <p className="text-2xl font-bold text-foreground">${totalPaid.toLocaleString()}</p>
+        </div>
+        <div className="bg-card border border-border rounded-xl p-5">
+          <div className="flex items-center gap-3 mb-2"><div className="w-8 h-8 bg-amber-500/10 rounded-lg flex items-center justify-center"><Clock size={14} className="text-amber-400" /></div><p className="text-sm text-muted-foreground">Pending</p></div>
+          <p className="text-2xl font-bold text-foreground">${totalPending.toLocaleString()}</p>
+        </div>
+      </div>
+      <div className="bg-card border border-border rounded-xl overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="border-b border-border">
+            <tr>{['Creator', 'Campaign', 'Amount', 'Status', 'Paid date'].map((h) => <th key={h} className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wide">{h}</th>)}</tr>
+          </thead>
+          <tbody className="divide-y divide-border">
+            {PAYMENTS.map((p, i) => (
+              <tr key={i} className="hover:bg-muted/30 cursor-default">
+                <td className="px-4 py-3 font-medium text-foreground">{p.name}</td>
+                <td className="px-4 py-3 text-muted-foreground">{p.campaign}</td>
+                <td className="px-4 py-3 font-semibold text-foreground">${p.amount.toLocaleString()}</td>
+                <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${p.status === 'paid' ? 'bg-green-500/15 text-green-400' : 'bg-amber-500/15 text-amber-400'}`}>{p.status}</span></td>
+                <td className="px-4 py-3 text-muted-foreground">{p.date}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+function DiscoverView() {
+  const [filter, setFilter] = useState('all')
+  const platforms = ['all', 'Instagram', 'TikTok', 'YouTube']
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <div><h1 className="text-2xl font-bold text-foreground">Discover creators</h1><p className="text-sm text-muted-foreground mt-1">Browse public creator profiles</p></div>
+      </div>
+      <div className="flex items-center gap-3 mb-5">
+        <div className="flex-1 relative">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+          <input readOnly placeholder="Search by niche, handle, location…" className="w-full pl-9 pr-4 py-2 bg-card border border-border rounded-lg text-sm text-muted-foreground cursor-default" />
+        </div>
+        <div className="flex gap-1">
+          {platforms.map(p => (
+            <button key={p} onClick={() => setFilter(p)} className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${filter === p ? 'bg-foreground/90 text-background' : 'bg-card border border-border text-muted-foreground hover:bg-muted'}`}>
+              {p === 'all' ? 'All' : p}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {DISCOVER_CREATORS.filter(c => filter === 'all' || c.platform === filter).map((c) => (
+          <div key={c.name} className="bg-card border border-border rounded-xl p-5 hover:border-brand/30 transition-colors cursor-default">
+            <div className="flex items-start gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-brand/15 flex items-center justify-center text-sm font-bold text-brand shrink-0">{c.name[0]}</div>
+              <div>
+                <p className="font-semibold text-foreground">{c.name}</p>
+                <p className="text-xs text-muted-foreground">{c.handle}</p>
+                <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground/70"><MapPin size={10} />{c.location}</div>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-1.5 mb-4">
+              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${PLATFORM_COLORS[c.platform] ?? 'bg-muted text-muted-foreground'}`}>{c.platform}</span>
+              <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground">{c.niche}</span>
+            </div>
+            <div className="grid grid-cols-3 gap-2 mb-4 text-center">
+              <div><p className="text-sm font-bold text-foreground">{c.followers}</p><p className="text-xs text-muted-foreground">followers</p></div>
+              <div><p className="text-sm font-bold text-brand">{c.eng}</p><p className="text-xs text-muted-foreground">engagement</p></div>
+              <div><p className="text-xs font-semibold text-foreground">{c.rate}</p><p className="text-xs text-muted-foreground">per post</p></div>
+            </div>
+            <button className="w-full flex items-center justify-center gap-2 bg-muted text-muted-foreground hover:bg-brand/10 hover:text-brand px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-default">
+              <Plus size={12} /> Add to campaign
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function OutreachView() {
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Outreach templates</h1>
+          <p className="text-sm text-muted-foreground mt-1">{OUTREACH_TEMPLATES.length} templates · Use <code className="text-xs bg-muted px-1 py-0.5 rounded">{'{{name}}'}</code>, <code className="text-xs bg-muted px-1 py-0.5 rounded">{'{{niche}}'}</code> as variables</p>
+        </div>
+        <button className="flex items-center gap-2 bg-foreground/90 text-background px-4 py-2 rounded-lg text-sm font-medium cursor-default"><Plus size={14} /> New template</button>
+      </div>
+      <div className="space-y-3">
+        {OUTREACH_TEMPLATES.map((t) => (
+          <div key={t.name} className="bg-card border border-border rounded-xl overflow-hidden">
+            <div className="p-5">
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <h3 className="font-semibold text-foreground">{t.name}</h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">{t.platform}</span>
+                    <span className="text-xs text-muted-foreground/70">Subject: {t.subject}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button className="flex items-center gap-1 bg-muted text-muted-foreground hover:text-foreground px-2 py-1 rounded text-xs font-medium transition-colors cursor-default"><Send size={11} /> Send</button>
+                  <button className="p-1.5 text-muted-foreground/70 hover:text-foreground transition-colors cursor-default"><Copy size={13} /></button>
+                  <button className="p-1.5 text-muted-foreground/70 hover:text-foreground transition-colors cursor-default"><Pencil size={13} /></button>
+                  <button className="p-1.5 text-muted-foreground/70 hover:text-red-400 transition-colors cursor-default"><Trash2 size={13} /></button>
+                </div>
+              </div>
+              <pre className="text-xs text-muted-foreground font-mono whitespace-pre-wrap line-clamp-3 leading-relaxed">{t.body}</pre>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function ContractsView() {
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <div><h1 className="text-2xl font-bold text-foreground">Contracts</h1><p className="text-sm text-muted-foreground mt-1">{CONTRACTS.length} contracts</p></div>
+        <button className="flex items-center gap-2 bg-foreground/90 text-background px-4 py-2 rounded-lg text-sm font-medium cursor-default"><Plus size={14} /> New contract</button>
+      </div>
+      <div className="bg-card border border-border rounded-xl overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="border-b border-border">
+            <tr>{['Influencer', 'Campaign', 'Status', 'Date', ''].map((h) => <th key={h} className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wide">{h}</th>)}</tr>
+          </thead>
+          <tbody className="divide-y divide-border">
+            {CONTRACTS.map((c, i) => (
+              <tr key={i} className="hover:bg-muted/30 cursor-default">
+                <td className="px-4 py-3 font-medium text-foreground">{c.influencer}</td>
+                <td className="px-4 py-3 text-muted-foreground">{c.campaign}</td>
+                <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${CONTRACT_STATUS[c.status]}`}>{c.status}</span></td>
+                <td className="px-4 py-3 text-muted-foreground">{c.date}</td>
+                <td className="px-4 py-3 text-right">
+                  <button className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 ml-auto cursor-default"><ExternalLink size={11} /> View</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+function SettingsView() {
+  return (
+    <div>
+      <div className="mb-8"><h1 className="text-2xl font-bold text-foreground">Settings</h1><p className="text-sm text-muted-foreground mt-1">Manage your account and preferences</p></div>
+      <div className="max-w-2xl space-y-6">
+        <div className="bg-card border border-border rounded-xl p-6">
+          <h2 className="font-semibold text-foreground mb-4">Account</h2>
+          <div className="space-y-4">
+            {[{ label: 'Name', value: 'Demo Brand' }, { label: 'Email', value: 'brand@demo.com' }, { label: 'Company', value: 'Demo Co.' }].map(({ label, value }) => (
+              <div key={label}>
+                <label className="text-xs font-medium text-muted-foreground block mb-1">{label}</label>
+                <input readOnly value={value} className="w-full px-3 py-2 bg-muted border border-border rounded-lg text-sm text-foreground cursor-default" />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="bg-card border border-border rounded-xl p-6">
+          <h2 className="font-semibold text-foreground mb-4">Plan</h2>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium text-foreground">Brand plan</p>
+              <p className="text-sm text-muted-foreground">$19/mo · unlimited campaigns and contacts</p>
+            </div>
+            <span className="text-xs bg-brand/15 text-brand font-semibold px-3 py-1 rounded-full">Active</span>
+          </div>
+        </div>
+        <div className="bg-card border border-border rounded-xl p-6">
+          <h2 className="font-semibold text-foreground mb-4">Email sending</h2>
+          <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+            <div className="w-2 h-2 rounded-full bg-green-400" />
+            <p className="text-sm text-foreground">Connected · sends from <code className="text-xs bg-muted px-1 rounded">hello@yourbrand.com</code></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ─── tab config ─────────────────────────────────────────────────────────────── */
+
+type Tab = 'dashboard' | 'influencers' | 'campaigns' | 'payments' | 'discover' | 'outreach' | 'contracts' | 'settings'
+
+const MAIN_NAV: { id: Tab; label: string; icon: React.ElementType }[] = [
+  { id: 'dashboard',   label: 'Dashboard',   icon: LayoutDashboard },
+  { id: 'influencers', label: 'Influencers', icon: Users },
+  { id: 'campaigns',   label: 'Campaigns',   icon: BarChart3 },
+  { id: 'payments',    label: 'Payments',    icon: CreditCard },
+]
+
+const GROWTH_NAV: { id: Tab; label: string; icon: React.ElementType }[] = [
+  { id: 'discover',  label: 'Discover',  icon: Search },
+  { id: 'outreach',  label: 'Outreach',  icon: Mail },
+  { id: 'contracts', label: 'Contracts', icon: FileText },
+]
+
+/* ─── shell ──────────────────────────────────────────────────────────────────── */
 
 export default function BrandDemo() {
+  const [tab, setTab] = useState<Tab>('dashboard')
+
   return (
     <div className="flex h-screen bg-background overflow-hidden font-sans">
       {/* Sidebar */}
-      <aside className="w-56 shrink-0 bg-card border-r border-border flex flex-col h-full">
+      <aside className="w-56 shrink-0 bg-sidebar border-r border-border flex flex-col h-full">
         <div className="px-5 py-5 border-b border-border flex items-center justify-between">
-          <span className="font-display font-bold text-lg tracking-tight text-foreground">influencr</span>
+          <span className="font-bold text-lg tracking-tight text-foreground">influencr</span>
           <span className="text-xs bg-brand/15 text-brand font-semibold px-2 py-0.5 rounded-full">Demo</span>
         </div>
         <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-          {NAV.map(({ href, label, icon: Icon, active }) => (
-            <a
-              key={label}
-              href={href}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                active ? 'bg-brand text-brand-foreground' : 'text-muted-foreground hover:bg-muted'
+          {MAIN_NAV.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              onClick={() => setTab(id)}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left ${
+                tab === id ? 'bg-brand text-brand-foreground' : 'text-muted-foreground hover:bg-muted hover:text-foreground'
               }`}
             >
-              <Icon size={15} />
-              {label}
-            </a>
+              <Icon size={15} />{label}
+            </button>
           ))}
           <div className="pt-4 pb-1">
             <p className="px-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">Growth</p>
           </div>
-          {GROWTH_NAV.map(({ href, label, icon: Icon }) => (
-            <a key={label} href={href} className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:bg-muted transition-colors">
-              <Icon size={15} />
-              {label}
-            </a>
+          {GROWTH_NAV.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              onClick={() => setTab(id)}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left ${
+                tab === id ? 'bg-brand text-brand-foreground' : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+              }`}
+            >
+              <Icon size={15} />{label}
+            </button>
           ))}
         </nav>
-        <div className="px-3 pb-4 border-t border-border pt-4 space-y-0.5">
-          <a href="#" className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:bg-muted transition-colors">
-            <Settings size={15} />
-            Settings
-          </a>
+        <div className="px-3 pb-4 border-t border-border pt-4">
+          <button
+            onClick={() => setTab('settings')}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left ${
+              tab === 'settings' ? 'bg-brand text-brand-foreground' : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+            }`}
+          >
+            <Settings size={15} />Settings
+          </button>
           <p className="px-3 pt-2 text-xs text-muted-foreground/50 truncate">brand@demo.com</p>
         </div>
       </aside>
@@ -107,93 +579,23 @@ export default function BrandDemo() {
       {/* Main */}
       <main className="flex-1 overflow-y-auto">
         <div className="p-8">
-          {/* Demo banner */}
           <div className="mb-6 bg-brand/10 border border-brand/20 rounded-xl px-5 py-3 flex items-center justify-between gap-4">
             <p className="text-sm text-foreground/80">
-              <span className="font-semibold text-foreground">Brand demo</span> — this is what your dashboard looks like. All data is fake.
+              <span className="font-semibold text-foreground">Brand demo</span> — click any sidebar item to explore. All data is fake.
             </p>
-            <Link
-              href="/signup?type=brand"
-              className="shrink-0 flex items-center gap-1.5 bg-brand text-brand-foreground px-4 py-1.5 rounded-lg text-sm font-bold hover:brightness-110 transition-all"
-            >
+            <Link href="/signup?type=brand" className="shrink-0 flex items-center gap-1.5 bg-brand text-brand-foreground px-4 py-1.5 rounded-lg text-sm font-bold hover:brightness-110 transition-all">
               Start free trial <ArrowRight size={13} />
             </Link>
           </div>
 
-          <div className="mb-8">
-            <h1 className="font-display text-2xl font-bold text-foreground">Dashboard</h1>
-            <p className="text-sm text-muted-foreground mt-1">Overview of your influencer relationships</p>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            {STATS.map(({ label, value, sub, icon: Icon }) => (
-              <div key={label} className="bg-card border border-border rounded-xl p-5 hover:border-brand/40 transition-colors group cursor-default">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm font-medium text-muted-foreground">{label}</span>
-                  <div className="w-8 h-8 bg-muted rounded-lg flex items-center justify-center group-hover:bg-brand/10 transition-colors">
-                    <Icon size={15} className="text-muted-foreground group-hover:text-brand transition-colors" />
-                  </div>
-                </div>
-                <p className="text-2xl font-bold text-foreground">{value}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="grid lg:grid-cols-5 gap-6">
-            {/* Deals table */}
-            <div className="lg:col-span-3 bg-card border border-border rounded-xl overflow-hidden">
-              <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-                <h2 className="font-semibold text-foreground">Active deals</h2>
-                <span className="text-xs text-muted-foreground">3 campaigns</span>
-              </div>
-              <div className="divide-y divide-border">
-                {DEALS.map((deal) => {
-                  const meta = STATUS_META[deal.status]
-                  return (
-                    <div key={deal.name} className="flex items-center gap-4 px-5 py-3.5 hover:bg-muted/40 transition-colors">
-                      <div className="w-8 h-8 rounded-full bg-brand/15 flex items-center justify-center shrink-0 text-sm font-bold text-brand">
-                        {deal.name[0]}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">{deal.name}</p>
-                        <p className="text-xs text-muted-foreground">{deal.handle} · {deal.followers} · {deal.niche}</p>
-                      </div>
-                      <div className="shrink-0 text-xs text-muted-foreground hidden sm:block">{deal.campaign}</div>
-                      <span className={`shrink-0 text-xs font-medium px-2.5 py-1 rounded-full ${meta.color}`}>
-                        {meta.label}
-                      </span>
-                      <div className="shrink-0 text-sm font-semibold text-foreground">${deal.fee.toLocaleString()}</div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* Content deadlines */}
-            <div className="lg:col-span-2 bg-card border border-border rounded-xl overflow-hidden">
-              <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-                <h2 className="font-semibold text-foreground">Content due soon</h2>
-                <Calendar size={15} className="text-muted-foreground" />
-              </div>
-              <div className="divide-y divide-border">
-                {CONTENT.map((c) => (
-                  <div key={c.creator + c.type} className="px-5 py-4">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{c.creator}</p>
-                        <p className="text-xs text-muted-foreground">{c.type} · {c.campaign}</p>
-                      </div>
-                      <span className={`text-xs font-medium shrink-0 ${c.due === 'Tomorrow' ? 'text-orange-600' : 'text-muted-foreground'}`}>
-                        {c.due}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+          {tab === 'dashboard'   && <DashboardView />}
+          {tab === 'influencers' && <InfluencersView />}
+          {tab === 'campaigns'   && <CampaignsView />}
+          {tab === 'payments'    && <PaymentsView />}
+          {tab === 'discover'    && <DiscoverView />}
+          {tab === 'outreach'    && <OutreachView />}
+          {tab === 'contracts'   && <ContractsView />}
+          {tab === 'settings'    && <SettingsView />}
         </div>
       </main>
     </div>

@@ -145,3 +145,151 @@ CREATE TRIGGER update_content_updated_at BEFORE UPDATE ON content
 
 CREATE TRIGGER update_payments_updated_at BEFORE UPDATE ON payments
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- =============================================================
+-- TWO-SIDED PLATFORM ADDITIONS
+-- Run this block in Supabase SQL editor after the base schema
+-- =============================================================
+
+-- Account type per user (brand vs creator)
+CREATE TABLE IF NOT EXISTS user_account_types (
+  user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  account_type TEXT NOT NULL DEFAULT 'brand',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Creator public profiles
+CREATE TABLE IF NOT EXISTS creator_profiles (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE,
+  username TEXT NOT NULL UNIQUE,
+  display_name TEXT,
+  bio TEXT,
+  location TEXT,
+  niches TEXT[] NOT NULL DEFAULT '{}',
+  rate_min INTEGER,
+  rate_max INTEGER,
+  avatar_url TEXT,
+  is_public BOOLEAN NOT NULL DEFAULT false,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Per-platform follower stats for creators
+CREATE TABLE IF NOT EXISTS creator_platform_stats (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  profile_id UUID NOT NULL REFERENCES creator_profiles(id) ON DELETE CASCADE,
+  platform TEXT NOT NULL,
+  handle TEXT,
+  followers INTEGER,
+  engagement_rate NUMERIC(5,2),
+  UNIQUE(profile_id, platform)
+);
+
+-- Creator invoices (creator → brand)
+CREATE TABLE IF NOT EXISTS creator_invoices (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  creator_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  brand_name TEXT NOT NULL,
+  brand_email TEXT NOT NULL,
+  description TEXT NOT NULL,
+  amount INTEGER NOT NULL,
+  currency TEXT NOT NULL DEFAULT 'USD',
+  due_date DATE,
+  pay_token TEXT NOT NULL UNIQUE DEFAULT encode(gen_random_bytes(24), 'hex'),
+  status TEXT NOT NULL DEFAULT 'draft',
+  sent_at TIMESTAMPTZ,
+  viewed_at TIMESTAMPTZ,
+  paid_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Outreach email templates (brand)
+CREATE TABLE IF NOT EXISTS outreach_templates (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  subject TEXT,
+  body TEXT NOT NULL DEFAULT '',
+  platform TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Outreach sent-email log
+CREATE TABLE IF NOT EXISTS outreach_logs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  template_id UUID REFERENCES outreach_templates(id) ON DELETE SET NULL,
+  influencer_id UUID REFERENCES influencers(id) ON DELETE SET NULL,
+  to_email TEXT NOT NULL,
+  subject TEXT NOT NULL,
+  body TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'sent',
+  resend_id TEXT,
+  sent_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Contracts (brand-generated, creator signs via token link)
+CREATE TABLE IF NOT EXISTS contracts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  influencer_id UUID REFERENCES influencers(id) ON DELETE SET NULL,
+  campaign_id UUID REFERENCES campaigns(id) ON DELETE SET NULL,
+  title TEXT NOT NULL,
+  content TEXT NOT NULL DEFAULT '',
+  sign_token TEXT NOT NULL UNIQUE DEFAULT encode(gen_random_bytes(24), 'hex'),
+  status TEXT NOT NULL DEFAULT 'draft',
+  sent_at TIMESTAMPTZ,
+  signed_at TIMESTAMPTZ,
+  signer_name TEXT,
+  signer_ip TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- RLS
+ALTER TABLE user_account_types ENABLE ROW LEVEL SECURITY;
+ALTER TABLE creator_profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE creator_platform_stats ENABLE ROW LEVEL SECURITY;
+ALTER TABLE creator_invoices ENABLE ROW LEVEL SECURITY;
+ALTER TABLE outreach_templates ENABLE ROW LEVEL SECURITY;
+ALTER TABLE outreach_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE contracts ENABLE ROW LEVEL SECURITY;
+
+-- user_account_types
+CREATE POLICY "Users manage own account type" ON user_account_types FOR ALL USING (auth.uid() = user_id);
+
+-- creator_profiles: owners write, public read published
+CREATE POLICY "Creator owns profile" ON creator_profiles FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Public read published profiles" ON creator_profiles FOR SELECT USING (is_public = true);
+
+-- creator_platform_stats: follow creator_profiles ownership
+CREATE POLICY "Creator owns platform stats" ON creator_platform_stats FOR ALL
+  USING (EXISTS (SELECT 1 FROM creator_profiles WHERE id = profile_id AND user_id = auth.uid()));
+CREATE POLICY "Public read published stats" ON creator_platform_stats FOR SELECT
+  USING (EXISTS (SELECT 1 FROM creator_profiles WHERE id = profile_id AND is_public = true));
+
+-- creator_invoices
+CREATE POLICY "Creator owns invoices" ON creator_invoices FOR ALL USING (auth.uid() = creator_id);
+CREATE POLICY "Public invoice read by token" ON creator_invoices FOR SELECT USING (true);
+
+-- outreach_templates
+CREATE POLICY "Users manage own templates" ON outreach_templates FOR ALL USING (auth.uid() = user_id);
+
+-- outreach_logs
+CREATE POLICY "Users manage own outreach logs" ON outreach_logs FOR ALL USING (auth.uid() = user_id);
+
+-- contracts
+CREATE POLICY "Users manage own contracts" ON contracts FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Public contract read by token" ON contracts FOR SELECT USING (true);
+
+-- updated_at triggers for new tables
+CREATE TRIGGER update_creator_profiles_updated_at BEFORE UPDATE ON creator_profiles
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+CREATE TRIGGER update_outreach_templates_updated_at BEFORE UPDATE ON outreach_templates
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+CREATE TRIGGER update_contracts_updated_at BEFORE UPDATE ON contracts
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();

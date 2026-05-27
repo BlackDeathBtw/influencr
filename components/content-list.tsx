@@ -32,7 +32,7 @@ interface Props {
 }
 
 const statusColors: Record<string, string> = {
-  briefed: 'bg-zinc-100 text-zinc-600',
+  briefed: 'bg-muted text-muted-foreground',
   in_review: 'bg-amber-100 text-amber-700',
   approved: 'bg-blue-100 text-blue-700',
   posted: 'bg-green-100 text-green-700',
@@ -113,13 +113,13 @@ export default function ContentList({ campaignId, userId, content, influencers }
   }
 
   return (
-    <div className="bg-white border border-zinc-200 rounded-xl p-5">
+    <div className="bg-card border border-border rounded-xl p-5">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="font-semibold text-zinc-900">Content ({content.length})</h2>
+        <h2 className="font-semibold text-foreground">Content ({content.length})</h2>
         {!adding && (
           <button
             onClick={() => setAdding(true)}
-            className="flex items-center gap-1.5 text-sm text-zinc-600 hover:text-zinc-900 font-medium"
+            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground font-medium"
           >
             <Plus size={14} /> Add
           </button>
@@ -127,12 +127,12 @@ export default function ContentList({ campaignId, userId, content, influencers }
       </div>
 
       {adding && (
-        <div className="mb-4 p-4 bg-zinc-50 rounded-lg border border-zinc-200 space-y-3">
+        <div className="mb-4 p-4 bg-background rounded-lg border border-border space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <select
               value={form.influencer_id}
               onChange={e => setForm(f => ({ ...f, influencer_id: e.target.value }))}
-              className="px-3 py-2 border border-zinc-200 rounded-lg text-sm bg-white"
+              className="px-3 py-2 border border-border rounded-lg text-sm bg-card"
             >
               <option value="">Select influencer</option>
               {influencers.map(inf => <option key={inf.id} value={inf.id}>{inf.name}</option>)}
@@ -140,7 +140,7 @@ export default function ContentList({ campaignId, userId, content, influencers }
             <select
               value={form.type}
               onChange={e => setForm(f => ({ ...f, type: e.target.value }))}
-              className="px-3 py-2 border border-zinc-200 rounded-lg text-sm bg-white"
+              className="px-3 py-2 border border-border rounded-lg text-sm bg-card"
             >
               {CONTENT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
@@ -149,12 +149,12 @@ export default function ContentList({ campaignId, userId, content, influencers }
               value={form.due_date}
               onChange={e => setForm(f => ({ ...f, due_date: e.target.value }))}
               placeholder="Due date"
-              className="px-3 py-2 border border-zinc-200 rounded-lg text-sm bg-white"
+              className="px-3 py-2 border border-border rounded-lg text-sm bg-card"
             />
             <select
               value={form.status}
               onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
-              className="px-3 py-2 border border-zinc-200 rounded-lg text-sm bg-white"
+              className="px-3 py-2 border border-border rounded-lg text-sm bg-card"
             >
               {CONTENT_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
@@ -163,19 +163,19 @@ export default function ContentList({ campaignId, userId, content, influencers }
             value={form.url}
             onChange={e => setForm(f => ({ ...f, url: e.target.value }))}
             placeholder="Content URL (optional)"
-            className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-sm"
+            className="w-full px-3 py-2 border border-border rounded-lg text-sm"
           />
           <div className="flex gap-2">
             <button
               onClick={addContent}
               disabled={!form.influencer_id || loading}
-              className="bg-zinc-900 text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
+              className="bg-foreground/90 text-background px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
             >
               {loading ? 'Adding…' : 'Add content'}
             </button>
             <button
               onClick={() => setAdding(false)}
-              className="border border-zinc-200 text-zinc-600 px-4 py-2 rounded-lg text-sm"
+              className="border border-border text-muted-foreground px-4 py-2 rounded-lg text-sm"
             >
               Cancel
             </button>
@@ -184,23 +184,23 @@ export default function ContentList({ campaignId, userId, content, influencers }
       )}
 
       {content.length === 0 ? (
-        <p className="text-sm text-zinc-400 py-4 text-center">No content pieces tracked yet</p>
+        <p className="text-sm text-muted-foreground/70 py-4 text-center">No content pieces tracked yet</p>
       ) : (
         <div className="space-y-1">
           {content.map(c => (
-            <div key={c.id} className="border-b border-zinc-100 last:border-0">
+            <div key={c.id} className="border-b border-border last:border-0">
               <div className="flex items-center justify-between py-2">
                 <div className="flex items-center gap-3">
                   <div>
                     <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium text-zinc-800">{c.influencer?.name ?? '—'}</p>
-                      <span className="text-xs text-zinc-400 capitalize">{c.type}</span>
+                      <p className="text-sm font-medium text-foreground/90">{c.influencer?.name ?? '—'}</p>
+                      <span className="text-xs text-muted-foreground/70 capitalize">{c.type}</span>
                     </div>
                     {c.due_date && (
-                      <p className="text-xs text-zinc-400">Due: {new Date(c.due_date).toLocaleDateString()}</p>
+                      <p className="text-xs text-muted-foreground/70">Due: {new Date(c.due_date).toLocaleDateString()}</p>
                     )}
                     {(c.views || c.reach) ? (
-                      <p className="text-xs text-zinc-400 mt-0.5">
+                      <p className="text-xs text-muted-foreground/70 mt-0.5">
                         {c.views ? `${c.views.toLocaleString()} views` : ''}
                         {c.views && c.reach ? ' · ' : ''}
                         {c.reach ? `${c.reach.toLocaleString()} reach` : ''}
@@ -210,7 +210,7 @@ export default function ContentList({ campaignId, userId, content, influencers }
                 </div>
                 <div className="flex items-center gap-2">
                   {c.url && (
-                    <a href={c.url} target="_blank" rel="noopener noreferrer" className="text-zinc-400 hover:text-zinc-700">
+                    <a href={c.url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground/70 hover:text-foreground/80">
                       <ExternalLink size={13} />
                     </a>
                   )}
@@ -219,7 +219,7 @@ export default function ContentList({ campaignId, userId, content, influencers }
                       setExpandedId(expandedId === c.id ? null : c.id)
                       setRoiForm({ views: c.views?.toString() ?? '', reach: c.reach?.toString() ?? '', likes: c.likes?.toString() ?? '', comments: c.comments?.toString() ?? '' })
                     }}
-                    className="text-xs text-zinc-400 hover:text-zinc-700 font-medium"
+                    className="text-xs text-muted-foreground/70 hover:text-foreground/80 font-medium"
                   >
                     ROI
                   </button>
@@ -232,26 +232,26 @@ export default function ContentList({ campaignId, userId, content, influencers }
                       <option key={s} value={s}>{s.replace('_', ' ')}</option>
                     ))}
                   </select>
-                  <button onClick={() => remove(c.id)} className="text-zinc-300 hover:text-red-500 transition-colors">
+                  <button onClick={() => remove(c.id)} className="text-muted-foreground/90 hover:text-red-500 transition-colors">
                     <Trash2 size={14} />
                   </button>
                 </div>
               </div>
               {expandedId === c.id && (
                 <div className="pb-3 px-1">
-                  <div className="bg-zinc-50 rounded-lg p-3 space-y-2">
-                    <p className="text-xs font-medium text-zinc-500 mb-2">Log performance metrics</p>
+                  <div className="bg-background rounded-lg p-3 space-y-2">
+                    <p className="text-xs font-medium text-muted-foreground mb-2">Log performance metrics</p>
                     <div className="grid grid-cols-2 gap-2">
                       {(['views', 'reach', 'likes', 'comments'] as const).map(field => (
                         <div key={field}>
-                          <label className="block text-xs text-zinc-500 mb-1 capitalize">{field}</label>
+                          <label className="block text-xs text-muted-foreground mb-1 capitalize">{field}</label>
                           <input
                             type="number"
                             min="0"
                             value={roiForm[field] ?? ''}
                             onChange={e => setRoiForm(f => ({ ...f, [field]: e.target.value }))}
                             placeholder="0"
-                            className="w-full px-2 py-1.5 border border-zinc-200 rounded text-sm"
+                            className="w-full px-2 py-1.5 border border-border rounded text-sm"
                           />
                         </div>
                       ))}
@@ -259,7 +259,7 @@ export default function ContentList({ campaignId, userId, content, influencers }
                     <button
                       onClick={() => saveRoi(c.id)}
                       disabled={savingRoi}
-                      className="w-full bg-zinc-900 text-white py-1.5 rounded text-xs font-medium disabled:opacity-50"
+                      className="w-full bg-foreground/90 text-background py-1.5 rounded text-xs font-medium disabled:opacity-50"
                     >
                       {savingRoi ? 'Saving…' : 'Save metrics'}
                     </button>

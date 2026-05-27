@@ -15,8 +15,8 @@ export default async function PaymentsPage() {
   return (
     <div className="p-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-zinc-900">Payments</h1>
-        <p className="text-sm text-zinc-500 mt-1">Track influencer fees and invoices</p>
+        <h1 className="text-2xl font-bold text-foreground">Payments</h1>
+        <p className="text-sm text-muted-foreground mt-1">Track influencer fees and invoices</p>
       </div>
       <PaymentManager
         payments={payments}

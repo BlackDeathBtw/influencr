@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import BillingSection from '@/components/billing-section'
+import BrandKitSection from '@/components/brand-kit-section'
 
 export default async function SettingsPage() {
   const supabase = await createClient()
@@ -13,21 +14,23 @@ export default async function SettingsPage() {
 
   return (
     <div className="p-8 max-w-2xl">
-      <h1 className="text-2xl font-bold text-zinc-900 mb-6">Settings</h1>
+      <h1 className="text-2xl font-bold text-foreground mb-6">Settings</h1>
 
-      <div className="bg-white border border-zinc-200 rounded-xl p-6 mb-6">
-        <h2 className="font-semibold text-zinc-900 mb-4">Account</h2>
+      <div className="bg-card border border-border rounded-xl p-6 mb-6">
+        <h2 className="font-semibold text-foreground mb-4">Account</h2>
         <div className="space-y-3">
           <div>
-            <label className="block text-xs font-medium text-zinc-500 mb-1">Email</label>
-            <p className="text-sm text-zinc-800">{user?.email}</p>
+            <label className="block text-xs font-medium text-muted-foreground mb-1">Email</label>
+            <p className="text-sm text-foreground/90">{user?.email}</p>
           </div>
           <div>
-            <label className="block text-xs font-medium text-zinc-500 mb-1">Account ID</label>
-            <p className="text-sm text-zinc-400 font-mono">{user?.id}</p>
+            <label className="block text-xs font-medium text-muted-foreground mb-1">Account ID</label>
+            <p className="text-sm text-muted-foreground/70 font-mono">{user?.id}</p>
           </div>
         </div>
       </div>
+
+      <BrandKitSection />
 
       <BillingSection subscription={subscription} userEmail={user?.email ?? ''} />
     </div>
