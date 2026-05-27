@@ -2,7 +2,10 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import {
-  DndContext, DragOverlay, PointerSensor, useSensor, useSensors,
+  DndContext, DragOverlay,
+  PointerSensor, MouseSensor, TouchSensor,
+  useSensor, useSensors,
+  closestCenter, MeasuringStrategy,
   type DragStartEvent, type DragEndEvent,
 } from '@dnd-kit/core'
 import { useDroppable, useDraggable } from '@dnd-kit/core'
@@ -120,9 +123,13 @@ function DraggableCard({
   creator: Creator
   onOpen: (c: Creator) => void
 }) {
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: creator.id })
+  const { attributes, listeners, setNodeRef, isDragging, transform } = useDraggable({ id: creator.id })
+  const style = {
+    touchAction: 'none' as const,
+    ...(transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`, zIndex: 10, position: 'relative' as const } : {}),
+  }
   return (
-    <div ref={setNodeRef} {...attributes} {...listeners} role="button" aria-label={`Drag ${creator.name}`}>
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners} role="button" aria-label={`Drag ${creator.name}`}>
       <CreatorCard creator={creator} onClick={() => onOpen(creator)} isDragging={isDragging} />
     </div>
   )
@@ -437,7 +444,11 @@ export default function CrmKanban({ influencers }: { influencers: Creator[] }) {
   const [activeId, setActiveId] = useState<string | null>(null)
   const [panelCreator, setPanelCreator] = useState<Creator | null>(null)
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
+  const sensors = useSensors(
+    useSensor(MouseSensor,   { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor,   { activationConstraint: { delay: 150, tolerance: 5 } }),
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+  )
 
   const byStage = useMemo(() => {
     const map = new Map<string, Creator[]>()
@@ -455,10 +466,13 @@ export default function CrmKanban({ influencers }: { influencers: Creator[] }) {
 
   const handleDragEnd = useCallback(({ active, over }: DragEndEvent) => {
     setActiveId(null)
-    if (!over || active.id === over.id) return
-    const maybeStage = String(over.id)
-    if (!STAGES.some(s => s.id === maybeStage)) return
-    const newStage = maybeStage as CrmStage
+    if (!over) return
+    const maybeOver = String(over.id)
+    // over.id is either a stage string or a creator UUID (if dropped on a card)
+    let newStage: CrmStage | undefined = STAGES.some(s => s.id === maybeOver)
+      ? maybeOver as CrmStage
+      : creators.find(c => c.id === maybeOver)?.crm_stage
+    if (!newStage) return
 
     const originalStage = creators.find((c) => c.id === active.id)?.crm_stage
 
@@ -492,7 +506,13 @@ export default function CrmKanban({ influencers }: { influencers: Creator[] }) {
   const activeCreator = activeId ? creators.find((c) => c.id === activeId) ?? null : null
 
   return (
-    <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+    <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        measuring={{ droppable: { strategy: MeasuringStrategy.Always } }}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
       <div className="flex-1 overflow-x-auto overflow-y-hidden px-8 py-6">
         <div className="flex gap-4 h-full min-h-0">
           {STAGES.map((stage) => (

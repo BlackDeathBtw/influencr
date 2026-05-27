@@ -202,3 +202,25 @@ export interface CrmActivity {
   payload: Record<string, unknown>
   created_at: string
 }
+
+export type MarketplaceListingType = 'brand_deal' | 'affiliate' | 'collab'
+
+export interface MarketplaceListing {
+  id: string
+  posted_by: string | null
+  type: MarketplaceListingType
+  title: string
+  description: string | null
+  brand_name: string | null
+  niches: string[] | null
+  platforms: string[] | null
+  budget_min: number | null
+  budget_max: number | null
+  commission_rate: number | null
+  min_followers: number | null
+  location: string | null
+  deadline: string | null
+  is_active: boolean
+  is_featured: boolean
+  created_at: string
+}
