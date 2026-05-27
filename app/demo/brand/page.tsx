@@ -7,7 +7,7 @@ import {
   Settings, Search, Mail, FileText, ArrowRight,
   Calendar, Check, Clock, Plus, ChevronDown,
   Tag, Send, Copy, Pencil, Trash2, ExternalLink,
-  ShieldCheck, Star, MapPin,
+  ShieldCheck, Star, MapPin, Kanban, PenLine, Link as LinkIcon, Download,
 } from 'lucide-react'
 
 /* ─── data ─────────────────────────────────────────────────────────────────── */
@@ -97,6 +97,28 @@ const CONTRACTS = [
   { influencer: 'Jake Torres', campaign: 'Summer Glow',    status: 'sent',    date: 'Jun 10' },
   { influencer: 'Sofia Kim',   campaign: 'Back to School', status: 'draft',   date: '—' },
   { influencer: 'Ryan Cole',   campaign: 'Holiday Launch', status: 'signed',  date: 'Jun 3' },
+]
+
+type CrmStage = 'prospect' | 'outreach' | 'negotiating' | 'contracted' | 'delivered' | 'paid'
+
+const PIPELINE_STAGES: { id: CrmStage; label: string; color: string }[] = [
+  { id: 'prospect',    label: 'Prospect',    color: 'bg-muted text-muted-foreground' },
+  { id: 'outreach',    label: 'Outreach',    color: 'bg-sky-500/15 text-sky-600' },
+  { id: 'negotiating', label: 'Negotiating', color: 'bg-amber-500/15 text-amber-600' },
+  { id: 'contracted',  label: 'Contracted',  color: 'bg-violet-500/15 text-violet-600' },
+  { id: 'delivered',   label: 'Delivered',   color: 'bg-blue-500/15 text-blue-600' },
+  { id: 'paid',        label: 'Paid',        color: 'bg-green-500/15 text-green-600' },
+]
+
+const PIPELINE_CREATORS: { name: string; handle: string; platform: string; followers: string; eng: string; stage: CrmStage }[] = [
+  { name: 'Emma Chen',    handle: '@emmachen',    platform: 'Instagram', followers: '84K',  eng: '4.8%', stage: 'contracted' },
+  { name: 'Jake Torres',  handle: '@jakefit',     platform: 'TikTok',    followers: '210K', eng: '6.2%', stage: 'delivered' },
+  { name: 'Sofia Kim',    handle: '@sofiakim',    platform: 'Instagram', followers: '56K',  eng: '3.9%', stage: 'negotiating' },
+  { name: 'Marcus Hill',  handle: '@marcushill',  platform: 'YouTube',   followers: '125K', eng: '3.1%', stage: 'outreach' },
+  { name: 'Lily Park',    handle: '@lilypark',    platform: 'TikTok',    followers: '34K',  eng: '7.2%', stage: 'paid' },
+  { name: 'Ryan Cole',    handle: '@ryancole',    platform: 'Instagram', followers: '91K',  eng: '2.1%', stage: 'outreach' },
+  { name: 'Aria Nguyen',  handle: '@ariangy',     platform: 'TikTok',    followers: '178K', eng: '5.5%', stage: 'prospect' },
+  { name: 'Zoe Williams', handle: '@zoewills',    platform: 'Instagram', followers: '67K',  eng: '5.1%', stage: 'prospect' },
 ]
 
 /* ─── style maps ─────────────────────────────────────────────────────────────── */
@@ -437,6 +459,55 @@ function OutreachView() {
   )
 }
 
+function PipelineView() {
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Pipeline</h1>
+          <p className="text-sm text-muted-foreground mt-1">Drag creators through your deal stages</p>
+        </div>
+      </div>
+      <div className="overflow-x-auto pb-4">
+        <div className="flex gap-3" style={{ minWidth: 'max-content' }}>
+          {PIPELINE_STAGES.map((stage) => {
+            const creators = PIPELINE_CREATORS.filter(c => c.stage === stage.id)
+            return (
+              <div key={stage.id} className="min-w-[200px] w-[200px] flex flex-col gap-2">
+                <div className="flex items-center justify-between mb-1 px-1">
+                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${stage.color}`}>{stage.label}</span>
+                  <span className="text-xs text-muted-foreground font-medium">{creators.length}</span>
+                </div>
+                <div className="space-y-2 min-h-[120px]">
+                  {creators.length === 0 ? (
+                    <div className="border-2 border-dashed border-border rounded-xl h-[80px] flex items-center justify-center">
+                      <span className="text-xs text-muted-foreground/40">Drop here</span>
+                    </div>
+                  ) : (
+                    creators.map((c) => (
+                      <div key={c.handle} className="bg-card border border-border rounded-xl p-3 cursor-default hover:border-brand/30 transition-colors">
+                        <p className="text-sm font-semibold text-foreground leading-tight">{c.name}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{c.handle}</p>
+                        <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                          <span className={`text-xs font-medium px-1.5 py-0.5 rounded-full ${PLATFORM_COLORS[c.platform] ?? 'bg-muted text-muted-foreground'}`}>{c.platform}</span>
+                          <span className="text-xs text-muted-foreground">{c.followers}</span>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+      <div className="mt-5 bg-muted/50 border border-border rounded-lg px-4 py-2.5 text-xs text-muted-foreground">
+        Drag and drop creators between stages in the real app
+      </div>
+    </div>
+  )
+}
+
 function ContractsView() {
   return (
     <div>
@@ -454,10 +525,25 @@ function ContractsView() {
               <tr key={i} className="hover:bg-muted/30 cursor-default">
                 <td className="px-4 py-3 font-medium text-foreground">{c.influencer}</td>
                 <td className="px-4 py-3 text-muted-foreground">{c.campaign}</td>
-                <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${CONTRACT_STATUS[c.status]}`}>{c.status}</span></td>
+                <td className="px-4 py-3">
+                  <div className="flex flex-col gap-1">
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium w-fit ${CONTRACT_STATUS[c.status]}`}>{c.status}</span>
+                    {c.status === 'signed' && (
+                      <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <PenLine size={10} />Signed by {c.influencer}
+                      </span>
+                    )}
+                  </div>
+                </td>
                 <td className="px-4 py-3 text-muted-foreground">{c.date}</td>
-                <td className="px-4 py-3 text-right">
-                  <button className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 ml-auto cursor-default"><ExternalLink size={11} /> View</button>
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-1 justify-end">
+                    {(c.status === 'sent' || c.status === 'draft') && (
+                      <button title="Copy sign link" className="p-1.5 text-muted-foreground/70 hover:text-foreground transition-colors cursor-default"><LinkIcon size={13} /></button>
+                    )}
+                    <button title="Download PDF" className="p-1.5 text-muted-foreground/70 hover:text-foreground transition-colors cursor-default"><Download size={13} /></button>
+                    <button className="p-1.5 text-muted-foreground/70 hover:text-foreground transition-colors cursor-default"><ExternalLink size={13} /></button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -508,7 +594,7 @@ function SettingsView() {
 
 /* ─── tab config ─────────────────────────────────────────────────────────────── */
 
-type Tab = 'dashboard' | 'influencers' | 'campaigns' | 'payments' | 'discover' | 'outreach' | 'contracts' | 'settings'
+type Tab = 'dashboard' | 'influencers' | 'campaigns' | 'payments' | 'pipeline' | 'discover' | 'outreach' | 'contracts' | 'settings'
 
 const MAIN_NAV: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: 'dashboard',   label: 'Dashboard',   icon: LayoutDashboard },
@@ -518,6 +604,7 @@ const MAIN_NAV: { id: Tab; label: string; icon: React.ElementType }[] = [
 ]
 
 const GROWTH_NAV: { id: Tab; label: string; icon: React.ElementType }[] = [
+  { id: 'pipeline',  label: 'Pipeline',  icon: Kanban },
   { id: 'discover',  label: 'Discover',  icon: Search },
   { id: 'outreach',  label: 'Outreach',  icon: Mail },
   { id: 'contracts', label: 'Contracts', icon: FileText },
@@ -592,6 +679,7 @@ export default function BrandDemo() {
           {tab === 'influencers' && <InfluencersView />}
           {tab === 'campaigns'   && <CampaignsView />}
           {tab === 'payments'    && <PaymentsView />}
+          {tab === 'pipeline'    && <PipelineView />}
           {tab === 'discover'    && <DiscoverView />}
           {tab === 'outreach'    && <OutreachView />}
           {tab === 'contracts'   && <ContractsView />}

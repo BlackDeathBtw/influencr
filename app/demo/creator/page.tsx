@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, FileText, PenLine, BarChart3 } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Creator Profile Demo — Free Media Kit by influencr',
@@ -185,7 +185,7 @@ export default function CreatorDemo() {
         </section>
 
         {/* Testimonials */}
-        <section className="mb-14">
+        <section className="mb-12">
           <h2 className="font-display text-lg font-bold text-foreground mb-5">Brand testimonials</h2>
           <div className="grid sm:grid-cols-2 gap-4">
             {CREATOR.testimonials.map((t) => (
@@ -195,6 +195,57 @@ export default function CreatorDemo() {
                 <p className="text-xs text-muted-foreground">{t.person}</p>
               </div>
             ))}
+          </div>
+        </section>
+
+        {/* Sample invoice */}
+        <section className="mb-12">
+          <h2 className="font-display text-lg font-bold text-foreground mb-5">Sample invoice</h2>
+          <div className="max-w-md bg-card border border-border rounded-xl p-6 space-y-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Invoice</p>
+                <p className="font-semibold text-foreground">Spring Campaign — HelloFresh</p>
+              </div>
+              <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-600">Pending</span>
+            </div>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div><p className="text-xs text-muted-foreground mb-0.5">To</p><p className="text-foreground font-medium">HelloFresh</p></div>
+              <div><p className="text-xs text-muted-foreground mb-0.5">Due date</p><p className="text-foreground">July 15, 2025</p></div>
+            </div>
+            <div className="border-t border-border pt-4 flex items-center justify-between">
+              <div><p className="text-xs text-muted-foreground mb-0.5">Total</p><p className="text-2xl font-bold text-foreground">$1,200</p></div>
+              <p className="text-xs text-muted-foreground">1 Instagram Reel + story set</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Creator HQ */}
+        <section className="mb-12">
+          <h2 className="font-display text-lg font-bold text-foreground mb-2">Your creator HQ</h2>
+          <p className="text-sm text-muted-foreground mb-5">Everything you need to run your creator business — on one platform</p>
+          <div className="grid sm:grid-cols-3 gap-4">
+            <div className="bg-card border border-border rounded-xl p-5">
+              <div className="w-9 h-9 bg-brand/10 rounded-lg flex items-center justify-center mb-4">
+                <FileText size={16} className="text-brand" />
+              </div>
+              <h3 className="font-semibold text-foreground mb-1">Send invoices</h3>
+              <p className="text-sm text-muted-foreground">Create and send professional invoices to brands. Track payment status in one place.</p>
+            </div>
+            <div className="bg-card border border-border rounded-xl p-5">
+              <div className="w-9 h-9 bg-brand/10 rounded-lg flex items-center justify-center mb-4">
+                <PenLine size={16} className="text-brand" />
+              </div>
+              <h3 className="font-semibold text-foreground mb-1">Sign contracts</h3>
+              <p className="text-sm text-muted-foreground">Receive and e-sign brand contracts with a drawn signature. Full audit trail included.</p>
+            </div>
+            <div className="bg-card border border-border rounded-xl p-5">
+              <div className="w-9 h-9 bg-brand/10 rounded-lg flex items-center justify-center mb-4">
+                <BarChart3 size={16} className="text-brand" />
+              </div>
+              <h3 className="font-semibold text-foreground mb-1">Track earnings</h3>
+              <p className="text-sm text-muted-foreground">See all pending and paid invoices. Know exactly what you&apos;re owed and when.</p>
+            </div>
           </div>
         </section>
 
