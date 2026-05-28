@@ -7,7 +7,7 @@ import { z } from 'zod'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
-import { Plus, Trash2, ExternalLink } from 'lucide-react'
+import { Plus, Trash2, ExternalLink, Download } from 'lucide-react'
 import type { CreatorProfile, CreatorPlatformStat } from '@/types'
 
 const PLATFORMS = ['instagram', 'tiktok', 'youtube', 'twitter', 'linkedin', 'other']
@@ -188,17 +188,35 @@ export default function MediaKitPage() {
           <h1 className="font-display text-2xl font-bold text-foreground">Media Kit</h1>
           <p className="text-sm text-muted-foreground mt-1">Edit your public creator profile</p>
         </div>
-        {currentUsername && (
-          <a
-            href={`/c/${currentUsername}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ExternalLink size={14} />
-            View public page
-          </a>
-        )}
+        <div className="flex items-center gap-3">
+          {currentUsername && (
+            <a
+              href={`/c/${currentUsername}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <ExternalLink size={14} />
+              View public page
+            </a>
+          )}
+          {currentUsername && (
+            <div className="flex flex-col items-end gap-0.5">
+              <a
+                href={`/c/${currentUsername}/print`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm font-medium text-foreground bg-card border border-border px-3 py-1.5 rounded-lg hover:bg-muted transition-colors"
+              >
+                <Download size={14} />
+                Export PDF
+              </a>
+              <p className="text-[10px] text-muted-foreground">
+                Opens print view — use Cmd+P / Ctrl+P to save as PDF
+              </p>
+            </div>
+          )}
+        </div>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

@@ -26,12 +26,16 @@ async function getProfile(username: string) {
 
   if (!profile) return null
 
-  const { data: stats } = await admin
-    .from('creator_platform_stats')
-    .select('*')
-    .eq('profile_id', profile.id)
+  const [{ data: stats }, { data: links }] = await Promise.all([
+    admin.from('creator_platform_stats').select('*').eq('profile_id', profile.id),
+    admin
+      .from('creator_links')
+      .select('id, title, url')
+      .eq('profile_id', profile.id)
+      .order('sort_order', { ascending: true }),
+  ])
 
-  return { profile, stats: stats ?? [] }
+  return { profile, stats: stats ?? [], links: links ?? [] }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -50,7 +54,7 @@ export default async function CreatorPublicPage({ params }: Props) {
 
   if (!result) notFound()
 
-  const { profile, stats } = result
+  const { profile, stats, links } = result
 
   const displayName = profile.display_name ?? `@${profile.username}`
 
@@ -134,6 +138,39 @@ export default async function CreatorPublicPage({ params }: Props) {
                     )}
                   </div>
                 </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Links */}
+        {links.length > 0 && (
+          <div className="bg-card border border-border rounded-2xl p-6">
+            <h2 className="font-semibold text-foreground mb-4">Links</h2>
+            <div className="space-y-2">
+              {links.map((link: { id: string; title: string; url: string }) => (
+                <a
+                  key={link.id}
+                  href={`/api/creator-links/${link.id}/click`}
+                  className="flex items-center justify-between w-full px-4 py-3 rounded-xl bg-muted hover:bg-muted/80 transition-colors group"
+                >
+                  <span className="text-sm font-medium text-foreground">{link.title}</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="text-muted-foreground group-hover:text-foreground transition-colors"
+                  >
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                  </svg>
+                </a>
               ))}
             </div>
           </div>

@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import {
   Users, BarChart3, CreditCard, LayoutDashboard,
   Settings, LogOut, Mail, FileText, Kanban, Store,
+  ClipboardList, Search, CalendarDays, Calculator,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
@@ -20,6 +21,8 @@ const growthNav = [
   { href: '/marketplace', label: 'Opportunities', icon: Store },
   { href: '/outreach', label: 'Outreach', icon: Mail },
   { href: '/contracts', label: 'Contracts', icon: FileText },
+  { href: '/brief-builder', label: 'Brief Builder', icon: ClipboardList },
+  { href: '/research', label: 'Research', icon: Search },
 ]
 
 function NavItem({ href, label, icon: Icon, active }: {
@@ -78,6 +81,15 @@ export default function Sidebar({ userEmail }: { userEmail: string }) {
         {growthNav.map(({ href, label, icon }) => (
           <NavItem key={href} href={href} label={label} icon={icon} active={isActive(href)} />
         ))}
+
+        <div className="pt-4 pb-1">
+          <p className="px-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-1">
+            Tools
+          </p>
+        </div>
+
+        <NavItem href="/campaigns/calendar" label="Calendar" icon={CalendarDays} active={isActive('/campaigns/calendar')} />
+        <NavItem href="/roi-estimator" label="ROI Estimator" icon={Calculator} active={isActive('/roi-estimator')} />
       </nav>
 
       <div className="px-3 pb-4 space-y-0.5 border-t border-border pt-4">

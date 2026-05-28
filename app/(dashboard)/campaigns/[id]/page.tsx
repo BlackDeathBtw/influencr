@@ -8,6 +8,7 @@ import CampaignBrief from '@/components/campaign-brief'
 import ContentList from '@/components/content-list'
 import CampaignROI from '@/components/campaign-roi'
 import CampaignExport from '@/components/campaign-export'
+import CampaignBudget from '@/components/campaign-budget'
 
 export default async function CampaignDetailPage({
   params,
@@ -32,6 +33,8 @@ export default async function CampaignDetailPage({
   const confirmedInfluencers = (campaignInfluencers ?? []).filter((ci: any) => ci.status === 'confirmed')
   const estimatedReach = confirmedInfluencers.reduce((s: number, ci: any) => s + (ci.influencer?.followers ?? 0), 0)
   const totalSpend = (payments ?? []).filter((p: any) => p.status === 'paid').reduce((s: number, p: any) => s + Number(p.amount), 0)
+  const totalCommitted = (campaignInfluencers ?? []).reduce((s: number, ci: any) => s + Number(ci.fee ?? 0), 0)
+  const totalPaid = (payments ?? []).filter((p: any) => p.status === 'paid').reduce((s: number, p: any) => s + Number(p.amount), 0)
 
   return (
     <div className="p-8 space-y-6">
@@ -54,6 +57,13 @@ export default async function CampaignDetailPage({
             <CampaignForm campaign={campaign} />
           </div>
           <CampaignBrief campaignId={id} brief={campaign.brief ?? {}} />
+          <CampaignBudget
+            campaignId={id}
+            budget={campaign.budget ?? null}
+            currency={campaign.currency}
+            committed={totalCommitted}
+            paid={totalPaid}
+          />
           <CampaignROI
             campaignId={id}
             totalSpend={totalSpend}
