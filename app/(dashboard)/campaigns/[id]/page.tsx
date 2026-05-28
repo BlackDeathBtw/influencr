@@ -18,12 +18,13 @@ export default async function CampaignDetailPage({
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  const [{ data: campaign }, { data: campaignInfluencers }, { data: content }, { data: allInfluencers }, { data: payments }] = await Promise.all([
+  const [{ data: campaign }, { data: campaignInfluencers }, { data: content }, { data: allInfluencers }, { data: payments }, { data: campaignResults }] = await Promise.all([
     supabase.from('campaigns').select('*').eq('id', id).eq('user_id', user!.id).single(),
     supabase.from('campaign_influencers').select('*, influencer:influencers(*)').eq('campaign_id', id),
     supabase.from('content').select('*, influencer:influencers(name)').eq('campaign_id', id).order('due_date', { ascending: true }),
     supabase.from('influencers').select('id, name').eq('user_id', user!.id).eq('status', 'active'),
     supabase.from('payments').select('*, influencer:influencers(name)').eq('campaign_id', id).eq('user_id', user!.id),
+    supabase.from('campaign_results').select('*, influencer:influencers(name)').eq('campaign_id', id).eq('user_id', user!.id).order('logged_at', { ascending: false }),
   ])
 
   if (!campaign) notFound()
@@ -60,6 +61,8 @@ export default async function CampaignDetailPage({
             revenueTarget={campaign.revenue_target ?? null}
             revenueAttributed={campaign.revenue_attributed ?? null}
             currency={campaign.currency}
+            campaignInfluencers={(campaignInfluencers ?? []).map((ci: any) => ({ id: ci.influencer_id, name: ci.influencer?.name ?? '' }))}
+            results={campaignResults ?? []}
           />
         </div>
 

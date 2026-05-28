@@ -1,58 +1,64 @@
-import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { Webhook } from 'svix'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
+
+function makeAdmin() {
+  return createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } },
+  )
+}
 
 export async function POST(request: Request) {
   const secret = process.env.RESEND_WEBHOOK_SECRET
-  if (!secret) return NextResponse.json({ error: 'Webhook not configured' }, { status: 503 })
-
-  const payload = await request.text()
-  const headers = {
-    'svix-id': request.headers.get('svix-id') ?? '',
-    'svix-timestamp': request.headers.get('svix-timestamp') ?? '',
-    'svix-signature': request.headers.get('svix-signature') ?? '',
+  if (!secret) {
+    return NextResponse.json({ error: 'Webhook secret not configured' }, { status: 500 })
   }
 
-  let event: { type: string; data: { email_id?: string; [key: string]: unknown } }
+  const rawBody = await request.text()
+  const svixId = request.headers.get('svix-id')
+  const svixTimestamp = request.headers.get('svix-timestamp')
+  const svixSignature = request.headers.get('svix-signature')
+
+  if (!svixId || !svixTimestamp || !svixSignature) {
+    return NextResponse.json({ error: 'Missing svix headers' }, { status: 400 })
+  }
+
+  let event: { type: string; data: { email_id: string } }
   try {
     const wh = new Webhook(secret)
-    event = wh.verify(payload, headers) as typeof event
+    event = wh.verify(rawBody, {
+      'svix-id': svixId,
+      'svix-timestamp': svixTimestamp,
+      'svix-signature': svixSignature,
+    }) as typeof event
   } catch {
-    return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
 
-  if (event.type !== 'email.opened' && event.type !== 'email.clicked') {
-    return NextResponse.json({ ok: true })
-  }
+  const emailId = event.data?.email_id
+  if (!emailId) return NextResponse.json({ ok: true })
 
-  const resendId = event.data.email_id
-  if (!resendId) return NextResponse.json({ ok: true })
+  const admin = makeAdmin()
 
-  const supabase = await createClient()
-
-  // Find the log entry for this email
-  const { data: log } = await supabase
-    .from('outreach_logs')
-    .select('id, influencer_id, user_id')
-    .eq('resend_id', resendId)
-    .single()
-
-  if (!log) return NextResponse.json({ ok: true })
-
-  // Update the log status
-  const newStatus = event.type === 'email.clicked' ? 'clicked' : 'opened'
-  await supabase
-    .from('outreach_logs')
-    .update({ status: newStatus })
-    .eq('id', log.id)
-
-  // Mark influencer as responded
-  if (log.influencer_id) {
-    await supabase
-      .from('influencers')
-      .update({ outreach_status: 'responded' })
-      .eq('id', log.influencer_id)
-      .eq('user_id', log.user_id)
+  if (event.type === 'email.opened') {
+    await admin
+      .from('outreach_logs')
+      .update({ opened_at: new Date().toISOString(), status: 'opened' })
+      .eq('resend_id', emailId)
+      .is('opened_at', null)
+  } else if (event.type === 'email.clicked') {
+    await admin
+      .from('outreach_logs')
+      .update({ clicked_at: new Date().toISOString(), status: 'clicked' })
+      .eq('resend_id', emailId)
+      .is('clicked_at', null)
+  } else if (event.type === 'email.bounced') {
+    await admin
+      .from('outreach_logs')
+      .update({ status: 'bounced' })
+      .eq('resend_id', emailId)
   }
 
   return NextResponse.json({ ok: true })

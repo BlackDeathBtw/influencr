@@ -7,6 +7,7 @@ import {
   ArrowRight, Plus, Check, Clock, ExternalLink,
   LinkIcon, Download, DollarSign, Percent, Users,
   Star, MapPin, Receipt, BarChart3, User,
+  TrendingUp, CalendarDays,
 } from 'lucide-react'
 
 /* ─── data ─────────────────────────────────────────────────────────────────── */
@@ -50,6 +51,21 @@ const CONTRACTS: { brand: string; campaign: string; status: 'signed' | 'sent' | 
   { brand: 'HelloFresh',      campaign: 'Spring Campaign',   status: 'signed', date: 'May 28' },
   { brand: 'Headspace',       campaign: 'Wellness Series',   status: 'sent',   date: 'Jun 12' },
   { brand: 'Ritual Vitamins', campaign: 'Health Campaign',   status: 'draft',  date: '—' },
+]
+
+const CALENDAR_ITEMS = [
+  { brand: 'AG1',          deliverable: 'Instagram Reel + story',  due: 'Jun 3, 2026',  status: 'Due soon', color: 'bg-amber-500/15 text-amber-600' },
+  { brand: 'Nike Running', deliverable: 'TikTok video (60s)',       due: 'Jun 10, 2026', status: 'Upcoming', color: 'bg-sky-500/15 text-sky-400' },
+  { brand: 'Headspace',    deliverable: 'Instagram post',           due: 'Jun 22, 2026', status: 'Upcoming', color: 'bg-sky-500/15 text-sky-400' },
+]
+
+const EARNINGS_MONTHS = [
+  { label: 'Dec', cents: 1200 },
+  { label: 'Jan', cents: 800 },
+  { label: 'Feb', cents: 2400 },
+  { label: 'Mar', cents: 1800 },
+  { label: 'Apr', cents: 3200 },
+  { label: 'May', cents: 2800 },
 ]
 
 /* ─── style maps ─────────────────────────────────────────────────────────────── */
@@ -210,6 +226,70 @@ function InvoicesView() {
   )
 }
 
+function EarningsView() {
+  const maxCents = Math.max(...EARNINGS_MONTHS.map(b => b.cents), 1)
+  return (
+    <div>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-foreground">Earnings</h1>
+        <p className="text-sm text-muted-foreground mt-1">Track your income from brand deals</p>
+      </div>
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        {[
+          { label: 'Lifetime earnings', value: '$18,400', sub: 'across 14 paid deals' },
+          { label: 'This month',        value: '$2,800',  sub: '2 payments received' },
+          { label: 'Pending',           value: '$1,200',  sub: '1 invoice outstanding' },
+        ].map(s => (
+          <div key={s.label} className="bg-card border border-border rounded-xl p-5">
+            <p className="text-xs text-muted-foreground mb-1">{s.label}</p>
+            <p className="text-2xl font-bold text-foreground">{s.value}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{s.sub}</p>
+          </div>
+        ))}
+      </div>
+      <div className="bg-card border border-border rounded-xl p-5">
+        <p className="text-xs font-medium text-muted-foreground mb-4 uppercase tracking-wide">Last 6 months</p>
+        <div className="flex items-end gap-2 h-24">
+          {EARNINGS_MONTHS.map(({ label, cents }) => (
+            <div key={label} className="flex-1 flex flex-col items-center gap-1.5">
+              <div
+                className="w-full rounded-sm bg-brand/70"
+                style={{ height: `${(cents / maxCents) * 80}px` }}
+              />
+              <span className="text-[10px] text-muted-foreground">{label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function CalendarView() {
+  return (
+    <div>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-foreground">Content Calendar</h1>
+        <p className="text-sm text-muted-foreground mt-1">Upcoming deliverables by due date</p>
+      </div>
+      <div className="space-y-3">
+        {CALENDAR_ITEMS.map(item => (
+          <div key={item.brand} className="bg-card border border-border rounded-xl px-5 py-4 flex items-center justify-between gap-4">
+            <div>
+              <p className="font-medium text-foreground text-sm">{item.brand}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{item.deliverable}</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <p className="text-xs text-muted-foreground">{item.due}</p>
+              <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${item.color}`}>{item.status}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function MediaKitView() {
   return (
     <div>
@@ -227,7 +307,6 @@ function MediaKitView() {
         </div>
       </div>
 
-      {/* Profile preview card */}
       <div className="bg-card border border-border rounded-xl p-8 mb-5">
         <div className="flex flex-col sm:flex-row items-start gap-6 mb-8">
           <div className="w-20 h-20 rounded-2xl bg-brand/20 flex items-center justify-center shrink-0 text-2xl font-bold text-brand">
@@ -485,13 +564,15 @@ function SettingsView() {
 
 /* ─── tab config ─────────────────────────────────────────────────────────────── */
 
-type Tab = 'dashboard' | 'invoices' | 'media-kit' | 'opportunities' | 'contracts' | 'settings'
+type Tab = 'dashboard' | 'invoices' | 'earnings' | 'calendar' | 'media-kit' | 'opportunities' | 'contracts' | 'settings'
 
 const MAIN_NAV: { id: Tab; label: string; icon: React.ElementType }[] = [
-  { id: 'dashboard',     label: 'Dashboard',     icon: LayoutDashboard },
-  { id: 'invoices',      label: 'Invoices',      icon: Receipt },
-  { id: 'media-kit',     label: 'Media Kit',     icon: User },
-  { id: 'contracts',     label: 'Contracts',     icon: PenLine },
+  { id: 'dashboard',    label: 'Dashboard',    icon: LayoutDashboard },
+  { id: 'invoices',     label: 'Invoices',     icon: Receipt },
+  { id: 'earnings',     label: 'Earnings',     icon: TrendingUp },
+  { id: 'calendar',     label: 'Calendar',     icon: CalendarDays },
+  { id: 'media-kit',    label: 'Media Kit',    icon: User },
+  { id: 'contracts',    label: 'Contracts',    icon: PenLine },
 ]
 
 const GROWTH_NAV: { id: Tab; label: string; icon: React.ElementType }[] = [
@@ -565,6 +646,8 @@ export default function CreatorDemo() {
 
           {tab === 'dashboard'     && <DashboardView />}
           {tab === 'invoices'      && <InvoicesView />}
+          {tab === 'earnings'      && <EarningsView />}
+          {tab === 'calendar'      && <CalendarView />}
           {tab === 'media-kit'     && <MediaKitView />}
           {tab === 'opportunities' && <OpportunitiesView />}
           {tab === 'contracts'     && <ContractsView />}

@@ -54,6 +54,20 @@ export async function POST(request: Request) {
         .eq('user_id', userId)
       break
     }
+
+    case 'checkout.session.completed': {
+      const session = event.data.object as Stripe.Checkout.Session
+      if (session.metadata?.invoice_type !== 'creator_invoice') break
+      const payToken = session.metadata?.pay_token
+      if (!payToken) break
+
+      await supabase
+        .from('creator_invoices')
+        .update({ status: 'paid', paid_at: new Date().toISOString() })
+        .eq('pay_token', payToken)
+        .neq('status', 'paid')
+      break
+    }
   }
 
   return NextResponse.json({ received: true })

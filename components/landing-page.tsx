@@ -31,9 +31,8 @@ const FEATURES = [
   { n: '03', title: 'Content deadlines', body: 'Posts, reels, stories. Due dates, approvals, and revisions — all tracked.' },
   { n: '04', title: 'Payment log', body: 'Pending, paid, overdue. One click to mark a payment done and log the date.' },
   { n: '05', title: 'Contract generator + drawn e-sign', body: 'Generate contracts from templates. Creators draw their real signature in the browser. Full audit trail with name, email, and timestamp. No DocuSign.' },
-  { n: '06', title: 'Creator discovery', body: 'Browse public creator profiles. Filter by niche, platform, follower count, and rate. Add to your CRM in one click.' },
-  { n: '07', title: 'Outreach templates', body: 'Write once, send to many. Variable substitution for name and niche. Track open and reply rates.' },
-  { n: '08', title: 'Opportunities marketplace', body: 'Post brand deals, affiliate programs, and collabs. Creators apply directly — no middleman, no agency fees.' },
+  { n: '06', title: 'Outreach templates', body: 'Write once, send to many. Variable substitution for name and niche. Track open and reply rates.' },
+  { n: '07', title: 'Opportunities marketplace', body: 'Browse brand deals, affiliate programs, and collabs from across the web. Apply directly via each listing — no middleman, no agency fees.' },
 ]
 
 const STACK = [
@@ -50,7 +49,7 @@ const BRAND_FEATURES = [
   'Opportunities marketplace',
   'Contract generator + drawn e-sign',
   'Content deadline tracking',
-  'Payment log + creator discovery',
+  'Payment log',
 ]
 
 const CREATOR_FEATURES = [
@@ -303,7 +302,7 @@ export default function LandingPage() {
                 {/* Sidebar */}
                 <div className="w-40 bg-card/3 border-r border-white/6 p-3 flex-col gap-1 hidden sm:flex shrink-0">
                   <div className="px-3 py-1.5 text-[10px] font-bold text-white/20 uppercase tracking-widest mt-1 mb-1">influencr</div>
-                  {['Dashboard', 'Campaigns', 'Influencers', 'Pipeline', 'Opportunities', 'Contracts'].map((item, i) => (
+                  {['Dashboard', 'Campaigns', 'Contacts', 'Pipeline', 'Opportunities', 'Contracts'].map((item, i) => (
                     <div key={item} className={`px-2.5 py-1.5 rounded-md text-xs font-medium ${i === 1 ? 'bg-brand/25 text-brand' : 'text-white/30'}`}>{item}</div>
                   ))}
                 </div>
@@ -337,7 +336,7 @@ export default function LandingPage() {
       <section className="py-20 px-6 bg-background">
         <div className="max-w-6xl mx-auto">
           <InView className="mb-14">
-            <h2 className="font-display text-4xl font-bold text-foreground mb-2">Eight tools. One subscription.</h2>
+            <h2 className="font-display text-4xl font-bold text-foreground mb-2">Seven tools. One subscription.</h2>
             <p className="text-muted-foreground text-lg">Zero bloat. No upsells. Everything included at $19/mo.</p>
           </InView>
           <div>

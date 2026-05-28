@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { RefreshCw } from 'lucide-react'
+import { RefreshCw, X, Plus } from 'lucide-react'
 import type { Influencer } from '@/types'
 
 interface Props {
@@ -27,7 +27,9 @@ export default function InfluencerForm({ influencer }: Props) {
     contact_name: influencer?.contact_name ?? '',
     notes: influencer?.notes ?? '',
     status: influencer?.status ?? 'prospect',
+    tags: influencer?.tags ?? [] as string[],
   })
+  const [tagInput, setTagInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [syncing, setSyncing] = useState(false)
@@ -82,6 +84,7 @@ export default function InfluencerForm({ influencer }: Props) {
       contact_email: form.contact_email || null,
       contact_name: form.contact_name || null,
       notes: form.notes || null,
+      tags: form.tags.length > 0 ? form.tags : null,
     }
 
     const url = isNew ? '/api/influencers' : `/api/influencers/${influencer!.id}`
@@ -253,6 +256,44 @@ export default function InfluencerForm({ influencer }: Props) {
             placeholder="Any notes about this influencer…"
             className="w-full px-3 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-none"
           />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-foreground/80 mb-1.5">Segments / Tags</label>
+          <div className="flex flex-wrap gap-1.5 mb-2">
+            {form.tags.map(t => (
+              <span key={t} className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-brand/15 text-brand">
+                {t}
+                <button type="button" onClick={() => setForm(f => ({ ...f, tags: f.tags.filter(x => x !== t) }))} className="hover:text-red-400 transition-colors"><X size={10} /></button>
+              </span>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <input
+              value={tagInput}
+              onChange={e => setTagInput(e.target.value)}
+              onKeyDown={e => {
+                if ((e.key === 'Enter' || e.key === ',') && tagInput.trim()) {
+                  e.preventDefault()
+                  const tag = tagInput.trim().toLowerCase()
+                  if (!form.tags.includes(tag)) setForm(f => ({ ...f, tags: [...f.tags, tag] }))
+                  setTagInput('')
+                }
+              }}
+              placeholder="Type and press Enter…"
+              className="flex-1 px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                const tag = tagInput.trim().toLowerCase()
+                if (tag && !form.tags.includes(tag)) { setForm(f => ({ ...f, tags: [...f.tags, tag] })); setTagInput('') }
+              }}
+              className="px-3 py-2 bg-muted text-muted-foreground hover:text-foreground rounded-lg text-sm transition-colors"
+            >
+              <Plus size={14} />
+            </button>
+          </div>
+          <p className="text-xs text-muted-foreground/60 mt-1">Use tags to segment contacts (e.g. &quot;beauty-tier-1&quot;, &quot;holiday-2025&quot;)</p>
         </div>
       </div>
 

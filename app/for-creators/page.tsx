@@ -13,7 +13,7 @@ const features = [
     icon: Store,
     title: 'Opportunities',
     description:
-      'Browse brand deals, affiliate programs, and collabs posted directly by brands. Apply in seconds — no agency, no middleman.',
+      'Browse brand deals, affiliate programs, and collabs from across the web. Apply directly via each listing — no middleman.',
   },
   {
     icon: FileText,

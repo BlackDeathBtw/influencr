@@ -1,12 +1,17 @@
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { notFound } from 'next/navigation'
+import PayButton from './pay-button'
 
 export default async function PayPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ token: string }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const { token } = await params
+  const sp = await searchParams
+  const justPaid = sp.paid === '1'
 
   const admin = createAdminClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -56,6 +61,12 @@ export default async function PayPage({
           </p>
         </div>
 
+        {justPaid && (
+          <div className="mb-4 rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-700 font-medium">
+            Payment received — thank you!
+          </div>
+        )}
+
         <div className="bg-card border border-border rounded-xl p-8 space-y-6">
           <div className="space-y-4">
             <div>
@@ -85,17 +96,7 @@ export default async function PayPage({
               </p>
             </div>
 
-            {isPaid ? (
-              <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full bg-green-100 text-green-700">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                Paid
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full bg-amber-100 text-amber-700">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                Payment pending
-              </span>
-            )}
+            <PayButton token={token} isPaid={isPaid} />
           </div>
         </div>
       </div>

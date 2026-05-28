@@ -61,12 +61,6 @@ const jsonLd = {
         availability: 'https://schema.org/InStock',
         description: 'Full access to all features. 14-day free trial, no credit card required.',
       },
-      aggregateRating: {
-        '@type': 'AggregateRating',
-        ratingValue: '4.8',
-        ratingCount: '47',
-        bestRating: '5',
-      },
       featureList: [
         'Influencer CRM',
         'Campaign management',

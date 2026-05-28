@@ -4,10 +4,10 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import {
   Users, BarChart3, CreditCard, LayoutDashboard,
-  Settings, Search, Mail, FileText, ArrowRight,
+  Settings, Mail, FileText, ArrowRight,
   Calendar, Check, Clock, Plus,
   Send, Copy, Pencil, Trash2, ExternalLink,
-  ShieldCheck, MapPin, Kanban, PenLine, Link as LinkIcon, Download,
+  ShieldCheck, Kanban, PenLine, Link as LinkIcon, Download,
   Store, DollarSign, Percent, Star,
 } from 'lucide-react'
 import {
@@ -46,13 +46,13 @@ const CONTENT = [
 ]
 
 const INFLUENCERS = [
-  { name: 'Emma Chen',   handle: '@emmachen',   platform: 'Instagram', niche: 'Beauty',    followers: '84K',  eng: '4.8%', status: 'active',   cred: 'credible' },
-  { name: 'Jake Torres', handle: '@jakefit',    platform: 'TikTok',    niche: 'Fitness',   followers: '210K', eng: '6.2%', status: 'active',   cred: 'credible' },
-  { name: 'Sofia Kim',   handle: '@sofiakim',   platform: 'Instagram', niche: 'Lifestyle', followers: '56K',  eng: '3.9%', status: 'active',   cred: 'check' },
-  { name: 'Marcus Hill', handle: '@marcushill', platform: 'YouTube',   niche: 'Tech',      followers: '125K', eng: '3.1%', status: 'prospect', cred: 'credible' },
-  { name: 'Lily Park',   handle: '@lilypark',   platform: 'TikTok',    niche: 'Food',      followers: '34K',  eng: '7.2%', status: 'active',   cred: 'credible' },
-  { name: 'Ryan Cole',   handle: '@ryancole',   platform: 'Instagram', niche: 'Travel',    followers: '91K',  eng: '2.1%', status: 'active',   cred: 'low' },
-  { name: 'Aria Nguyen', handle: '@ariangy',    platform: 'TikTok',    niche: 'Fashion',   followers: '178K', eng: '5.5%', status: 'prospect', cred: 'credible' },
+  { name: 'Emma Chen',   handle: '@emmachen',   platform: 'Instagram', niche: 'Beauty',    followers: '84K',  eng: '4.8%', status: 'active',   cred: 'credible', tags: ['beauty-tier-1', 'holiday-roster'], contact_email: 'emma@emmachen.co' },
+  { name: 'Jake Torres', handle: '@jakefit',    platform: 'TikTok',    niche: 'Fitness',   followers: '210K', eng: '6.2%', status: 'active',   cred: 'credible', tags: ['fitness-tier-1'],                  contact_email: 'jake@jakefit.com' },
+  { name: 'Sofia Kim',   handle: '@sofiakim',   platform: 'Instagram', niche: 'Lifestyle', followers: '56K',  eng: '3.9%', status: 'active',   cred: 'check',    tags: ['lifestyle'],                       contact_email: 'sofia@sofiakim.com' },
+  { name: 'Marcus Hill', handle: '@marcushill', platform: 'YouTube',   niche: 'Tech',      followers: '125K', eng: '3.1%', status: 'prospect', cred: 'credible', tags: ['tech', 'gaming'],                  contact_email: 'marcus@marcushill.tv' },
+  { name: 'Lily Park',   handle: '@lilypark',   platform: 'TikTok',    niche: 'Food',      followers: '34K',  eng: '7.2%', status: 'active',   cred: 'credible', tags: [],                                  contact_email: 'lily@lilypark.co' },
+  { name: 'Ryan Cole',   handle: '@ryancole',   platform: 'Instagram', niche: 'Travel',    followers: '91K',  eng: '2.1%', status: 'active',   cred: 'low',      tags: ['travel'],                          contact_email: 'ryan@ryancole.com' },
+  { name: 'Aria Nguyen', handle: '@ariangy',    platform: 'TikTok',    niche: 'Fashion',   followers: '178K', eng: '5.5%', status: 'prospect', cred: 'credible', tags: ['fashion', 'beauty-tier-2'],        contact_email: 'aria@ariangy.com' },
 ]
 
 const CAMPAIGNS = [
@@ -68,15 +68,6 @@ const PAYMENTS = [
   { name: 'Lily Park',   campaign: 'Holiday Launch', amount: 600,  status: 'paid',    date: 'Jun 5' },
   { name: 'Ryan Cole',   campaign: 'Holiday Launch', amount: 1500, status: 'pending', date: '—' },
   { name: 'Marcus Hill', campaign: 'Back to School', amount: 1800, status: 'pending', date: '—' },
-]
-
-const DISCOVER_CREATORS = [
-  { name: 'Alex Rivera',  handle: '@alexrivera',  platform: 'TikTok',    niche: 'Lifestyle', followers: '210K', eng: '6.2%', location: 'New York',      rate: '$800–2,500' },
-  { name: 'Emma Chen',    handle: '@emmachen',    platform: 'Instagram', niche: 'Beauty',    followers: '84K',  eng: '4.8%', location: 'Los Angeles',   rate: '$400–1,200' },
-  { name: 'Marcus Hill',  handle: '@marcushill',  platform: 'YouTube',   niche: 'Tech',      followers: '125K', eng: '3.9%', location: 'San Francisco', rate: '$600–2,000' },
-  { name: 'Zoe Williams', handle: '@zoewills',    platform: 'Instagram', niche: 'Wellness',  followers: '67K',  eng: '5.1%', location: 'Austin',        rate: '$300–900' },
-  { name: 'Kai Nakamura', handle: '@kainakamura', platform: 'TikTok',    niche: 'Gaming',    followers: '340K', eng: '4.3%', location: 'Seattle',       rate: '$1,000–3,500' },
-  { name: 'Priya Sharma', handle: '@priyasharma', platform: 'Instagram', niche: 'Food',      followers: '48K',  eng: '6.8%', location: 'Chicago',       rate: '$200–700' },
 ]
 
 const OUTREACH_TEMPLATES = [
@@ -98,6 +89,26 @@ const OUTREACH_TEMPLATES = [
     subject: 'Following up: collab with [Brand]',
     body: 'Hi {{name}},\n\nJust wanted to follow up on my previous message about a potential collab...',
   },
+]
+
+const SEQUENCES = [
+  { id: 'seq1', name: 'Cold outreach — lifestyle',
+    steps: [
+      { delay_days: 0, subject: 'Collab opportunity with [Brand]' },
+      { delay_days: 3, subject: 'Following up — collab with [Brand]' },
+      { delay_days: 7, subject: 'Last message — [Brand] collab' },
+    ],
+    enrollments: [{ name: 'Emma Chen', step: 1, status: 'active' }, { name: 'Jake Torres', step: 3, status: 'completed' }],
+  },
+  { id: 'seq2', name: 'Re-engagement — past collabs',
+    steps: [{ delay_days: 0, subject: "We'd love to work with you again" }, { delay_days: 5, subject: 'Quick follow-up' }],
+    enrollments: [],
+  },
+]
+const CAMPAIGN_RESULTS = [
+  { campaign: 'Summer Glow',    influencer: 'Emma Chen',   views: 42800,  reach: 31200,  clicks: 1840, conversions: 94 },
+  { campaign: 'Summer Glow',    influencer: 'Jake Torres', views: 187000, reach: 142000, clicks: 6200, conversions: 310 },
+  { campaign: 'Back to School', influencer: 'Sofia Kim',   views: 28400,  reach: 21100,  clicks: 890,  conversions: 42 },
 ]
 
 const CONTRACTS = [
@@ -249,55 +260,48 @@ function DashboardView() {
 }
 
 function InfluencersView() {
+  const [tagFilter, setTagFilter] = useState<string | null>(null)
+  const allTags = [...new Set(INFLUENCERS.flatMap(i => i.tags))]
+  const filtered = tagFilter ? INFLUENCERS.filter(i => i.tags.includes(tagFilter)) : INFLUENCERS
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Influencers</h1>
-          <p className="text-sm text-muted-foreground mt-1">{INFLUENCERS.length} contacts</p>
+          <h1 className="text-2xl font-bold text-foreground">Contacts</h1>
+          <p className="text-sm text-muted-foreground mt-1">{filtered.length} contacts</p>
         </div>
         <div className="flex items-center gap-2">
           <button className="flex items-center gap-2 bg-muted text-muted-foreground px-3 py-2 rounded-lg text-sm font-medium cursor-default">Import CSV</button>
           <button className="flex items-center gap-2 bg-foreground/90 text-background px-4 py-2 rounded-lg text-sm font-medium cursor-default"><Plus size={14} /> Add influencer</button>
         </div>
       </div>
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        <span className="text-xs text-muted-foreground font-medium">Tag:</span>
+        {[null, ...allTags].map(tag => (
+          <button key={tag ?? '_all'} onClick={() => setTagFilter(tag)} className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors cursor-default ${tagFilter === tag ? 'bg-brand/15 text-brand' : 'bg-muted text-muted-foreground hover:text-foreground'}`}>{tag ?? 'All'}</button>
+        ))}
+      </div>
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="border-b border-border">
-            <tr>
-              {['Name', 'Platform', 'Niche', 'Followers', 'Credibility', 'Status'].map((h) => (
-                <th key={h} className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wide">{h}</th>
-              ))}
-            </tr>
-          </thead>
+          <thead className="border-b border-border"><tr>{['Name', 'Platform', 'Niche', 'Followers', 'Tags', 'Credibility', 'Status'].map(h => <th key={h} className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wide">{h}</th>)}</tr></thead>
           <tbody className="divide-y divide-border">
-            {INFLUENCERS.map((inf) => {
+            {filtered.map((inf) => {
               const cred = CRED_META[inf.cred]
               return (
                 <tr key={inf.name} className="hover:bg-muted/30 cursor-default">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <div className="w-7 h-7 rounded-full bg-brand/15 flex items-center justify-center text-xs font-bold text-brand shrink-0">{inf.name[0]}</div>
-                      <div>
-                        <p className="font-medium text-foreground">{inf.name}</p>
-                        <p className="text-xs text-muted-foreground/70">{inf.handle}</p>
-                      </div>
+                      <div><p className="font-medium text-foreground">{inf.name}</p><p className="text-xs text-muted-foreground/70">{inf.handle}</p></div>
                     </div>
                   </td>
-                  <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${PLATFORM_COLORS[inf.platform] ?? 'bg-muted text-muted-foreground'}`}>{inf.platform}</span>
-                  </td>
+                  <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${PLATFORM_COLORS[inf.platform] ?? 'bg-muted text-muted-foreground'}`}>{inf.platform}</span></td>
                   <td className="px-4 py-3 text-muted-foreground">{inf.niche}</td>
                   <td className="px-4 py-3 text-foreground/80">{inf.followers} <span className="text-muted-foreground/60 text-xs ml-0.5">{inf.eng}</span></td>
-                  <td className="px-4 py-3">
-                    <span className={`flex items-center gap-1 text-xs font-medium ${cred.color}`}>
-                      {inf.cred === 'credible' && <ShieldCheck size={11} />}
-                      {cred.label}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${inf.status === 'active' ? 'bg-green-500/15 text-green-400' : 'bg-muted text-muted-foreground'}`}>{inf.status}</span>
-                  </td>
+                  <td className="px-4 py-3"><div className="flex flex-wrap gap-1">{inf.tags.map(t => <span key={t} className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-brand/10 text-brand">{t}</span>)}</div></td>
+                  <td className="px-4 py-3"><span className={`flex items-center gap-1 text-xs font-medium ${cred.color}`}>{inf.cred === 'credible' && <ShieldCheck size={11} />}{cred.label}</span></td>
+                  <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${inf.status === 'active' ? 'bg-green-500/15 text-green-400' : 'bg-muted text-muted-foreground'}`}>{inf.status}</span></td>
                 </tr>
               )
             })}
@@ -318,7 +322,7 @@ function CampaignsView() {
         </div>
         <button className="flex items-center gap-2 bg-foreground/90 text-background px-4 py-2 rounded-lg text-sm font-medium cursor-default"><Plus size={14} /> New campaign</button>
       </div>
-      <div className="space-y-4">
+      <div className="space-y-4 mb-8">
         {CAMPAIGNS.map((c) => {
           const pct = c.budget > 0 ? Math.round((c.spend / c.budget) * 100) : 0
           return (
@@ -344,6 +348,31 @@ function CampaignsView() {
           )
         })}
       </div>
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-foreground">Post-campaign results</h2>
+          <button className="flex items-center gap-2 bg-muted text-muted-foreground px-3 py-2 rounded-lg text-sm font-medium cursor-default"><Plus size={14} /> Log results</button>
+        </div>
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="border-b border-border"><tr>{['Campaign', 'Influencer', 'Views', 'Reach', 'Clicks', 'Conversions'].map(h => <th key={h} className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wide">{h}</th>)}</tr></thead>
+            <tbody className="divide-y divide-border">
+              {CAMPAIGN_RESULTS.map((r, i) => (
+                <tr key={i} className="hover:bg-muted/30 cursor-default">
+                  <td className="px-4 py-3 text-foreground font-medium">{r.campaign}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{r.influencer}</td>
+                  <td className="px-4 py-3 text-foreground/80">{r.views.toLocaleString()}</td>
+                  <td className="px-4 py-3 text-foreground/80">{r.reach.toLocaleString()}</td>
+                  <td className="px-4 py-3 text-foreground/80">{r.clicks.toLocaleString()}</td>
+                  <td className="px-4 py-3">
+                    <span className="font-semibold text-brand">{r.conversions}</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   )
 }
@@ -358,14 +387,12 @@ function PaymentsView() {
         <button className="flex items-center gap-2 bg-foreground/90 text-background px-4 py-2 rounded-lg text-sm font-medium cursor-default"><Plus size={14} /> Log payment</button>
       </div>
       <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="bg-card border border-border rounded-xl p-5">
-          <div className="flex items-center gap-3 mb-2"><div className="w-8 h-8 bg-green-500/10 rounded-lg flex items-center justify-center"><Check size={14} className="text-green-400" /></div><p className="text-sm text-muted-foreground">Total paid</p></div>
-          <p className="text-2xl font-bold text-foreground">${totalPaid.toLocaleString()}</p>
-        </div>
-        <div className="bg-card border border-border rounded-xl p-5">
-          <div className="flex items-center gap-3 mb-2"><div className="w-8 h-8 bg-amber-500/10 rounded-lg flex items-center justify-center"><Clock size={14} className="text-amber-400" /></div><p className="text-sm text-muted-foreground">Pending</p></div>
-          <p className="text-2xl font-bold text-foreground">${totalPending.toLocaleString()}</p>
-        </div>
+        {[{ label: 'Total paid', val: totalPaid, icon: Check, cls: 'bg-green-500/10', icls: 'text-green-400' }, { label: 'Pending', val: totalPending, icon: Clock, cls: 'bg-amber-500/10', icls: 'text-amber-400' }].map(({ label, val, icon: Icon, cls, icls }) => (
+          <div key={label} className="bg-card border border-border rounded-xl p-5">
+            <div className="flex items-center gap-3 mb-2"><div className={`w-8 h-8 ${cls} rounded-lg flex items-center justify-center`}><Icon size={14} className={icls} /></div><p className="text-sm text-muted-foreground">{label}</p></div>
+            <p className="text-2xl font-bold text-foreground">${val.toLocaleString()}</p>
+          </div>
+        ))}
       </div>
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <table className="w-full text-sm">
@@ -389,91 +416,165 @@ function PaymentsView() {
   )
 }
 
-function DiscoverView() {
-  const [filter, setFilter] = useState('all')
-  const platforms = ['all', 'Instagram', 'TikTok', 'YouTube']
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <div><h1 className="text-2xl font-bold text-foreground">Discover creators</h1><p className="text-sm text-muted-foreground mt-1">Browse public creator profiles</p></div>
-      </div>
-      <div className="flex items-center gap-3 mb-5">
-        <div className="flex-1 relative">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-          <input readOnly placeholder="Search by niche, handle, location…" className="w-full pl-9 pr-4 py-2 bg-card border border-border rounded-lg text-sm text-muted-foreground cursor-default" />
-        </div>
-        <div className="flex gap-1">
-          {platforms.map(p => (
-            <button key={p} onClick={() => setFilter(p)} className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${filter === p ? 'bg-foreground/90 text-background' : 'bg-card border border-border text-muted-foreground hover:bg-muted'}`}>
-              {p === 'all' ? 'All' : p}
-            </button>
-          ))}
-        </div>
-      </div>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {DISCOVER_CREATORS.filter(c => filter === 'all' || c.platform === filter).map((c) => (
-          <div key={c.name} className="bg-card border border-border rounded-xl p-5 hover:border-brand/30 transition-colors cursor-default">
-            <div className="flex items-start gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-brand/15 flex items-center justify-center text-sm font-bold text-brand shrink-0">{c.name[0]}</div>
-              <div>
-                <p className="font-semibold text-foreground">{c.name}</p>
-                <p className="text-xs text-muted-foreground">{c.handle}</p>
-                <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground/70"><MapPin size={10} />{c.location}</div>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-1.5 mb-4">
-              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${PLATFORM_COLORS[c.platform] ?? 'bg-muted text-muted-foreground'}`}>{c.platform}</span>
-              <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground">{c.niche}</span>
-            </div>
-            <div className="grid grid-cols-3 gap-2 mb-4 text-center">
-              <div><p className="text-sm font-bold text-foreground">{c.followers}</p><p className="text-xs text-muted-foreground">followers</p></div>
-              <div><p className="text-sm font-bold text-brand">{c.eng}</p><p className="text-xs text-muted-foreground">engagement</p></div>
-              <div><p className="text-xs font-semibold text-foreground">{c.rate}</p><p className="text-xs text-muted-foreground">per post</p></div>
-            </div>
-            <button className="w-full flex items-center justify-center gap-2 bg-muted text-muted-foreground hover:bg-brand/10 hover:text-brand px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-default">
-              <Plus size={12} /> Add to campaign
-            </button>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
+const SENT_MOCK = [
+  { to: 'Emma Chen',   subject: 'Collab opportunity with [Brand]',     sentAt: 'Jun 10, 9:41am', status: 'opened' },
+  { to: 'Jake Torres', subject: 'Collab opportunity with [Brand]',     sentAt: 'Jun 10, 9:41am', status: 'clicked' },
+  { to: 'Sofia Kim',   subject: 'Sponsorship opportunity — Sofia Kim', sentAt: 'Jun 8, 2:15pm',  status: 'sent' },
+  { to: 'Marcus Hill', subject: 'Following up: collab with [Brand]',   sentAt: 'Jun 7, 11:00am', status: 'bounced' },
+]
+const SENT_STATUS_COLOR: Record<string, string> = {
+  opened: 'bg-sky-500/15 text-sky-400', clicked: 'bg-green-500/15 text-green-400',
+  sent: 'bg-muted text-muted-foreground', bounced: 'bg-red-500/15 text-red-400',
 }
 
 function OutreachView() {
+  type OutreachTab = 'templates' | 'sequences' | 'sent'
+  const [subTab, setSubTab] = useState<OutreachTab>('templates')
+  const [bulkOpen, setBulkOpen] = useState<string | null>(null)
+  const [checkedContacts, setCheckedContacts] = useState<Set<string>>(new Set())
+  const [expandedSeq, setExpandedSeq] = useState<string | null>(null)
+  const OTABS: { id: OutreachTab; label: string }[] = [{ id: 'templates', label: 'Templates' }, { id: 'sequences', label: 'Sequences' }, { id: 'sent', label: 'Sent' }]
+  function toggleContact(name: string) {
+    setCheckedContacts(prev => { const n = new Set(prev); n.has(name) ? n.delete(name) : n.add(name); return n })
+  }
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Outreach templates</h1>
-          <p className="text-sm text-muted-foreground mt-1">{OUTREACH_TEMPLATES.length} templates · Use <code className="text-xs bg-muted px-1 py-0.5 rounded">{'{{name}}'}</code>, <code className="text-xs bg-muted px-1 py-0.5 rounded">{'{{niche}}'}</code> as variables</p>
+          <h1 className="text-2xl font-bold text-foreground">Outreach</h1>
+          <p className="text-sm text-muted-foreground mt-1">Templates, sequences, and sent history</p>
         </div>
-        <button className="flex items-center gap-2 bg-foreground/90 text-background px-4 py-2 rounded-lg text-sm font-medium cursor-default"><Plus size={14} /> New template</button>
+        {subTab === 'templates' && (
+          <button className="flex items-center gap-2 bg-foreground/90 text-background px-4 py-2 rounded-lg text-sm font-medium cursor-default"><Plus size={14} /> New template</button>
+        )}
+        {subTab === 'sequences' && (
+          <button className="flex items-center gap-2 bg-foreground/90 text-background px-4 py-2 rounded-lg text-sm font-medium cursor-default"><Plus size={14} /> New sequence</button>
+        )}
       </div>
-      <div className="space-y-3">
-        {OUTREACH_TEMPLATES.map((t) => (
-          <div key={t.name} className="bg-card border border-border rounded-xl overflow-hidden">
-            <div className="p-5">
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <h3 className="font-semibold text-foreground">{t.name}</h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">{t.platform}</span>
-                    <span className="text-xs text-muted-foreground/70">Subject: {t.subject}</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1">
-                  <button className="flex items-center gap-1 bg-muted text-muted-foreground hover:text-foreground px-2 py-1 rounded text-xs font-medium transition-colors cursor-default"><Send size={11} /> Send</button>
-                  <button className="p-1.5 text-muted-foreground/70 hover:text-foreground transition-colors cursor-default"><Copy size={13} /></button>
-                  <button className="p-1.5 text-muted-foreground/70 hover:text-foreground transition-colors cursor-default"><Pencil size={13} /></button>
-                  <button className="p-1.5 text-muted-foreground/70 hover:text-red-400 transition-colors cursor-default"><Trash2 size={13} /></button>
-                </div>
-              </div>
-              <pre className="text-xs text-muted-foreground font-mono whitespace-pre-wrap line-clamp-3 leading-relaxed">{t.body}</pre>
-            </div>
-          </div>
+
+      <div className="flex gap-1 bg-muted rounded-lg p-1 w-fit mb-5">
+        {OTABS.map(t => (
+          <button key={t.id} onClick={() => setSubTab(t.id)} className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors cursor-default ${subTab === t.id ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}>{t.label}</button>
         ))}
       </div>
+
+      {subTab === 'templates' && (
+        <div className="space-y-3">
+          {OUTREACH_TEMPLATES.map((t) => (
+            <div key={t.name} className="bg-card border border-border rounded-xl overflow-hidden">
+              <div className="p-5">
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <h3 className="font-semibold text-foreground">{t.name}</h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">{t.platform}</span>
+                      <span className="text-xs text-muted-foreground/70">Subject: {t.subject}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => { setBulkOpen(bulkOpen === t.name ? null : t.name); setCheckedContacts(new Set()) }}
+                      className="flex items-center gap-1 bg-brand/10 text-brand hover:bg-brand/20 px-2.5 py-1 rounded text-xs font-medium transition-colors cursor-default"
+                    ><Send size={11} /> Bulk send</button>
+                    <button className="p-1.5 text-muted-foreground/70 hover:text-foreground transition-colors cursor-default"><Copy size={13} /></button>
+                    <button className="p-1.5 text-muted-foreground/70 hover:text-foreground transition-colors cursor-default"><Pencil size={13} /></button>
+                    <button className="p-1.5 text-muted-foreground/70 hover:text-red-400 transition-colors cursor-default"><Trash2 size={13} /></button>
+                  </div>
+                </div>
+                <pre className="text-xs text-muted-foreground font-mono whitespace-pre-wrap line-clamp-3 leading-relaxed">{t.body}</pre>
+              </div>
+              {bulkOpen === t.name && (
+                <div className="border-t border-border bg-muted/30 px-5 py-4">
+                  <p className="text-xs font-semibold text-foreground mb-3">Select recipients</p>
+                  <div className="space-y-2 mb-4">
+                    {INFLUENCERS.map(inf => (
+                      <label key={inf.name} className="flex items-center gap-3 cursor-default">
+                        <input type="checkbox" checked={checkedContacts.has(inf.name)} onChange={() => toggleContact(inf.name)} className="cursor-default accent-brand" />
+                        <span className="text-sm text-foreground">{inf.name}</span>
+                        <span className="text-xs text-muted-foreground">{inf.contact_email}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <button className="flex items-center gap-2 bg-foreground/90 text-background px-4 py-2 rounded-lg text-sm font-medium cursor-default"><Send size={13} /> Send to {checkedContacts.size} contact{checkedContacts.size !== 1 ? 's' : ''}</button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {subTab === 'sequences' && (
+        <div className="space-y-3">
+          {SEQUENCES.map((seq) => (
+            <div key={seq.id} className="bg-card border border-border rounded-xl overflow-hidden">
+              <div
+                className="flex items-center justify-between p-5 cursor-default hover:bg-muted/20 transition-colors"
+                onClick={() => setExpandedSeq(expandedSeq === seq.id ? null : seq.id)}
+              >
+                <div>
+                  <h3 className="font-semibold text-foreground">{seq.name}</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">{seq.steps.length} steps · {seq.enrollments.length} enrolled</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${seq.enrollments.length > 0 ? 'bg-green-500/15 text-green-400' : 'bg-muted text-muted-foreground'}`}>
+                    {seq.enrollments.length > 0 ? `${seq.enrollments.length} active` : 'No enrollments'}
+                  </span>
+                  <span className="text-muted-foreground text-xs">{expandedSeq === seq.id ? '▲' : '▼'}</span>
+                </div>
+              </div>
+              {expandedSeq === seq.id && (
+                <div className="border-t border-border px-5 py-4 bg-muted/20 space-y-4">
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Steps</p>
+                    <div className="space-y-1.5">
+                      {seq.steps.map((step, i) => (
+                        <div key={i} className="flex items-center gap-3 text-xs">
+                          <span className="w-5 h-5 rounded-full bg-brand/15 text-brand flex items-center justify-center text-[10px] font-bold shrink-0">{i + 1}</span>
+                          <span className="text-foreground font-medium">{step.subject}</span>
+                          <span className="text-muted-foreground">{step.delay_days === 0 ? 'Day 0' : `+${step.delay_days}d`}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  {seq.enrollments.length > 0 && (
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Enrollments</p>
+                      <div className="space-y-1.5">
+                        {seq.enrollments.map((en, i) => (
+                          <div key={i} className="flex items-center gap-3">
+                            <span className="text-sm text-foreground">{en.name}</span>
+                            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${en.status === 'completed' ? 'bg-green-500/15 text-green-400' : 'bg-sky-500/15 text-sky-400'}`}>Step {en.step} · {en.status}</span>
+                            <button className="ml-auto text-xs text-muted-foreground hover:text-foreground cursor-default border border-border rounded px-2 py-0.5 transition-colors">Send step {en.step}</button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {subTab === 'sent' && (
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="border-b border-border"><tr>{['To', 'Subject', 'Sent', 'Status'].map(h => <th key={h} className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wide">{h}</th>)}</tr></thead>
+            <tbody className="divide-y divide-border">
+              {SENT_MOCK.map((m, i) => (
+                <tr key={i} className="hover:bg-muted/30 cursor-default">
+                  <td className="px-4 py-3 font-medium text-foreground">{m.to}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{m.subject}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{m.sentAt}</td>
+                  <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${SENT_STATUS_COLOR[m.status]}`}>{m.status}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   )
 }
@@ -594,9 +695,7 @@ function ContractsView() {
       </div>
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="border-b border-border">
-            <tr>{['Influencer', 'Campaign', 'Status', 'Date', ''].map((h) => <th key={h} className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wide">{h}</th>)}</tr>
-          </thead>
+          <thead className="border-b border-border"><tr>{['Influencer', 'Campaign', 'Status', 'Date', ''].map(h => <th key={h} className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wide">{h}</th>)}</tr></thead>
           <tbody className="divide-y divide-border">
             {CONTRACTS.map((c, i) => (
               <tr key={i} className="hover:bg-muted/30 cursor-default">
@@ -605,23 +704,15 @@ function ContractsView() {
                 <td className="px-4 py-3">
                   <div className="flex flex-col gap-1">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium w-fit ${CONTRACT_STATUS[c.status]}`}>{c.status}</span>
-                    {c.status === 'signed' && (
-                      <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <PenLine size={10} />Signed by {c.influencer}
-                      </span>
-                    )}
+                    {c.status === 'signed' && <span className="flex items-center gap-1 text-xs text-muted-foreground"><PenLine size={10} />Signed by {c.influencer}</span>}
                   </div>
                 </td>
                 <td className="px-4 py-3 text-muted-foreground">{c.date}</td>
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-1 justify-end">
-                    {(c.status === 'sent' || c.status === 'draft') && (
-                      <button title="Copy sign link" className="p-1.5 text-muted-foreground/70 hover:text-foreground transition-colors cursor-default"><LinkIcon size={13} /></button>
-                    )}
-                    <button title="Download PDF" className="p-1.5 text-muted-foreground/70 hover:text-foreground transition-colors cursor-default"><Download size={13} /></button>
-                    <button className="p-1.5 text-muted-foreground/70 hover:text-foreground transition-colors cursor-default"><ExternalLink size={13} /></button>
-                  </div>
-                </td>
+                <td className="px-4 py-3"><div className="flex items-center gap-1 justify-end">
+                  {(c.status === 'sent' || c.status === 'draft') && <button title="Copy sign link" className="p-1.5 text-muted-foreground/70 hover:text-foreground transition-colors cursor-default"><LinkIcon size={13} /></button>}
+                  <button title="Download PDF" className="p-1.5 text-muted-foreground/70 hover:text-foreground transition-colors cursor-default"><Download size={13} /></button>
+                  <button className="p-1.5 text-muted-foreground/70 hover:text-foreground transition-colors cursor-default"><ExternalLink size={13} /></button>
+                </div></td>
               </tr>
             ))}
           </tbody>
@@ -631,21 +722,7 @@ function ContractsView() {
   )
 }
 
-type LiveDeal = {
-  id: string
-  brand_name: string
-  logo_url: string | null
-  title: string
-  type: string
-  commission_rate: number | null
-  budget_min: number | null
-  budget_max: number | null
-  min_followers: number | null
-  niches: string[]
-  platforms: string[]
-  apply_url: string
-  is_featured: boolean
-}
+type LiveDeal = { id: string; brand_name: string; logo_url: string | null; title: string; type: string; commission_rate: number | null; budget_min: number | null; budget_max: number | null; min_followers: number | null; niches: string[]; platforms: string[]; apply_url: string; is_featured: boolean }
 
 function formatBudget(min: number | null, max: number | null): string | null {
   if (min == null && max == null) return null
@@ -659,20 +736,9 @@ function MarketplaceView() {
   const [deals, setDeals] = useState<LiveDeal[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    fetch('/api/brand-deals?limit=30')
-      .then(r => r.json())
-      .then(j => setDeals(j.deals ?? []))
-      .catch(() => {})
-      .finally(() => setLoading(false))
-  }, [])
+  useEffect(() => { fetch('/api/brand-deals?limit=30').then(r => r.json()).then(j => setDeals(j.deals ?? [])).catch(() => {}).finally(() => setLoading(false)) }, [])
 
-  const TYPE_TABS = [
-    { id: 'all', label: 'All' },
-    { id: 'brand_deal', label: 'Brand Deals' },
-    { id: 'affiliate', label: 'Affiliate' },
-    { id: 'collab', label: 'Collabs' },
-  ]
+  const TYPE_TABS = [{ id: 'all', label: 'All' }, { id: 'brand_deal', label: 'Brand Deals' }, { id: 'affiliate', label: 'Affiliate' }, { id: 'collab', label: 'Collabs' }]
   const filtered = typeFilter === 'all' ? deals : deals.filter(l => l.type === typeFilter)
 
   return (
@@ -723,9 +789,7 @@ function MarketplaceView() {
                   </div>
                 )}
                 <div className="pt-1 border-t border-border">
-                  <a href={l.apply_url} target="_blank" rel="noopener noreferrer" className="text-xs font-medium text-muted-foreground hover:text-brand transition-colors py-1">
-                    Apply →
-                  </a>
+                  <a href={l.apply_url} target="_blank" rel="noopener noreferrer" className="text-xs font-medium text-muted-foreground hover:text-brand transition-colors py-1">Apply →</a>
                 </div>
               </div>
             )
@@ -776,11 +840,11 @@ function SettingsView() {
 
 /* ─── tab config ─────────────────────────────────────────────────────────────── */
 
-type Tab = 'dashboard' | 'influencers' | 'campaigns' | 'payments' | 'pipeline' | 'marketplace' | 'discover' | 'outreach' | 'contracts' | 'settings'
+type Tab = 'dashboard' | 'influencers' | 'campaigns' | 'payments' | 'pipeline' | 'marketplace' | 'outreach' | 'contracts' | 'settings'
 
 const MAIN_NAV: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: 'dashboard',   label: 'Dashboard',   icon: LayoutDashboard },
-  { id: 'influencers', label: 'Influencers', icon: Users },
+  { id: 'influencers', label: 'Contacts', icon: Users },
   { id: 'campaigns',   label: 'Campaigns',   icon: BarChart3 },
   { id: 'payments',    label: 'Payments',    icon: CreditCard },
 ]
@@ -788,7 +852,6 @@ const MAIN_NAV: { id: Tab; label: string; icon: React.ElementType }[] = [
 const GROWTH_NAV: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: 'pipeline',    label: 'Pipeline',     icon: Kanban },
   { id: 'marketplace', label: 'Opportunities', icon: Store },
-  { id: 'discover',    label: 'Discover',     icon: Search },
   { id: 'outreach',    label: 'Outreach',     icon: Mail },
   { id: 'contracts',   label: 'Contracts',    icon: FileText },
 ]
@@ -864,7 +927,6 @@ export default function BrandDemo() {
           {tab === 'payments'    && <PaymentsView />}
           {tab === 'pipeline'    && <PipelineView />}
           {tab === 'marketplace' && <MarketplaceView />}
-          {tab === 'discover'    && <DiscoverView />}
           {tab === 'outreach'    && <OutreachView />}
           {tab === 'contracts'   && <ContractsView />}
           {tab === 'settings'    && <SettingsView />}

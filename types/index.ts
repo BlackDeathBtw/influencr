@@ -172,6 +172,9 @@ export interface OutreachLog {
   status: string
   resend_id: string | null
   sent_at: string
+  opened_at: string | null
+  clicked_at: string | null
+  influencer?: { name: string } | null
 }
 
 export interface Subscription {
@@ -223,6 +226,49 @@ export interface MarketplaceListing {
   is_active: boolean
   is_featured: boolean
   created_at: string
+}
+
+export interface EmailSequenceStep {
+  delay_days: number
+  subject: string
+  body: string
+}
+
+export interface EmailSequence {
+  id: string
+  user_id: string
+  name: string
+  description: string | null
+  steps: EmailSequenceStep[]
+  created_at: string
+}
+
+export interface SequenceEnrollment {
+  id: string
+  user_id: string
+  sequence_id: string
+  influencer_id: string
+  current_step: number
+  status: 'active' | 'completed' | 'paused'
+  next_send_at: string | null
+  last_sent_at: string | null
+  created_at: string
+  influencer?: { name: string; handle: string | null; contact_email: string | null }
+}
+
+export interface CampaignResult {
+  id: string
+  user_id: string
+  campaign_id: string
+  influencer_id: string | null
+  views: number | null
+  reach: number | null
+  clicks: number | null
+  conversions: number | null
+  revenue_generated: number | null
+  notes: string | null
+  logged_at: string
+  influencer?: { name: string } | null
 }
 
 export interface BrandDeal {

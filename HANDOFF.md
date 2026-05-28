@@ -1,104 +1,76 @@
-# Handoff — influencr two-sided platform
+# influencr — Project Handoff
 
-## What this project is
-
-**influencr** — a Next.js 16 SaaS app at `C:\Users\jakob\NewPP\influencr`.
-GitHub: https://github.com/BlackDeathBtw/influencr
-Vercel preview: https://influencr-ddskv0uop-blackdeathbtws-projects.vercel.app
-
-Currently: a brand-only influencer CRM ($19/mo). The plan is to transform it into a two-sided platform — brands manage campaigns (paid), creators get free tools + a public profile page.
+**Live:** https://influencr-five.vercel.app
+**Supabase project:** `bmzvkxlgvwaomosqaxrv`
+**Stack:** Next.js 16.2.6 App Router · Supabase (auth + DB) · Tailwind v4 dark theme · Resend (email) · Stripe (billing)
 
 ---
 
-## Current state
+## What was built
 
-The codebase is working and deployed. These features already exist:
-- Brand auth (Supabase), subscription (Stripe), dashboard
-- Influencer contacts, campaigns, content deadlines, payments
-- CSV import, file upload, cron email reminders (Resend)
-- Basic influencer portal at `/portal/[token]`
+### Agency CRM side
 
-**Nothing from the new plan has been built yet.**
-
----
-
-## What needs to be built
-
-Full implementation plan is at:
-`docs/superpowers/plans/2026-05-26-two-sided-platform.md`
-
-Design spec is at:
-`docs/superpowers/specs/2026-05-26-two-sided-platform-design.md`
-
-### 11 tasks in order:
-
-| # | Task | Status |
-|---|------|--------|
-| 1 | Database schema (5 new tables) | TODO |
-| 2 | Signup with brand/creator toggle | TODO |
-| 3 | Creator layout + onboarding | TODO |
-| 4 | Public creator profile at `/c/[username]` | TODO |
-| 5 | Creator media kit editor | TODO |
-| 6 | Creator dashboard + invoices + `/pay/[token]` | TODO |
-| 7 | Contract generator + `/sign/[token]` | TODO |
-| 8 | Email outreach with templates | TODO |
-| 9 | Discovery search for brands | TODO |
-| 10 | Sidebar + landing page updates | TODO |
-| 11 | Build check + deploy | TODO |
-
----
-
-## Tech stack
-
-| Thing | Detail |
+| Feature | Key files |
 |---|---|
-| Framework | Next.js 16.2.6, App Router, Turbopack |
-| Auth + DB | Supabase (cookie-based SSR auth) |
-| Email | Resend — direct fetch to `api.resend.com`, key in `RESEND_API_KEY` |
-| Payments | Stripe, keys in `STRIPE_SECRET_KEY` / `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` |
-| Styles | Tailwind CSS v4, shadcn/ui components in `components/ui/` |
-| Deploy | Vercel — use `NODE_OPTIONS="--use-system-ca" vercel` (TLS fix on Windows) |
+| **Email sequences** (drip campaigns) | `app/api/email-sequences/*` (4 routes), `components/outreach-sequences.tsx`, `app/(dashboard)/outreach/client.tsx` |
+| **Post-campaign results** | `app/api/campaign-results/route.ts`, `components/campaign-roi.tsx`, `app/(dashboard)/campaigns/[id]/page.tsx` |
+| **Bulk outreach** | `app/api/outreach/bulk-send/route.ts`, outreach client Templates tab |
+| **Creator segments / tags** | `app/(dashboard)/influencers/page.tsx` (filter bar + tag chips), `components/influencer-form.tsx` (tag CRUD) |
+| **Contacts rename** | Sidebar, influencers page, brand demo — "Influencers" → "Contacts" everywhere |
+
+### Creator CRM side
+
+| Feature | Key files |
+|---|---|
+| **Earnings dashboard** | `app/(creator)/creator/earnings/page.tsx` |
+| **Content calendar** | `app/(creator)/creator/calendar/page.tsx` |
+| Both added to **creator sidebar** | `components/creator-sidebar.tsx` |
+
+### Demo pages (both updated)
+
+- **`/demo/brand`** — interactive fake app; Contacts with tag filter, Outreach with Templates/Sequences/Sent tabs, post-campaign results in Campaigns
+- **`/demo/creator`** — media kit demo; Earnings snapshot section, Content calendar section, 6-card Creator HQ grid
 
 ---
 
-## Key codebase facts
+## Supabase tables added (migrations already applied)
 
-- **No `profiles` table** — all tables reference `auth.users(id)` via `user_id` directly
-- Auth callback: `app/auth/callback/route.ts` — exchanges code, redirects to `?next=` param
-- Admin client pattern (used for bypassing RLS on public pages):
-  ```ts
-  import { createClient as createAdminClient } from '@supabase/supabase-js'
-  const admin = createAdminClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { autoRefreshToken: false, persistSession: false } })
-  ```
-- Server client (auth-aware): `import { createClient } from '@/lib/supabase/server'`
-- Client component client: `import { createClient } from '@/lib/supabase/client'`
-- Resend send pattern: `fetch('https://api.resend.com/emails', { method: 'POST', headers: { Authorization: Bearer ${RESEND_API_KEY} }, body: JSON.stringify({...}) })`
-- Existing schema: `supabase/schema.sql` (influencers, campaigns, campaign_influencers, content, payments, subscriptions)
-- Dashboard layout checks subscription status and blocks `canceled`/`past_due` users
+- `email_sequences` — drip sequences with steps stored as jsonb
+- `sequence_enrollments` — per-influencer progress through a sequence
+- `campaign_results` — post-campaign metrics (views, reach, clicks, conversions, revenue)
+- `creator_pipeline` — added columns: `due_date`, `deliverable_type`, `actual_views`, `actual_reach`, `collab_notes`
 
 ---
 
-## How to start the next session
+## Pending / deferred
 
-1. Read this file
-2. Read `docs/superpowers/plans/2026-05-26-two-sided-platform.md`
-3. Start with Task 1 (database schema) — run the SQL in Supabase SQL editor
-4. Work through tasks in order — each ends with a git commit
+### Resend email sending
+Sequences and bulk send already call Resend — just needs wiring up:
+1. Verify your sending domain in the Resend dashboard
+2. Set `RESEND_WEBHOOK_SECRET` env var in Vercel for open/click tracking
+3. Add webhook URL `https://influencr-five.vercel.app/api/webhooks/resend` in Resend
 
-To execute: use `/superpowers:executing-plans` or `/superpowers:subagent-driven-development`
+### Loose ends
+- Outreach open/click tracking requires Resend webhook above
+- Earnings page divides amounts by 100 (assumes cents) — confirm `creator_invoices.amount` is stored in cents
+- Content calendar reads `creator_pipeline.due_date` — creators must set due dates on their pipeline entries for it to populate
 
 ---
 
-## Env vars needed (already set in Vercel)
+## Key conventions
 
-```
-NEXT_PUBLIC_SUPABASE_URL
-NEXT_PUBLIC_SUPABASE_ANON_KEY
-SUPABASE_SERVICE_ROLE_KEY
-RESEND_API_KEY
-STRIPE_SECRET_KEY
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
-STRIPE_WEBHOOK_SECRET
-NEXT_PUBLIC_APP_URL
-CRON_SECRET
+- **Auth:** Supabase SSR cookies. All API routes call `supabase.auth.getUser()` + RLS enforces `user_id = auth.uid()`
+- **Theme:** dark-first Tailwind v4 — use `bg-card`, `border-border`, `text-muted-foreground`, `bg-brand` tokens, never raw colours
+- **Sidebars:** agency = `components/sidebar.tsx`, creator = `components/creator-sidebar.tsx`
+- **Types:** all shared interfaces in `types/index.ts`
+- **File size limit:** 500 lines per file
+- **Windows deploy:** `$env:NODE_OPTIONS = "--use-system-ca"` prefix required before `vercel` CLI due to Windows TLS cert chain issue
+
+---
+
+## Deploy
+
+```powershell
+$env:NODE_OPTIONS = "--use-system-ca"
+vercel --prod
 ```
