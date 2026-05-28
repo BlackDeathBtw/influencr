@@ -7,7 +7,7 @@ import { z } from 'zod'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
-import { Plus, Trash2, ExternalLink, Download } from 'lucide-react'
+import { Plus, Trash2 } from 'lucide-react'
 import type { CreatorProfile, CreatorPlatformStat } from '@/types'
 
 const PLATFORMS = ['instagram', 'tiktok', 'youtube', 'twitter', 'linkedin', 'other']
@@ -22,7 +22,6 @@ const schema = z.object({
   location: z.string().max(100).optional(),
   rateMin: z.string().optional(),
   rateMax: z.string().optional(),
-  isPublic: z.boolean().optional(),
 })
 
 type FormData = z.infer<typeof schema>
@@ -46,17 +45,13 @@ export default function MediaKitPage() {
   const [saveError, setSaveError] = useState<string | null>(null)
   const [platformRows, setPlatformRows] = useState<PlatformRow[]>([])
   const [profileId, setProfileId] = useState<string | null>(null)
-  const [currentUsername, setCurrentUsername] = useState<string>('')
 
   const {
     register,
     handleSubmit,
     reset,
-    watch,
     formState: { errors },
   } = useForm<FormData>({ resolver: zodResolver(schema) })
-
-  const watchedUsername = watch('username', '')
 
   const editor = useEditor({
     extensions: [
@@ -80,7 +75,6 @@ export default function MediaKitPage() {
       if (!profile) return
 
       setProfileId(profile.id)
-      setCurrentUsername(profile.username ?? '')
 
       reset({
         username: profile.username ?? '',
@@ -88,7 +82,6 @@ export default function MediaKitPage() {
         location: profile.location ?? '',
         rateMin: profile.rate_min != null ? String(profile.rate_min) : '',
         rateMax: profile.rate_max != null ? String(profile.rate_max) : '',
-        isPublic: profile.is_public ?? false,
       })
 
       if (editor && profile.bio) {
@@ -140,7 +133,6 @@ export default function MediaKitPage() {
         location: values.location || null,
         rate_min: values.rateMin ? parseInt(values.rateMin, 10) : null,
         rate_max: values.rateMax ? parseInt(values.rateMax, 10) : null,
-        is_public: values.isPublic ?? false,
         platform_stats: stats,
       }),
     })
@@ -154,7 +146,6 @@ export default function MediaKitPage() {
     }
 
     const updated = await res.json()
-    if (updated?.username) setCurrentUsername(updated.username)
     if (updated?.id) setProfileId(updated.id)
     setSaved(true)
     setTimeout(() => setSaved(false), 3000)
@@ -183,40 +174,9 @@ export default function MediaKitPage() {
 
   return (
     <div className="p-8 max-w-2xl">
-      <div className="flex items-start justify-between mb-8">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-foreground">Media Kit</h1>
-          <p className="text-sm text-muted-foreground mt-1">Edit your public creator profile</p>
-        </div>
-        <div className="flex items-center gap-3">
-          {currentUsername && (
-            <a
-              href={`/c/${currentUsername}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <ExternalLink size={14} />
-              View public page
-            </a>
-          )}
-          {currentUsername && (
-            <div className="flex flex-col items-end gap-0.5">
-              <a
-                href={`/c/${currentUsername}/print`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm font-medium text-foreground bg-card border border-border px-3 py-1.5 rounded-lg hover:bg-muted transition-colors"
-              >
-                <Download size={14} />
-                Export PDF
-              </a>
-              <p className="text-[10px] text-muted-foreground">
-                Opens print view — use Cmd+P / Ctrl+P to save as PDF
-              </p>
-            </div>
-          )}
-        </div>
+      <div className="mb-8">
+        <h1 className="font-display text-2xl font-bold text-foreground">Media Kit</h1>
+        <p className="text-sm text-muted-foreground mt-1">Your profile stats and rates — shown to brands in the Marketplace</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -380,24 +340,6 @@ export default function MediaKitPage() {
               ))}
             </div>
           )}
-        </div>
-
-        {/* Visibility + save */}
-        <div className="bg-card border border-border rounded-xl p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-foreground">Public profile</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Allow brands to discover your profile at /c/{watchedUsername || 'yourhandle'}</p>
-            </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                {...register('isPublic')}
-                className="sr-only peer"
-              />
-              <div className="w-10 h-5 bg-muted peer-focus:ring-2 peer-focus:ring-brand/40 rounded-full peer peer-checked:after:translate-x-5 peer-checked:bg-brand after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all" />
-            </label>
-          </div>
         </div>
 
         <div className="flex items-center gap-3">
