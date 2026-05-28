@@ -448,3 +448,55 @@ ALTER TABLE outreach_logs
   ADD COLUMN IF NOT EXISTS clicked_at TIMESTAMPTZ;
 
 CREATE INDEX IF NOT EXISTS outreach_logs_resend_id_idx ON outreach_logs (resend_id);
+
+-- ================================================================
+-- CREATOR DELIVERABLES
+-- ================================================================
+CREATE TABLE IF NOT EXISTS creator_deliverables (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  pipeline_id UUID NOT NULL REFERENCES creator_pipeline(id) ON DELETE CASCADE,
+  creator_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'briefed',
+  due_date DATE,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE creator_deliverables ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Creators manage own deliverables" ON creator_deliverables
+  FOR ALL USING (auth.uid() = creator_id);
+
+CREATE TRIGGER update_creator_deliverables_updated_at BEFORE UPDATE ON creator_deliverables
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- ================================================================
+-- CONTENT REVIEWS (brand → creator approval flow)
+-- ================================================================
+CREATE TABLE IF NOT EXISTS content_reviews (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  campaign_id UUID REFERENCES campaigns(id) ON DELETE SET NULL,
+  influencer_id UUID REFERENCES influencers(id) ON DELETE SET NULL,
+  title TEXT NOT NULL,
+  brief TEXT,
+  submission_url TEXT,
+  submission_notes TEXT,
+  review_token TEXT NOT NULL UNIQUE DEFAULT encode(gen_random_bytes(24), 'hex'),
+  status TEXT NOT NULL DEFAULT 'pending',
+  feedback TEXT,
+  submitted_at TIMESTAMPTZ,
+  reviewed_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE content_reviews ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users manage own content reviews" ON content_reviews
+  FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Public content review read by token" ON content_reviews
+  FOR SELECT USING (true);
+
+CREATE TRIGGER update_content_reviews_updated_at BEFORE UPDATE ON content_reviews
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
