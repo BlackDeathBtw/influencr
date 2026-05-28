@@ -10,6 +10,13 @@ import {
   ShieldCheck, MapPin, Kanban, PenLine, Link as LinkIcon, Download,
   Store, DollarSign, Percent, Star,
 } from 'lucide-react'
+import {
+  DndContext, DragOverlay,
+  PointerSensor, MouseSensor, TouchSensor,
+  useSensor, useSensors,
+  useDroppable, useDraggable,
+  type DragEndEvent,
+} from '@dnd-kit/core'
 
 /* ─── data ─────────────────────────────────────────────────────────────────── */
 
@@ -471,7 +478,62 @@ function OutreachView() {
   )
 }
 
+type PipelineCreator = typeof PIPELINE_CREATORS[0] & { id: string }
+
+function PipelineCard({ creator, isDragging }: { creator: PipelineCreator; isDragging?: boolean }) {
+  return (
+    <div className={`bg-card border border-border rounded-xl p-3 hover:border-brand/30 transition-colors select-none ${isDragging ? 'opacity-30' : ''}`}>
+      <p className="text-sm font-semibold text-foreground leading-tight">{creator.name}</p>
+      <p className="text-xs text-muted-foreground mt-0.5">{creator.handle}</p>
+      <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+        <span className={`text-xs font-medium px-1.5 py-0.5 rounded-full ${PLATFORM_COLORS[creator.platform] ?? 'bg-muted text-muted-foreground'}`}>{creator.platform}</span>
+        <span className="text-xs text-muted-foreground">{creator.followers}</span>
+      </div>
+    </div>
+  )
+}
+
+function DraggableCard({ creator }: { creator: PipelineCreator }) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: creator.id })
+  return (
+    <div ref={setNodeRef} {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
+      <PipelineCard creator={creator} isDragging={isDragging} />
+    </div>
+  )
+}
+
+function DroppableColumn({ stage, children }: { stage: typeof PIPELINE_STAGES[0]; children: React.ReactNode }) {
+  const { setNodeRef, isOver } = useDroppable({ id: stage.id })
+  return (
+    <div ref={setNodeRef} className={`space-y-2 min-h-[100px] rounded-xl p-1 transition-colors ${isOver ? 'bg-brand/5 ring-1 ring-brand/20' : ''}`}>
+      {children}
+    </div>
+  )
+}
+
 function PipelineView() {
+  const [creators, setCreators] = useState<PipelineCreator[]>(() =>
+    PIPELINE_CREATORS.map((c, i) => ({ ...c, id: String(i) }))
+  )
+  const [activeId, setActiveId] = useState<string | null>(null)
+
+  const sensors = useSensors(
+    useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } }),
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+  )
+
+  const activeCreator = activeId ? creators.find(c => c.id === activeId) ?? null : null
+
+  function handleDragEnd({ active, over }: DragEndEvent) {
+    if (over) {
+      setCreators(prev => prev.map(c =>
+        c.id === String(active.id) ? { ...c, stage: over.id as CrmStage } : c
+      ))
+    }
+    setActiveId(null)
+  }
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -480,42 +542,45 @@ function PipelineView() {
           <p className="text-sm text-muted-foreground mt-1">Drag creators through your deal stages</p>
         </div>
       </div>
-      <div className="overflow-x-auto pb-4">
-        <div className="flex gap-3" style={{ minWidth: 'max-content' }}>
-          {PIPELINE_STAGES.map((stage) => {
-            const creators = PIPELINE_CREATORS.filter(c => c.stage === stage.id)
-            return (
-              <div key={stage.id} className="min-w-[200px] w-[200px] flex flex-col gap-2">
-                <div className="flex items-center justify-between mb-1 px-1">
-                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${stage.color}`}>{stage.label}</span>
-                  <span className="text-xs text-muted-foreground font-medium">{creators.length}</span>
-                </div>
-                <div className="space-y-2 min-h-[120px]">
-                  {creators.length === 0 ? (
-                    <div className="border-2 border-dashed border-border rounded-xl h-[80px] flex items-center justify-center">
-                      <span className="text-xs text-muted-foreground/40">Drop here</span>
-                    </div>
-                  ) : (
-                    creators.map((c) => (
-                      <div key={c.handle} className="bg-card border border-border rounded-xl p-3 cursor-default hover:border-brand/30 transition-colors">
-                        <p className="text-sm font-semibold text-foreground leading-tight">{c.name}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">{c.handle}</p>
-                        <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-                          <span className={`text-xs font-medium px-1.5 py-0.5 rounded-full ${PLATFORM_COLORS[c.platform] ?? 'bg-muted text-muted-foreground'}`}>{c.platform}</span>
-                          <span className="text-xs text-muted-foreground">{c.followers}</span>
-                        </div>
+      <DndContext
+        sensors={sensors}
+        onDragStart={e => setActiveId(String(e.active.id))}
+        onDragEnd={handleDragEnd}
+      >
+        <div className="overflow-x-auto pb-4">
+          <div className="flex gap-3" style={{ minWidth: 'max-content' }}>
+            {PIPELINE_STAGES.map((stage) => {
+              const stageCreators = creators.filter(c => c.stage === stage.id)
+              return (
+                <div key={stage.id} className="min-w-[200px] w-[200px] flex flex-col">
+                  <div className="flex items-center justify-between mb-2 px-1">
+                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${stage.color}`}>{stage.label}</span>
+                    <span className="text-xs text-muted-foreground font-medium">{stageCreators.length}</span>
+                  </div>
+                  <DroppableColumn stage={stage}>
+                    {stageCreators.length === 0 ? (
+                      <div className="border-2 border-dashed border-border rounded-xl h-[80px] flex items-center justify-center">
+                        <span className="text-xs text-muted-foreground/40">Drop here</span>
                       </div>
-                    ))
-                  )}
+                    ) : (
+                      stageCreators.map((c) => (
+                        <DraggableCard key={c.id} creator={c} />
+                      ))
+                    )}
+                  </DroppableColumn>
                 </div>
-              </div>
-            )
-          })}
+              )
+            })}
+          </div>
         </div>
-      </div>
-      <div className="mt-5 bg-muted/50 border border-border rounded-lg px-4 py-2.5 text-xs text-muted-foreground">
-        Drag and drop creators between stages in the real app
-      </div>
+        <DragOverlay dropAnimation={null}>
+          {activeCreator && (
+            <div className="rotate-2 shadow-xl opacity-95">
+              <PipelineCard creator={activeCreator} />
+            </div>
+          )}
+        </DragOverlay>
+      </DndContext>
     </div>
   )
 }
