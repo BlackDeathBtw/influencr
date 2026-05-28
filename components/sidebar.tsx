@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import {
   Users, BarChart3, CreditCard, LayoutDashboard,
   Settings, LogOut, Mail, FileText, Kanban, Store,
-  ClipboardList, Search, CalendarDays, Calculator,
+  ClipboardList, ClipboardCheck, Search, CalendarDays, Calculator,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
@@ -23,6 +23,7 @@ const growthNav = [
   { href: '/contracts', label: 'Contracts', icon: FileText },
   { href: '/brief-builder', label: 'Brief Builder', icon: ClipboardList },
   { href: '/research', label: 'Research', icon: Search },
+  { href: '/content-reviews', label: 'Reviews', icon: ClipboardCheck },
 ]
 
 function NavItem({ href, label, icon: Icon, active }: {

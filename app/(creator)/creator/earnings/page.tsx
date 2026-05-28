@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { TrendingUp, DollarSign, Calendar, BarChart2 } from 'lucide-react'
 import { type LucideIcon } from 'lucide-react'
+import TaxSummary from './tax-summary'
 
 interface Invoice {
   id: string
@@ -58,6 +59,12 @@ export default async function EarningsPage() {
     .select('*')
     .eq('creator_id', user!.id)
     .order('paid_at', { ascending: false })
+
+  const { data: expenses } = await supabase
+    .from('creator_expenses')
+    .select('*')
+    .eq('creator_id', user!.id)
+    .order('date', { ascending: true })
 
   const all = (invoices ?? []) as Invoice[]
   const paid = all.filter(i => i.status === 'paid')
@@ -202,6 +209,8 @@ export default async function EarningsPage() {
           )}
         </div>
       </div>
+
+      <TaxSummary invoices={paid} expenses={(expenses ?? []) as any} />
     </div>
   )
 }

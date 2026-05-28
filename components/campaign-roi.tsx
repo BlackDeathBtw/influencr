@@ -292,6 +292,28 @@ export default function CampaignROI({
             {results.length === 0 && (
               <p className="text-xs text-muted-foreground/60 py-2">No results logged yet.</p>
             )}
+            {results.length >= 2 && (
+              <div className="bg-muted/60 border border-border rounded-lg p-3 mb-3">
+                <p className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wide">Totals across all results</p>
+                <div className="grid grid-cols-2 gap-x-3 gap-y-1">
+                  {results.reduce((s, r) => s + (r.views ?? 0), 0) > 0 && (
+                    <span className="text-xs text-muted-foreground">Views: <span className="text-foreground font-medium">{results.reduce((s, r) => s + (r.views ?? 0), 0).toLocaleString()}</span></span>
+                  )}
+                  {results.reduce((s, r) => s + (r.reach ?? 0), 0) > 0 && (
+                    <span className="text-xs text-muted-foreground">Reach: <span className="text-foreground font-medium">{results.reduce((s, r) => s + (r.reach ?? 0), 0).toLocaleString()}</span></span>
+                  )}
+                  {results.reduce((s, r) => s + (r.clicks ?? 0), 0) > 0 && (
+                    <span className="text-xs text-muted-foreground">Clicks: <span className="text-foreground font-medium">{results.reduce((s, r) => s + (r.clicks ?? 0), 0).toLocaleString()}</span></span>
+                  )}
+                  {results.reduce((s, r) => s + (r.conversions ?? 0), 0) > 0 && (
+                    <span className="text-xs text-muted-foreground">Conversions: <span className="text-foreground font-medium">{results.reduce((s, r) => s + (r.conversions ?? 0), 0).toLocaleString()}</span></span>
+                  )}
+                  {results.reduce((s, r) => s + (r.revenue_generated ?? 0), 0) > 0 && (
+                    <span className="text-xs text-muted-foreground col-span-2">Revenue: <span className="text-green-400 font-medium">{currency} {results.reduce((s, r) => s + Number(r.revenue_generated ?? 0), 0).toLocaleString()}</span></span>
+                  )}
+                </div>
+              </div>
+            )}
             {results.map(r => (
               <div key={r.id} className="bg-muted border border-border rounded-lg p-3">
                 <div className="flex items-start justify-between gap-2 mb-2">

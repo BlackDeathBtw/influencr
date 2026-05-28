@@ -2,18 +2,16 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { LayoutDashboard, FileText, Receipt, LogOut, Kanban, Calculator, Store, TrendingUp, CalendarDays, Link2, Sparkles } from 'lucide-react'
+import { LayoutDashboard, FileText, Receipt, LogOut, Kanban, Calculator, Store, TrendingUp, CalendarDays } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 const nav = [
   { href: '/creator/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/creator/media-kit', label: 'Media Kit', icon: FileText },
-  { href: '/creator/links', label: 'My Links', icon: Link2 },
   { href: '/creator/invoices', label: 'Invoices', icon: Receipt },
   { href: '/creator/pipeline', label: 'Pipeline', icon: Kanban },
   { href: '/creator/earnings', label: 'Earnings', icon: TrendingUp },
   { href: '/creator/expenses', label: 'Expenses', icon: Receipt },
-  { href: '/creator/captions', label: 'AI Captions', icon: Sparkles },
   { href: '/creator/calendar', label: 'Calendar', icon: CalendarDays },
   { href: '/marketplace', label: 'Marketplace', icon: Store },
   { href: '/creator/rate-calculator', label: 'Rate Calc', icon: Calculator },

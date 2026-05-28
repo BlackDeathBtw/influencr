@@ -28,18 +28,38 @@ const outreachColors: Record<string, string> = {
   declined: 'bg-red-500/15 text-red-400',
 }
 
+function buildQuery(params: Record<string, string | undefined>) {
+  const p = new URLSearchParams()
+  for (const [k, v] of Object.entries(params)) {
+    if (v) p.set(k, v)
+  }
+  const s = p.toString()
+  return s ? `?${s}` : ''
+}
+
 export default async function InfluencersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; tag?: string }>
+  searchParams: Promise<{ status?: string; tag?: string; platform?: string; followers?: string }>
 }) {
-  const { status, tag } = await searchParams
+  const { status, tag, platform, followers } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   let influencers = await getInfluencers(user!.id)
   if (status) influencers = influencers.filter((i: any) => i.status === status)
   if (tag) influencers = influencers.filter((i: any) => Array.isArray(i.tags) && i.tags.includes(tag))
+  if (platform) influencers = influencers.filter((i: any) => i.platform === platform)
+  if (followers) {
+    influencers = influencers.filter((i: any) => {
+      const f = i.followers ?? 0
+      if (followers === 'nano') return f < 10_000
+      if (followers === 'micro') return f >= 10_000 && f < 100_000
+      if (followers === 'macro') return f >= 100_000 && f < 1_000_000
+      if (followers === 'mega') return f >= 1_000_000
+      return true
+    })
+  }
 
   // Collect all unique tags across all contacts
   const allInfluencers = await getInfluencers(user!.id)
@@ -67,7 +87,7 @@ export default async function InfluencersPage({
         {(['', 'prospect', 'active', 'inactive'] as const).map((s) => (
           <Link
             key={s}
-            href={s ? `/influencers?status=${s}${tag ? `&tag=${encodeURIComponent(tag)}` : ''}` : `/influencers${tag ? `?tag=${encodeURIComponent(tag)}` : ''}`}
+            href={`/influencers${buildQuery({ status: s || undefined, tag, platform, followers })}`}
             className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
               (status ?? '') === s
                 ? 'bg-foreground/90 text-background'
@@ -79,10 +99,47 @@ export default async function InfluencersPage({
         ))}
       </div>
 
+      {/* Platform + Follower filter strip */}
+      <div className="flex flex-wrap gap-2 mb-3">
+        {/* Platform dropdown */}
+        <a
+          href={`/influencers${buildQuery({ status, tag, platform: '', followers })}`}
+          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${!platform ? 'bg-foreground/90 text-background' : 'bg-card border border-border text-muted-foreground hover:bg-muted'}`}
+        >
+          All platforms
+        </a>
+        {['instagram', 'tiktok', 'youtube', 'twitter', 'linkedin'].map(p => (
+          <a
+            key={p}
+            href={`/influencers${buildQuery({ status, tag, platform: p, followers })}`}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors capitalize ${platform === p ? 'bg-foreground/90 text-background' : 'bg-card border border-border text-muted-foreground hover:bg-muted'}`}
+          >
+            {p}
+          </a>
+        ))}
+        <span className="w-px bg-border self-stretch mx-1" />
+        {/* Follower range */}
+        {[
+          { key: '', label: 'All sizes' },
+          { key: 'nano', label: '<10K' },
+          { key: 'micro', label: '10K–100K' },
+          { key: 'macro', label: '100K–1M' },
+          { key: 'mega', label: '1M+' },
+        ].map(({ key, label }) => (
+          <a
+            key={key}
+            href={`/influencers${buildQuery({ status, tag, platform, followers: key || undefined })}`}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${(followers ?? '') === key ? 'bg-foreground/90 text-background' : 'bg-card border border-border text-muted-foreground hover:bg-muted'}`}
+          >
+            {label}
+          </a>
+        ))}
+      </div>
+
       {allTags.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-5">
           <Link
-            href={status ? `/influencers?status=${status}` : '/influencers'}
+            href={`/influencers${buildQuery({ status, tag: undefined, platform, followers })}`}
             className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${!tag ? 'bg-brand/20 text-brand' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
           >
             All tags
@@ -90,7 +147,7 @@ export default async function InfluencersPage({
           {allTags.map(t => (
             <Link
               key={t}
-              href={`/influencers?${status ? `status=${status}&` : ''}tag=${encodeURIComponent(t)}`}
+              href={`/influencers${buildQuery({ status, tag: t, platform, followers })}`}
               className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${tag === t ? 'bg-brand text-brand-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
             >
               {t}
@@ -150,7 +207,7 @@ export default async function InfluencersPage({
                       <div className="flex flex-wrap gap-1">
                         {(inf.tags ?? []).length > 0
                           ? inf.tags.map((t: string) => (
-                              <Link key={t} href={`/influencers?tag=${encodeURIComponent(t)}`} className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-brand/10 text-brand hover:bg-brand/20 transition-colors">{t}</Link>
+                              <Link key={t} href={`/influencers${buildQuery({ status, tag: t, platform, followers })}`} className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-brand/10 text-brand hover:bg-brand/20 transition-colors">{t}</Link>
                             ))
                           : <span className="text-muted-foreground/50 text-xs">—</span>
                         }
