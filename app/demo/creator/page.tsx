@@ -5,9 +5,9 @@ import Link from 'next/link'
 import {
   LayoutDashboard, FileText, Store, PenLine, Settings,
   ArrowRight, Plus, Check, Clock, ExternalLink,
-  LinkIcon, Download, DollarSign, Percent, Users,
+  Download, DollarSign, Percent, Users,
   Star, MapPin, Receipt, BarChart3, User,
-  TrendingUp, CalendarDays,
+  TrendingUp, CalendarDays, Kanban, Calculator, Trash2,
 } from 'lucide-react'
 
 /* ─── data ─────────────────────────────────────────────────────────────────── */
@@ -160,11 +160,15 @@ function DashboardView() {
             <p className="text-2xl font-bold text-foreground">${totalPending.toLocaleString()}</p>
           </div>
           <div className="bg-card border border-border rounded-xl p-5">
-            <p className="text-sm font-semibold text-foreground mb-1">Your media kit link</p>
-            <p className="text-xs text-muted-foreground mb-3">Share this with brands</p>
-            <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2">
-              <span className="text-xs text-muted-foreground font-mono flex-1 truncate">influencr.app/c/alexrivera</span>
-              <button className="shrink-0 text-muted-foreground hover:text-foreground transition-colors cursor-default"><LinkIcon size={12} /></button>
+            <p className="text-sm font-semibold text-foreground mb-1">Active deals</p>
+            <p className="text-xs text-muted-foreground mb-3">Across your pipeline</p>
+            <div className="space-y-2">
+              {[{ brand: 'Nike Running', stage: 'Contracted', color: 'bg-sky-500/15 text-sky-400' }, { brand: 'Headspace', stage: 'Negotiating', color: 'bg-amber-500/15 text-amber-400' }].map(d => (
+                <div key={d.brand} className="flex items-center justify-between">
+                  <span className="text-xs text-foreground/70">{d.brand}</span>
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${d.color}`}>{d.stage}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -296,15 +300,9 @@ function MediaKitView() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Media Kit</h1>
-          <p className="text-sm text-muted-foreground mt-1">Your public profile brands will see</p>
+          <p className="text-sm text-muted-foreground mt-1">Your stats, rates, and platforms — share with brands</p>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2 text-xs text-muted-foreground font-mono">
-            influencr.app/c/alexrivera
-            <button className="text-muted-foreground hover:text-foreground transition-colors cursor-default"><LinkIcon size={11} /></button>
-          </div>
-          <button className="flex items-center gap-2 bg-foreground/90 text-background px-4 py-2 rounded-lg text-sm font-medium cursor-default">Edit profile</button>
-        </div>
+        <button className="flex items-center gap-2 bg-foreground/90 text-background px-4 py-2 rounded-lg text-sm font-medium cursor-default">Edit profile</button>
       </div>
 
       <div className="bg-card border border-border rounded-xl p-8 mb-5">
@@ -545,17 +543,196 @@ function SettingsView() {
           </div>
         </div>
         <div className="bg-card border border-border rounded-xl p-6">
-          <h2 className="font-semibold text-foreground mb-4">Public profile</h2>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-foreground">Profile visible to brands</p>
-              <p className="text-xs text-muted-foreground mt-0.5">influencr.app/c/alexrivera</p>
+          <h2 className="font-semibold text-foreground mb-4">Notifications</h2>
+          <div className="space-y-3">
+            {[{ label: 'Invoice viewed by brand', enabled: true }, { label: 'New opportunity matches my niche', enabled: true }, { label: 'Contract ready to sign', enabled: true }].map(n => (
+              <div key={n.label} className="flex items-center justify-between">
+                <p className="text-sm text-foreground">{n.label}</p>
+                <div className={`w-8 h-4 rounded-full ${n.enabled ? 'bg-brand' : 'bg-muted'} cursor-default`} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const PIPELINE_DEALS = [
+  { id: '1', brand: 'AG1', stage: 'negotiating', fee: '$1,800', deliverables: [{ title: 'Instagram Reel (60s)', status: 'briefed' }, { title: 'Story set (3)', status: 'filmed' }] },
+  { id: '2', brand: 'Nike Running', stage: 'contracted', fee: '$2,500', deliverables: [{ title: 'TikTok video', status: 'submitted' }, { title: 'Instagram post', status: 'briefed' }] },
+  { id: '3', brand: 'HelloFresh', stage: 'delivered', fee: '$1,200', deliverables: [{ title: 'YouTube integration', status: 'posted' }] },
+  { id: '4', brand: 'Headspace', stage: 'outreach', fee: '?', deliverables: [] },
+]
+const STAGE_COLORS: Record<string, string> = {
+  outreach: 'bg-sky-500/15 text-sky-400', negotiating: 'bg-amber-500/15 text-amber-400',
+  contracted: 'bg-violet-500/15 text-violet-400', delivered: 'bg-blue-500/15 text-blue-400',
+  paid: 'bg-green-500/15 text-green-400',
+}
+const DELIVERABLE_COLORS: Record<string, string> = {
+  briefed: 'bg-muted-foreground/20 text-muted-foreground', filmed: 'bg-amber-500/15 text-amber-400',
+  submitted: 'bg-sky-500/15 text-sky-400', approved: 'bg-green-500/15 text-green-400',
+  posted: 'bg-violet-500/15 text-violet-400',
+}
+
+function PipelineView() {
+  const [expanded, setExpanded] = useState<string | null>('1')
+  const [adding, setAdding] = useState<string | null>(null)
+  return (
+    <div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-foreground">Pipeline</h1>
+        <p className="text-sm text-muted-foreground mt-1">Your active brand deals and deliverable status</p>
+      </div>
+      <div className="space-y-3">
+        {PIPELINE_DEALS.map(deal => (
+          <div key={deal.id} className="bg-card border border-border rounded-xl overflow-hidden">
+            <div
+              className="flex items-center justify-between px-5 py-4 cursor-default hover:bg-muted/20 transition-colors"
+              onClick={() => setExpanded(expanded === deal.id ? null : deal.id)}
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-8 h-8 rounded-full bg-brand/15 flex items-center justify-center text-sm font-bold text-brand shrink-0">{deal.brand[0]}</div>
+                <div>
+                  <p className="font-semibold text-foreground">{deal.brand}</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full capitalize ${STAGE_COLORS[deal.stage] ?? 'bg-muted text-muted-foreground'}`}>{deal.stage}</span>
+                    <span className="text-xs text-muted-foreground">{deal.deliverables.length} deliverables</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-semibold text-foreground">{deal.fee}</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-green-400" />
-              <span className="text-sm text-muted-foreground">Public</span>
+            {expanded === deal.id && (
+              <div className="border-t border-border bg-muted/20 px-5 py-4">
+                {deal.deliverables.length > 0 ? (
+                  <div className="space-y-2 mb-3">
+                    {deal.deliverables.map((d, i) => (
+                      <div key={i} className="flex items-center gap-3">
+                        <div className={`w-2 h-2 rounded-full shrink-0 ${d.status === 'posted' ? 'bg-violet-400' : d.status === 'approved' ? 'bg-green-400' : d.status === 'submitted' ? 'bg-sky-400' : d.status === 'filmed' ? 'bg-amber-400' : 'bg-muted-foreground/40'}`} />
+                        <span className="text-sm text-foreground flex-1">{d.title}</span>
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full capitalize ${DELIVERABLE_COLORS[d.status]}`}>{d.status}</span>
+                        <button className="text-muted-foreground/50 hover:text-red-400 transition-colors cursor-default"><Trash2 size={12} /></button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground mb-3">No deliverables yet</p>
+                )}
+                {adding === deal.id ? (
+                  <div className="flex items-center gap-2">
+                    <input autoFocus placeholder="Deliverable title…" className="flex-1 px-3 py-1.5 rounded-lg border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-brand/40" onKeyDown={e => e.key === 'Escape' && setAdding(null)} />
+                    <button onClick={() => setAdding(null)} className="text-xs text-muted-foreground hover:text-foreground cursor-default">Cancel</button>
+                  </div>
+                ) : (
+                  <button onClick={() => setAdding(deal.id)} className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 cursor-default">
+                    <Plus size={12} /> Add deliverable
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+const EXPENSES = [
+  { date: 'Jun 14', category: 'Equipment', description: 'Ring light replacement', amount: 89, deductible: true },
+  { date: 'Jun 10', category: 'Software', description: 'CapCut Pro subscription', amount: 12, deductible: true },
+  { date: 'Jun 5',  category: 'Travel',   description: 'Flight for brand shoot', amount: 340, deductible: true },
+  { date: 'May 28', category: 'Props',    description: 'Styling items for Nike shoot', amount: 65, deductible: true },
+  { date: 'May 20', category: 'Food',     description: 'Client lunch — HelloFresh meeting', amount: 48, deductible: false },
+]
+const EXPENSE_CATEGORIES = ['Equipment', 'Software', 'Travel', 'Props', 'Food', 'Marketing', 'Other']
+
+function ExpensesView() {
+  const total = EXPENSES.reduce((s, e) => s + e.amount, 0)
+  const deductible = EXPENSES.filter(e => e.deductible).reduce((s, e) => s + e.amount, 0)
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Expenses</h1>
+          <p className="text-sm text-muted-foreground mt-1">Track business costs and tax-deductible items</p>
+        </div>
+        <button className="flex items-center gap-2 bg-foreground/90 text-background px-4 py-2 rounded-lg text-sm font-medium cursor-default"><Plus size={14} /> Log expense</button>
+      </div>
+      <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="bg-card border border-border rounded-xl p-5">
+          <p className="text-xs text-muted-foreground mb-1">Total expenses</p>
+          <p className="text-2xl font-bold text-foreground">${total.toLocaleString()}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">this month</p>
+        </div>
+        <div className="bg-card border border-border rounded-xl p-5">
+          <p className="text-xs text-muted-foreground mb-1">Tax-deductible</p>
+          <p className="text-2xl font-bold text-green-400">${deductible.toLocaleString()}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">estimated write-offs</p>
+        </div>
+      </div>
+      <div className="bg-card border border-border rounded-xl overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="border-b border-border"><tr>{['Date', 'Category', 'Description', 'Amount', 'Deductible'].map(h => <th key={h} className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wide">{h}</th>)}</tr></thead>
+          <tbody className="divide-y divide-border">
+            {EXPENSES.map((e, i) => (
+              <tr key={i} className="hover:bg-muted/30 cursor-default">
+                <td className="px-4 py-3 text-muted-foreground">{e.date}</td>
+                <td className="px-4 py-3"><span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">{e.category}</span></td>
+                <td className="px-4 py-3 text-foreground">{e.description}</td>
+                <td className="px-4 py-3 font-semibold text-foreground">${e.amount}</td>
+                <td className="px-4 py-3">{e.deductible ? <span className="text-xs text-green-400 font-medium flex items-center gap-1"><Check size={11} />Yes</span> : <span className="text-xs text-muted-foreground">No</span>}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+function RateCalcView() {
+  const [followers, setFollowers] = useState('84000')
+  const [eng, setEng] = useState('4.8')
+  const [type, setType] = useState('reel')
+  const f = parseInt(followers) || 0
+  const e = parseFloat(eng) || 0
+  const base = f < 10000 ? 50 : f < 50000 ? 150 : f < 100000 ? 400 : f < 500000 ? 1000 : 3000
+  const engBonus = e > 5 ? 1.3 : e > 3 ? 1.1 : 1.0
+  const typeMultiplier: Record<string, number> = { post: 1, reel: 1.4, story: 0.4, youtube: 2.5, tiktok: 1.2 }
+  const rate = Math.round(base * engBonus * (typeMultiplier[type] ?? 1) / 50) * 50
+  return (
+    <div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-foreground">Rate Calculator</h1>
+        <p className="text-sm text-muted-foreground mt-1">Estimate your rate for different content types</p>
+      </div>
+      <div className="max-w-lg space-y-5">
+        <div className="bg-card border border-border rounded-xl p-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1.5">Followers</label>
+            <input type="number" value={followers} onChange={e => setFollowers(e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-brand/40" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1.5">Engagement rate (%)</label>
+            <input type="number" step="0.1" value={eng} onChange={e => setEng(e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-brand/40" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1.5">Content type</label>
+            <div className="grid grid-cols-3 gap-2">
+              {[['post', 'Post'], ['reel', 'Reel'], ['story', 'Story'], ['youtube', 'YouTube'], ['tiktok', 'TikTok']].map(([val, label]) => (
+                <button key={val} onClick={() => setType(val)} className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors cursor-default ${type === val ? 'bg-brand/15 border-brand/40 text-brand' : 'border-border text-muted-foreground hover:text-foreground'}`}>{label}</button>
+              ))}
             </div>
           </div>
+        </div>
+        <div className="bg-card border border-brand/30 rounded-xl p-6 text-center">
+          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Suggested rate</p>
+          <p className="text-5xl font-extrabold text-foreground">${rate.toLocaleString()}</p>
+          <p className="text-sm text-muted-foreground mt-2">per {type}</p>
+          <p className="text-xs text-muted-foreground/60 mt-4">Range: ${Math.round(rate * 0.7 / 50) * 50}–${Math.round(rate * 1.4 / 50) * 50} depending on usage rights, exclusivity, and timeline</p>
         </div>
       </div>
     </div>
@@ -564,19 +741,22 @@ function SettingsView() {
 
 /* ─── tab config ─────────────────────────────────────────────────────────────── */
 
-type Tab = 'dashboard' | 'invoices' | 'earnings' | 'calendar' | 'media-kit' | 'opportunities' | 'contracts' | 'settings'
+type Tab = 'dashboard' | 'invoices' | 'earnings' | 'calendar' | 'media-kit' | 'opportunities' | 'contracts' | 'pipeline' | 'expenses' | 'rate-calc' | 'settings'
 
 const MAIN_NAV: { id: Tab; label: string; icon: React.ElementType }[] = [
-  { id: 'dashboard',    label: 'Dashboard',    icon: LayoutDashboard },
-  { id: 'invoices',     label: 'Invoices',     icon: Receipt },
-  { id: 'earnings',     label: 'Earnings',     icon: TrendingUp },
-  { id: 'calendar',     label: 'Calendar',     icon: CalendarDays },
-  { id: 'media-kit',    label: 'Media Kit',    icon: User },
-  { id: 'contracts',    label: 'Contracts',    icon: PenLine },
+  { id: 'dashboard',  label: 'Dashboard',  icon: LayoutDashboard },
+  { id: 'media-kit',  label: 'Media Kit',  icon: User },
+  { id: 'invoices',   label: 'Invoices',   icon: Receipt },
+  { id: 'pipeline',   label: 'Pipeline',   icon: Kanban },
+  { id: 'earnings',   label: 'Earnings',   icon: TrendingUp },
+  { id: 'expenses',   label: 'Expenses',   icon: BarChart3 },
+  { id: 'calendar',   label: 'Calendar',   icon: CalendarDays },
+  { id: 'contracts',  label: 'Contracts',  icon: PenLine },
 ]
 
 const GROWTH_NAV: { id: Tab; label: string; icon: React.ElementType }[] = [
-  { id: 'opportunities', label: 'Opportunities', icon: Store },
+  { id: 'opportunities', label: 'Marketplace',    icon: Store },
+  { id: 'rate-calc',     label: 'Rate Calc',      icon: Calculator },
 ]
 
 /* ─── shell ──────────────────────────────────────────────────────────────────── */
@@ -645,12 +825,15 @@ export default function CreatorDemo() {
           </div>
 
           {tab === 'dashboard'     && <DashboardView />}
-          {tab === 'invoices'      && <InvoicesView />}
-          {tab === 'earnings'      && <EarningsView />}
-          {tab === 'calendar'      && <CalendarView />}
           {tab === 'media-kit'     && <MediaKitView />}
-          {tab === 'opportunities' && <OpportunitiesView />}
+          {tab === 'invoices'      && <InvoicesView />}
+          {tab === 'pipeline'      && <PipelineView />}
+          {tab === 'earnings'      && <EarningsView />}
+          {tab === 'expenses'      && <ExpensesView />}
+          {tab === 'calendar'      && <CalendarView />}
           {tab === 'contracts'     && <ContractsView />}
+          {tab === 'opportunities' && <OpportunitiesView />}
+          {tab === 'rate-calc'     && <RateCalcView />}
           {tab === 'settings'      && <SettingsView />}
         </div>
       </main>

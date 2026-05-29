@@ -17,12 +17,8 @@ function FadeUp({ children, delay = 0, className = '' }: { children: React.React
   )
 }
 
-function InView({ children, className = '', delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
-  return (
-    <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-40px' }} transition={{ duration: 0.45, delay, ease }} className={className}>
-      {children}
-    </motion.div>
-  )
+function InView({ children, className = '' }: { children: React.ReactNode; className?: string; delay?: number }) {
+  return <div className={className}>{children}</div>
 }
 
 const FEATURES = [
@@ -33,6 +29,8 @@ const FEATURES = [
   { n: '05', title: 'Contract generator + drawn e-sign', body: 'Generate contracts from templates. Creators draw their real signature in the browser. Full audit trail with name, email, and timestamp. No DocuSign.' },
   { n: '06', title: 'Outreach templates', body: 'Write once, send to many. Variable substitution for name and niche. Track open and reply rates.' },
   { n: '07', title: 'Opportunities marketplace', body: 'Browse brand deals, affiliate programs, and collabs from across the web. Apply directly via each listing — no middleman, no agency fees.' },
+  { n: '08', title: 'Brief Builder', body: 'Generate a structured campaign brief with deliverables, talking points, and deadlines. Share with creators via a direct link — no login required.' },
+  { n: '09', title: 'Content review flow', body: 'Submit drafts for approval, request revisions, and sign off — all without email chains. Full audit trail per piece of content.' },
 ]
 
 const STACK = [
@@ -50,15 +48,17 @@ const BRAND_FEATURES = [
   'Contract generator + drawn e-sign',
   'Content deadline tracking',
   'Payment log',
+  'Brief Builder with shareable links',
+  'Content review & approval flow',
 ]
 
 const CREATOR_FEATURES = [
-  'Public media kit at /c/yourname',
+  'Media kit with stats, rates, and platforms',
   'Browse brand deals & opportunities',
   'Deal tracker kanban',
+  'Deliverable tracker per deal',
   'Invoice generator',
   'E-sign contracts (drawn signature)',
-  'Professional profile URL',
 ]
 
 const HOW_IT_WORKS = [
@@ -77,7 +77,7 @@ const FAQS = [
   { q: 'How is influencr different from Grin or Aspire?', a: 'Grin and Aspire are built for enterprise teams with 50–200+ influencer relationships and dedicated platform specialists. influencr is built for growing brands — teams of 1 to 5 managing real programs without the $300–500/mo price tag. Same core workflows, honest scope, a fraction of the cost.' },
   { q: 'Can I bring my existing influencer list?', a: 'Yes. Upload a CSV with any columns you already use — handles, email, niche, rate, notes — and influencr maps them automatically. No data re-entry.' },
   { q: 'Does influencr integrate with Shopify, TikTok, or Instagram?', a: 'Not currently. influencr is a workflow and relationship tool — it manages your deals, documents, and deadlines. For platform-native analytics and affiliate tracking, tools like Modash or Triple Whale sit alongside it perfectly.' },
-  { q: 'Is my data secure? Who can see my contracts?', a: "Campaign data, contracts, and payments are completely private to your account. Creator media kit profiles are public by design — that's their purpose. All data is encrypted at rest and in transit." },
+  { q: 'Is my data secure? Who can see my contracts?', a: "Campaign data, contracts, payments, and creator media kits are completely private to your account. All data is encrypted at rest and in transit." },
   { q: 'What happens when the 14-day trial ends?', a: "You'll be asked to enter a card and pay $19/mo. No charges happen during the trial, no auto-billing, no surprise at day 15. You keep full access to everything you've built." },
   { q: 'Is it really free for creators forever?', a: "Yes. Creator profiles, deal tracker, invoice generator, and e-sign are free forever. No credit card, no time limit, no hidden tiers. We make money from brands — creators are always free." },
 ]
@@ -153,13 +153,13 @@ export default function LandingPage() {
             </FadeUp>
             <FadeUp delay={0.07}>
               <h1 className="font-display font-extrabold text-white leading-[1.02] tracking-tight" style={{ fontSize: 'clamp(2.75rem, 6vw, 4.5rem)' }}>
-                The influencer<br />
-                <span className="text-brand">operating system.</span>
+                Influencer marketing<br />
+                <span className="text-brand">for $19/mo.</span>
               </h1>
             </FadeUp>
             <FadeUp delay={0.17}>
               <p className="mt-6 text-white/50 max-w-lg leading-relaxed" style={{ fontSize: 'clamp(1rem, 1.5vw, 1.125rem)' }}>
-                CRM, campaigns, contracts, content approvals, and payments in one place. Built for teams replacing their spreadsheet + DocuSign setup. $19/mo.
+                CRM, campaigns, contracts, content approvals, and payments in one place. Built for the teams Grin and Aspire price out.
               </p>
             </FadeUp>
             <FadeUp delay={0.25} className="flex flex-wrap gap-3 mt-10">
@@ -177,13 +177,13 @@ export default function LandingPage() {
 
           {/* What you're replacing */}
           <FadeUp delay={0.2}>
-            <div className="bg-card/4 border border-white/10 rounded-2xl p-5 mt-1">
-              <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-4">What you&apos;re replacing</p>
+            <div className="bg-white/6 border border-white/14 rounded-2xl p-5 mt-1">
+              <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-4">What you&apos;re replacing</p>
               <div>
                 {STACK.map(({ name, price }) => (
-                  <div key={name} className="flex items-center justify-between py-2.5 border-b border-white/6 last:border-0">
-                    <span className="text-sm text-white/30 line-through">{name}</span>
-                    <span className="text-sm text-white/20 line-through">{price}/mo</span>
+                  <div key={name} className="flex items-center justify-between py-2.5 border-b border-white/8 last:border-0">
+                    <span className="text-sm text-white/50 line-through">{name}</span>
+                    <span className="text-sm text-white/40 line-through">{price}/mo</span>
                   </div>
                 ))}
               </div>
@@ -336,7 +336,7 @@ export default function LandingPage() {
       <section className="py-20 px-6 bg-background">
         <div className="max-w-6xl mx-auto">
           <InView className="mb-14">
-            <h2 className="font-display text-4xl font-bold text-foreground mb-2">Seven tools. One subscription.</h2>
+            <h2 className="font-display text-4xl font-bold text-foreground mb-2">Nine tools. One subscription.</h2>
             <p className="text-muted-foreground text-lg">Zero bloat. No upsells. Everything included at $19/mo.</p>
           </InView>
           <div>
@@ -357,8 +357,8 @@ export default function LandingPage() {
       <section className="py-20 px-6 bg-muted/30 border-y border-border">
         <div className="max-w-6xl mx-auto">
           <InView className="mb-12">
-            <h2 className="font-display text-4xl font-bold text-foreground mb-2">Creators build free media kits.</h2>
-            <p className="text-muted-foreground text-lg">Brands on influencr find and contact them directly.</p>
+            <h2 className="font-display text-4xl font-bold text-foreground mb-2">Creators get a free deal HQ.</h2>
+            <p className="text-muted-foreground text-lg">Media kit, pipeline, invoices, and contracts — all in one place.</p>
           </InView>
           <div className="grid lg:grid-cols-[1fr_320px] gap-6">
             {/* Featured creator */}

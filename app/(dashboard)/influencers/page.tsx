@@ -46,7 +46,10 @@ export default async function InfluencersPage({
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  let influencers = await getInfluencers(user!.id)
+  const allInfluencers = await getInfluencers(user!.id)
+  const allTags = Array.from(new Set(allInfluencers.flatMap((i: any) => i.tags ?? []))).sort() as string[]
+
+  let influencers = [...allInfluencers]
   if (status) influencers = influencers.filter((i: any) => i.status === status)
   if (tag) influencers = influencers.filter((i: any) => Array.isArray(i.tags) && i.tags.includes(tag))
   if (platform) influencers = influencers.filter((i: any) => i.platform === platform)
@@ -61,10 +64,6 @@ export default async function InfluencersPage({
     })
   }
 
-  // Collect all unique tags across all contacts
-  const allInfluencers = await getInfluencers(user!.id)
-  const allTags = Array.from(new Set(allInfluencers.flatMap((i: any) => i.tags ?? []))).sort() as string[]
-
   return (
     <div className="p-8">
       <div className="flex items-center justify-between mb-6">
@@ -78,7 +77,7 @@ export default async function InfluencersPage({
             href="/influencers/new"
             className="flex items-center gap-2 bg-foreground/90 text-background px-4 py-2 rounded-lg text-sm font-medium hover:bg-foreground transition-colors"
           >
-            <Plus size={15} /> Add influencer
+            <Plus size={15} /> Add contact
           </Link>
         </div>
       </div>

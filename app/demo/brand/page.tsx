@@ -8,7 +8,7 @@ import {
   Calendar, Check, Clock, Plus,
   Send, Copy, Pencil, Trash2, ExternalLink,
   ShieldCheck, Kanban, PenLine, Link as LinkIcon, Download,
-  Store, DollarSign, Percent, Star,
+  Store, DollarSign, Percent, Star, ClipboardCheck, Calculator,
 } from 'lucide-react'
 import {
   DndContext, DragOverlay,
@@ -800,6 +800,194 @@ function MarketplaceView() {
   )
 }
 
+const REVIEWS = [
+  { id: '1', title: 'Nike Summer Reel Draft', influencer: 'Jake Torres', campaign: 'Summer Glow', status: 'submitted', submission_url: 'https://tiktok.com/@jakefit/video/123', brief: 'Create a 60s TikTok showcasing the running shoes in an outdoor setting. Must include #NikePartner.', feedback: '' },
+  { id: '2', title: 'Headspace Wellness Post',  influencer: 'Sofia Kim',   campaign: 'Back to School', status: 'changes_requested', submission_url: null, brief: 'Instagram post or carousel about your morning wellness routine featuring Headspace.', feedback: 'Great content but the caption needs the required disclosure. Please add #Ad near the top.' },
+  { id: '3', title: 'HelloFresh Recipe Reel',   influencer: 'Emma Chen',   campaign: 'Summer Glow', status: 'approved', submission_url: 'https://instagram.com/reel/abc', brief: 'Show unboxing and cooking one HelloFresh recipe. Keep it under 60s.', feedback: 'Looks great, approved!' },
+  { id: '4', title: 'Away Luggage Travel Post',  influencer: 'Ryan Cole',   campaign: 'Holiday Launch', status: 'pending', submission_url: null, brief: 'Instagram carousel (5 slides) of your travel aesthetic featuring the Away carry-on.', feedback: '' },
+]
+const REVIEW_STATUS: Record<string, { label: string; color: string }> = {
+  pending:           { label: 'Awaiting submission',     color: 'bg-muted text-muted-foreground' },
+  submitted:         { label: 'Submitted — review needed', color: 'bg-amber-500/15 text-amber-400' },
+  approved:          { label: 'Approved',                color: 'bg-green-500/15 text-green-400' },
+  changes_requested: { label: 'Changes requested',       color: 'bg-red-500/15 text-red-400' },
+}
+
+function ReviewsView() {
+  const [expanded, setExpanded] = useState<string | null>('1')
+  const [feedback, setFeedback] = useState('')
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2"><ClipboardCheck size={20} className="text-brand" />Content Reviews</h1>
+          <p className="text-sm text-muted-foreground mt-1">Share a link with creators to collect and approve content drafts</p>
+        </div>
+        <button className="flex items-center gap-2 bg-foreground/90 text-background px-4 py-2 rounded-lg text-sm font-medium cursor-default"><Plus size={14} /> New review</button>
+      </div>
+      <div className="space-y-4">
+        {REVIEWS.map(r => {
+          const cfg = REVIEW_STATUS[r.status]
+          return (
+            <div key={r.id} className="bg-card border border-border rounded-xl p-5">
+              <div className="flex items-start justify-between gap-4 mb-3">
+                <div>
+                  <h3 className="font-semibold text-foreground">{r.title}</h3>
+                  <div className="flex flex-wrap items-center gap-2 mt-1">
+                    <span className="text-xs text-muted-foreground">{r.campaign}</span>
+                    <span className="text-xs text-muted-foreground">· {r.influencer}</span>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cfg.color}`}>{cfg.label}</span>
+                  </div>
+                </div>
+                <button className="text-xs px-3 py-1.5 border border-border rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shrink-0 cursor-default flex items-center gap-1.5"><Copy size={12} />Copy link</button>
+              </div>
+              {r.brief && <p className="text-sm text-foreground/70 border-l-2 border-border pl-3 mb-3 leading-relaxed">{r.brief}</p>}
+              {r.submission_url && (
+                <div className="bg-muted/50 rounded-lg p-3 mb-3">
+                  <p className="text-xs font-medium text-muted-foreground mb-1">Creator submission</p>
+                  <a href={r.submission_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-brand hover:underline"><ExternalLink size={13} />View content</a>
+                </div>
+              )}
+              {r.feedback && <div className="bg-muted/30 rounded-lg p-3 mb-3"><p className="text-xs font-medium text-muted-foreground mb-1">Feedback</p><p className="text-sm text-foreground/80">{r.feedback}</p></div>}
+              {r.status === 'submitted' && (
+                expanded === r.id ? (
+                  <div className="space-y-2">
+                    <textarea value={feedback} onChange={e => setFeedback(e.target.value)} placeholder="Optional feedback…" rows={2} className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-background text-foreground placeholder:text-muted-foreground/50 focus:outline-none resize-none" />
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => setExpanded(null)} className="flex items-center gap-1.5 px-3 py-1.5 bg-green-500/15 text-green-400 hover:bg-green-500/25 rounded-lg text-sm font-medium transition-colors cursor-default"><Check size={13} />Approve</button>
+                      <button onClick={() => setExpanded(null)} className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500/15 text-red-400 hover:bg-red-500/25 rounded-lg text-sm font-medium transition-colors cursor-default">Request changes</button>
+                    </div>
+                  </div>
+                ) : (
+                  <button onClick={() => setExpanded(r.id)} className="text-sm font-medium text-brand hover:underline cursor-default">Review submission →</button>
+                )
+              )}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function BriefBuilderView() {
+  const [form, setForm] = useState({ campaign: 'Summer Glow', type: 'instagram_reel', dos: 'Show the product in natural light\nInclude #NikePartner in caption\nMention key benefit: lightweight sole', donts: "Don't show competitor products\nAvoid indoor gym settings", cta: 'Link in bio', deadline: 'Jul 10, 2026', fee: '2500' })
+  return (
+    <div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-foreground">Brief Builder</h1>
+        <p className="text-sm text-muted-foreground mt-1">Create a clear brief to share with creators</p>
+      </div>
+      <div className="max-w-2xl space-y-4">
+        <div className="bg-card border border-border rounded-xl p-6 space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Campaign</label>
+              <select value={form.campaign} onChange={e => setForm(p => ({...p, campaign: e.target.value}))} className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground text-sm focus:outline-none cursor-default">
+                {CAMPAIGNS.map(c => <option key={c.name}>{c.name}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Content type</label>
+              <select value={form.type} onChange={e => setForm(p => ({...p, type: e.target.value}))} className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground text-sm focus:outline-none cursor-default">
+                {[['instagram_reel','Instagram Reel'],['instagram_post','Instagram Post'],['tiktok','TikTok Video'],['youtube','YouTube Integration'],['story','Story Set']].map(([v,l]) => <option key={v} value={v}>{l}</option>)}
+              </select>
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-muted-foreground mb-1">Do's — required elements</label>
+            <textarea value={form.dos} onChange={e => setForm(p => ({...p, dos: e.target.value}))} rows={3} className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground text-sm focus:outline-none resize-none" />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-muted-foreground mb-1">Don'ts — what to avoid</label>
+            <textarea value={form.donts} onChange={e => setForm(p => ({...p, donts: e.target.value}))} rows={2} className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground text-sm focus:outline-none resize-none" />
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">CTA</label>
+              <input value={form.cta} onChange={e => setForm(p => ({...p, cta: e.target.value}))} className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground text-sm focus:outline-none" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Deadline</label>
+              <input value={form.deadline} onChange={e => setForm(p => ({...p, deadline: e.target.value}))} className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground text-sm focus:outline-none" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Fee ($)</label>
+              <input type="number" value={form.fee} onChange={e => setForm(p => ({...p, fee: e.target.value}))} className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground text-sm focus:outline-none" />
+            </div>
+          </div>
+        </div>
+        <div className="bg-muted/30 border border-border rounded-xl p-6">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Preview</p>
+          <h3 className="font-bold text-foreground mb-1">{form.campaign} — {form.type.replace(/_/g,' ')}</h3>
+          <p className="text-xs text-muted-foreground mb-3">Deadline: {form.deadline} · Fee: ${parseInt(form.fee||'0').toLocaleString()}</p>
+          {form.dos && <div className="mb-2"><p className="text-xs font-semibold text-green-400 mb-1">✓ Do's</p>{form.dos.split('\n').filter(Boolean).map((l,i) => <p key={i} className="text-sm text-foreground/80">• {l}</p>)}</div>}
+          {form.donts && <div><p className="text-xs font-semibold text-red-400 mb-1">✗ Don'ts</p>{form.donts.split('\n').filter(Boolean).map((l,i) => <p key={i} className="text-sm text-foreground/80">• {l}</p>)}</div>}
+        </div>
+        <button className="bg-foreground/90 text-background px-6 py-2.5 rounded-lg text-sm font-semibold hover:bg-foreground transition-colors cursor-default">Save & share brief</button>
+      </div>
+    </div>
+  )
+}
+
+function ROIEstimatorView() {
+  const [budget, setBudget] = useState('8000')
+  const [avgFollowers, setAvgFollowers] = useState('100000')
+  const [engRate, setEngRate] = useState('4.5')
+  const [creators, setCreators] = useState('4')
+  const [cvr, setCvr] = useState('2.5')
+  const [aov, setAov] = useState('65')
+  const b = parseFloat(budget) || 0
+  const f = parseFloat(avgFollowers) || 0
+  const e = parseFloat(engRate) || 0
+  const n = parseInt(creators) || 1
+  const reach = Math.round(f * n)
+  const engagements = Math.round(reach * (e / 100))
+  const clicks = Math.round(engagements * 0.08)
+  const conversions = Math.round(clicks * (parseFloat(cvr) / 100))
+  const revenue = Math.round(conversions * parseFloat(aov))
+  const roi = b > 0 ? Math.round(((revenue - b) / b) * 100) : 0
+  return (
+    <div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-foreground flex items-center gap-2"><Calculator size={20} className="text-brand" />ROI Estimator</h1>
+        <p className="text-sm text-muted-foreground mt-1">Forecast campaign return before you spend</p>
+      </div>
+      <div className="grid lg:grid-cols-2 gap-6">
+        <div className="bg-card border border-border rounded-xl p-6 space-y-4">
+          <h2 className="font-semibold text-foreground">Campaign inputs</h2>
+          {[['Total budget ($)', budget, setBudget], ['Avg. followers per creator', avgFollowers, setAvgFollowers], ['Avg. engagement rate (%)', engRate, setEngRate], ['Number of creators', creators, setCreators], ['Conversion rate (%)', cvr, setCvr], ['Avg. order value ($)', aov, setAov]].map(([label, val, set]) => (
+            <div key={label as string}>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">{label as string}</label>
+              <input type="number" value={val as string} onChange={e => (set as (v: string) => void)(e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-brand/40" />
+            </div>
+          ))}
+        </div>
+        <div className="space-y-3">
+          {[
+            { label: 'Total reach', value: reach.toLocaleString(), sub: `across ${creators} creators` },
+            { label: 'Estimated engagements', value: engagements.toLocaleString(), sub: `${engRate}% engagement rate` },
+            { label: 'Estimated clicks', value: clicks.toLocaleString(), sub: '~8% of engagements' },
+            { label: 'Estimated conversions', value: conversions.toLocaleString(), sub: `${cvr}% CVR` },
+            { label: 'Estimated revenue', value: `$${revenue.toLocaleString()}`, sub: `$${aov} AOV` },
+          ].map(({ label, value, sub }) => (
+            <div key={label} className="bg-card border border-border rounded-xl p-4">
+              <p className="text-xs text-muted-foreground">{label}</p>
+              <p className="text-2xl font-bold text-foreground mt-0.5">{value}</p>
+              <p className="text-xs text-muted-foreground/60 mt-0.5">{sub}</p>
+            </div>
+          ))}
+          <div className={`rounded-xl p-4 border ${roi >= 0 ? 'bg-green-500/10 border-green-500/20' : 'bg-red-500/10 border-red-500/20'}`}>
+            <p className="text-xs text-muted-foreground">Estimated ROI</p>
+            <p className={`text-3xl font-extrabold mt-0.5 ${roi >= 0 ? 'text-green-400' : 'text-red-400'}`}>{roi >= 0 ? '+' : ''}{roi}%</p>
+            <p className="text-xs text-muted-foreground/60 mt-0.5">vs. ${parseInt(budget||'0').toLocaleString()} spend</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function SettingsView() {
   return (
     <div>
@@ -840,20 +1028,23 @@ function SettingsView() {
 
 /* ─── tab config ─────────────────────────────────────────────────────────────── */
 
-type Tab = 'dashboard' | 'influencers' | 'campaigns' | 'payments' | 'pipeline' | 'marketplace' | 'outreach' | 'contracts' | 'settings'
+type Tab = 'dashboard' | 'influencers' | 'campaigns' | 'payments' | 'pipeline' | 'marketplace' | 'outreach' | 'contracts' | 'reviews' | 'brief-builder' | 'roi' | 'settings'
 
 const MAIN_NAV: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: 'dashboard',   label: 'Dashboard',   icon: LayoutDashboard },
-  { id: 'influencers', label: 'Contacts', icon: Users },
+  { id: 'influencers', label: 'Contacts',    icon: Users },
   { id: 'campaigns',   label: 'Campaigns',   icon: BarChart3 },
   { id: 'payments',    label: 'Payments',    icon: CreditCard },
 ]
 
 const GROWTH_NAV: { id: Tab; label: string; icon: React.ElementType }[] = [
-  { id: 'pipeline',    label: 'Pipeline',     icon: Kanban },
-  { id: 'marketplace', label: 'Opportunities', icon: Store },
-  { id: 'outreach',    label: 'Outreach',     icon: Mail },
-  { id: 'contracts',   label: 'Contracts',    icon: FileText },
+  { id: 'pipeline',      label: 'Pipeline',       icon: Kanban },
+  { id: 'marketplace',   label: 'Opportunities',  icon: Store },
+  { id: 'outreach',      label: 'Outreach',       icon: Mail },
+  { id: 'contracts',     label: 'Contracts',      icon: FileText },
+  { id: 'reviews',       label: 'Reviews',        icon: ClipboardCheck },
+  { id: 'brief-builder', label: 'Brief Builder',  icon: FileText },
+  { id: 'roi',           label: 'ROI Estimator',  icon: Calculator },
 ]
 
 /* ─── shell ──────────────────────────────────────────────────────────────────── */
@@ -921,15 +1112,18 @@ export default function BrandDemo() {
             </Link>
           </div>
 
-          {tab === 'dashboard'   && <DashboardView />}
-          {tab === 'influencers' && <InfluencersView />}
-          {tab === 'campaigns'   && <CampaignsView />}
-          {tab === 'payments'    && <PaymentsView />}
-          {tab === 'pipeline'    && <PipelineView />}
-          {tab === 'marketplace' && <MarketplaceView />}
-          {tab === 'outreach'    && <OutreachView />}
-          {tab === 'contracts'   && <ContractsView />}
-          {tab === 'settings'    && <SettingsView />}
+          {tab === 'dashboard'     && <DashboardView />}
+          {tab === 'influencers'   && <InfluencersView />}
+          {tab === 'campaigns'     && <CampaignsView />}
+          {tab === 'payments'      && <PaymentsView />}
+          {tab === 'pipeline'      && <PipelineView />}
+          {tab === 'marketplace'   && <MarketplaceView />}
+          {tab === 'outreach'      && <OutreachView />}
+          {tab === 'contracts'     && <ContractsView />}
+          {tab === 'reviews'       && <ReviewsView />}
+          {tab === 'brief-builder' && <BriefBuilderView />}
+          {tab === 'roi'           && <ROIEstimatorView />}
+          {tab === 'settings'      && <SettingsView />}
         </div>
       </main>
     </div>

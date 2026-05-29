@@ -69,7 +69,7 @@ const jsonLd = {
         'Payment log',
         'Creator discovery',
         'Influencer outreach',
-        'Media kit pages for creators',
+        'Media kit for creators',
         'Invoice generator for creators',
         'Deal tracker kanban for creators',
       ],
@@ -122,7 +122,7 @@ const jsonLd = {
           name: 'Is my data secure on influencr? Who can see my contracts?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: "Campaign data, contracts, and payments are completely private to your account. Creator media kit profiles are public by design — that's their purpose. All data is encrypted at rest and in transit.",
+            text: "Campaign data, contracts, payments, and creator media kits are completely private to your account. All data is encrypted at rest and in transit.",
           },
         },
         {

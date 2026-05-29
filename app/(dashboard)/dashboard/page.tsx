@@ -1,9 +1,11 @@
 import { createClient } from '@/lib/supabase/server'
 import { getDashboardStats } from '@/lib/data'
+import { getReengagementAlerts } from '@/lib/alerts-data'
 import { Users, BarChart3, Calendar, CreditCard } from 'lucide-react'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
 import DashboardCharts from '@/components/dashboard-charts'
+import AlertsPanel from '@/components/alerts-panel'
 
 const CAMPAIGN_STATUSES = ['planning', 'active', 'paused', 'completed']
 const DEAL_STATUSES = ['outreach', 'negotiating', 'confirmed', 'declined']
@@ -27,10 +29,11 @@ export default async function DashboardPage() {
   const sixMonthsAgo = new Date()
   sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6)
 
-  const [statsData, { data: allCampaigns }, { data: paidPayments }] = await Promise.all([
+  const [statsData, { data: allCampaigns }, { data: paidPayments }, alerts] = await Promise.all([
     getDashboardStats(user!.id),
     supabase.from('campaigns').select('id, status').eq('user_id', user!.id),
     supabase.from('payments').select('amount, paid_at').eq('user_id', user!.id).eq('status', 'paid').gte('paid_at', sixMonthsAgo.toISOString()),
+    getReengagementAlerts(user!.id),
   ])
 
   const campaignIds = (allCampaigns ?? []).map((c: { id: string }) => c.id)
@@ -75,6 +78,8 @@ export default async function DashboardPage() {
         <h1 className="font-display text-2xl font-bold text-foreground">Dashboard</h1>
         <p className="text-sm text-muted-foreground mt-1">Overview of your influencer relationships</p>
       </div>
+
+      <AlertsPanel alerts={alerts} />
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

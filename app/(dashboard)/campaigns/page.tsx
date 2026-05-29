@@ -6,9 +6,9 @@ import type { Campaign } from '@/types'
 
 const statusColors: Record<string, string> = {
   planning: 'bg-muted text-muted-foreground',
-  active: 'bg-green-100 text-green-700',
-  completed: 'bg-blue-100 text-blue-700',
-  paused: 'bg-amber-100 text-amber-700',
+  active: 'bg-green-500/15 text-green-400',
+  completed: 'bg-blue-500/15 text-blue-400',
+  paused: 'bg-amber-500/15 text-amber-400',
 }
 
 export default async function CampaignsPage() {
@@ -20,6 +20,16 @@ export default async function CampaignsPage() {
     .select('*')
     .eq('user_id', user!.id)
     .order('created_at', { ascending: false })
+
+  const campaignIds = (campaigns ?? []).map((c: Campaign) => c.id)
+  const { data: dealRows } = campaignIds.length > 0
+    ? await supabase.from('campaign_influencers').select('campaign_id').in('campaign_id', campaignIds)
+    : { data: [] }
+
+  const creatorCounts = (dealRows ?? []).reduce((acc: Record<string, number>, d: any) => {
+    acc[d.campaign_id] = (acc[d.campaign_id] ?? 0) + 1
+    return acc
+  }, {})
 
   return (
     <div className="p-8">
@@ -52,18 +62,18 @@ export default async function CampaignsPage() {
             <Link
               key={c.id}
               href={`/campaigns/${c.id}`}
-              className="bg-card border border-border rounded-xl p-5 hover:border-zinc-300 hover:shadow-sm transition-all"
+              className="bg-card border border-border rounded-xl p-5 hover:border-brand/30 transition-all"
             >
               <div className="flex items-start justify-between mb-3">
                 <h3 className="font-semibold text-foreground">{c.name}</h3>
-                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusColors[c.status]}`}>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ml-2 ${statusColors[c.status]}`}>
                   {c.status}
                 </span>
               </div>
               {c.description && (
                 <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{c.description}</p>
               )}
-              <div className="flex items-center justify-between text-xs text-muted-foreground/70">
+              <div className="flex items-center justify-between text-xs text-muted-foreground/70 mb-3">
                 <span>
                   {c.start_date ? new Date(c.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}
                   {' → '}
@@ -74,6 +84,11 @@ export default async function CampaignsPage() {
                     {formatCurrency(c.budget, c.currency)}
                   </span>
                 )}
+              </div>
+              <div className="pt-3 border-t border-border">
+                <span className="text-xs text-muted-foreground">
+                  {creatorCounts[c.id] ?? 0} creator{(creatorCounts[c.id] ?? 0) !== 1 ? 's' : ''}
+                </span>
               </div>
             </Link>
           ))}

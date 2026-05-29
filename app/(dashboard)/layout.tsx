@@ -25,7 +25,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <div className="flex h-screen bg-background overflow-hidden">
       <Sidebar userEmail={user.email ?? ''} />
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto pt-12 md:pt-0">
         {isBlocked ? (
           <div className="flex flex-col items-center justify-center h-full p-8 text-center">
             <div className="max-w-md">

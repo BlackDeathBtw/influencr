@@ -28,9 +28,9 @@ interface Props {
 }
 
 const statusColors: Record<string, string> = {
-  pending: 'bg-amber-100 text-amber-700',
-  paid: 'bg-green-100 text-green-700',
-  overdue: 'bg-red-100 text-red-700',
+  pending: 'bg-amber-500/15 text-amber-400',
+  paid: 'bg-green-500/15 text-green-400',
+  overdue: 'bg-red-500/15 text-red-400',
 }
 
 export default function PaymentManager({ payments, influencers, campaigns, userId }: Props) {
@@ -101,8 +101,8 @@ export default function PaymentManager({ payments, influencers, campaigns, userI
       {/* Summary */}
       <div className="grid grid-cols-3 gap-4 mb-6">
         {[
-          { label: 'Pending', value: formatCurrency(totalPending), cls: 'text-amber-600' },
-          { label: 'Paid', value: formatCurrency(totalPaid), cls: 'text-green-600' },
+          { label: 'Pending', value: formatCurrency(totalPending), cls: 'text-amber-400' },
+          { label: 'Paid', value: formatCurrency(totalPaid), cls: 'text-green-400' },
           { label: 'Total', value: formatCurrency(totalPending + totalPaid), cls: 'text-foreground' },
         ].map(({ label, value, cls }) => (
           <div key={label} className="bg-card border border-border rounded-xl p-4">
@@ -218,7 +218,7 @@ export default function PaymentManager({ payments, influencers, campaigns, userI
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center gap-2 justify-end">
                       {p.status !== 'paid' && (
-                        <button onClick={() => markPaid(p.id)} className="text-green-600 hover:text-green-700" title="Mark paid">
+                        <button onClick={() => markPaid(p.id)} className="text-green-400 hover:text-green-300" title="Mark paid">
                           <Check size={14} />
                         </button>
                       )}

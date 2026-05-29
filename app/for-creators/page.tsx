@@ -19,7 +19,7 @@ const features = [
     icon: FileText,
     title: 'Media Kit',
     description:
-      'Get a shareable /c/yourname page that brands can actually find. Show your stats, niches, and rates in one place.',
+      'Keep your stats, rates, and platform numbers in one place. Share it with brands or attach it to pitches — always up to date.',
   },
   {
     icon: PenLine,
@@ -37,7 +37,7 @@ const features = [
 
 const freeItems = [
   'Opportunities marketplace — browse & apply',
-  'Media kit page at /c/yourname',
+  'Media kit with stats, rates, and platforms',
   'Deal tracker kanban',
   'Invoice generator',
   'E-sign contracts with drawn signature',
